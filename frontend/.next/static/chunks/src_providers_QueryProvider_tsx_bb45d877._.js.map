@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/pet%20projects/Trainix/frontend/src/providers/QueryProvider.tsx"],"sourcesContent":["\"use client\"\r\nimport { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\r\nimport { useState } from \"react\";\r\n\r\nconst QueryProvider = ({children}:{children:React.ReactNode}) => {\r\n const [queryClient] = useState(()=>new QueryClient())\r\n    return (\r\n        <QueryClientProvider client={queryClient}>\r\n            {children}\r\n        </QueryClientProvider>\r\n         )   \r\n}\r\n\r\n            export default QueryProvider;"],"names":[],"mappings":";;;;AACA;AAAA;AACA;;;AAFA;;;AAIA,MAAM,gBAAgB;QAAC,EAAC,QAAQ,EAA4B;;IAC3D,MAAM,CAAC,YAAY,GAAG,CAAA,GAAA,6JAAA,CAAA,WAAQ,AAAD;kCAAE,IAAI,IAAI,gLAAA,CAAA,cAAW;;IAC/C,qBACI,6LAAC,yLAAA,CAAA,sBAAmB;QAAC,QAAQ;kBACxB;;;;;;AAGb;GAPM;KAAA;uCASqB","debugId":null}}]
+}
