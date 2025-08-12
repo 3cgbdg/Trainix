@@ -1,9 +1,27 @@
 "use client"
 
-import { Bolt, Calendar, CalendarDays } from "lucide-react"
+import { api } from "@/api/axiosInstance"
+import { useQuery } from "@tanstack/react-query"
+import { Bolt, CalendarDays } from "lucide-react"
 import Link from "next/link"
 
+
+
+
 const page = () => {
+
+    const getWorkouts = async()=>{
+        const res = await api.get("api/fitness-plan/workouts");
+        return res.data;
+    }
+    
+    const {data} = useQuery({
+        queryKey:["workouts"],
+        queryFn:getWorkouts,
+        
+        
+    })
+    console.log(data);
     return (
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Workout Plan</h1>

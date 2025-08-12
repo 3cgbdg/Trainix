@@ -7,6 +7,7 @@ interface IUser {
     email: string,
     dateOfBirth: Date,
     gender: string,
+    streak:number,
     metrics: {
         weight: number,
         height: number,
@@ -29,6 +30,7 @@ const userSchema = new mongoose.Schema<IUser>({
     email: { type: String, unique: true },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: ["Male", "Female"], required: true },
+    streak: { type: Number ,default:0},
     metrics: {
         height: { type: Number },
         weight: { type: Number },

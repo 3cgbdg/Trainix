@@ -14,6 +14,7 @@ export interface IUser {
         shoulderAngle:number
 
     },
+    streak:number,
     targetWeight: number,
     fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
     primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",

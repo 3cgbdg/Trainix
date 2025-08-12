@@ -4,7 +4,7 @@ import { UploadIcon } from 'lucide-react';
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }: { mutate: UseMutateFunction<any, Error, File, unknown>, isPending: boolean, setFileName: Dispatch<SetStateAction<string>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
+const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }: { mutate: UseMutateFunction<any, unknown, File, unknown>, isPending: boolean, setFileName: Dispatch<SetStateAction<string>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
             setFileName(acceptedFiles[0].name);
@@ -12,6 +12,7 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
         }
     }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
     return (
         <div className="flex flex-col items-center ">
             <div className="w-[900px] text-center">

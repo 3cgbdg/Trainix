@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 // route import
 import authRoute from "./routes/authRoutes"
-import fitnessPlanRoute from "./routes/fitnessPlan";
+import fitnessPlanRoute from "./routes/fitnessPlanRoutes";
 // dotenv config
 dotenv.config();
 

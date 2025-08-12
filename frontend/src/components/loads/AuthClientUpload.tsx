@@ -18,6 +18,7 @@ const AuthClientUpload = () => {
                 router.push("/auth/login");
             }
         }
+        
         getUser();
 
     }, [router]);

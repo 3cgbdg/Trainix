@@ -555,6 +555,14 @@
     margin-bottom: calc(var(--spacing) * 2);
   }
 
+  .mb-2\.5 {
+    margin-bottom: calc(var(--spacing) * 2.5);
+  }
+
+  .mb-3\.5 {
+    margin-bottom: calc(var(--spacing) * 3.5);
+  }
+
   .mb-4 {
     margin-bottom: calc(var(--spacing) * 4);
   }
@@ -589,6 +597,10 @@
 
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
+  }
+
+  .ml-auto {
+    margin-left: auto;
   }
 
   .flex {
@@ -647,6 +659,10 @@
 
   .max-w-\[182px\] {
     max-width: 182px;
+  }
+
+  .max-w-\[272px\] {
+    max-width: 272px;
   }
 
   .max-w-\[358px\] {
@@ -733,6 +749,10 @@
     align-items: center;
   }
 
+  .items-end {
+    align-items: flex-end;
+  }
+
   .items-start {
     align-items: flex-start;
   }
@@ -743,6 +763,10 @@
 
   .justify-center {
     justify-content: center;
+  }
+
+  .justify-end {
+    justify-content: flex-end;
   }
 
   .gap-0\.5 {
@@ -769,8 +793,16 @@
     gap: calc(var(--spacing) * 4);
   }
 
+  .gap-5\.5 {
+    gap: calc(var(--spacing) * 5.5);
+  }
+
   .gap-6 {
     gap: calc(var(--spacing) * 6);
+  }
+
+  .gap-10 {
+    gap: calc(var(--spacing) * 10);
   }
 
   .overflow-hidden {
@@ -845,6 +877,10 @@
 
   .\!bg-neutral-700 {
     background-color: var(--color-neutral-700) !important;
+  }
+
+  .\!bg-white {
+    background-color: var(--color-white) !important;
   }
 
   .bg-\[\#CDE7C7FF\] {
@@ -941,6 +977,10 @@
     padding-top: calc(var(--spacing) * 7);
   }
 
+  .pt-8 {
+    padding-top: calc(var(--spacing) * 8);
+  }
+
   .pt-\[25px\] {
     padding-top: 25px;
   }
@@ -1030,6 +1070,11 @@
     line-height: 22px;
   }
 
+  .leading-\[26px\] {
+    --tw-leading: 26px;
+    line-height: 26px;
+  }
+
   .leading-none {
     --tw-leading: 1;
     line-height: 1;
@@ -1058,6 +1103,10 @@
     color: #468438;
   }
 
+  .text-black {
+    color: var(--color-black);
+  }
+
   .text-custom-black {
     color: #19191f;
   }
@@ -1080,6 +1129,10 @@
 
   .text-neutral-900 {
     color: var(--color-neutral-900);
+  }
+
+  .text-red {
+    color: #dc6660;
   }
 
   .text-red-500 {
@@ -1290,6 +1343,7 @@ body {
 }
 
 .page-title {
+  font-family: var(--font-outfit);
   font-size: var(--text-3xl);
   line-height: var(--tw-leading, var(--text-3xl--line-height));
   --tw-leading: calc(var(--spacing) * 9);
@@ -1300,6 +1354,7 @@ body {
 }
 
 .banner-title {
+  font-family: var(--font-outfit);
   font-size: var(--text-2xl);
   line-height: var(--tw-leading, var(--text-2xl--line-height));
   --tw-leading: calc(var(--spacing) * 8);
@@ -1310,6 +1365,7 @@ body {
 }
 
 .section-title {
+  font-family: var(--font-outfit);
   font-size: var(--text-2xl);
   line-height: var(--tw-leading, var(--text-2xl--line-height));
   --tw-leading: calc(var(--spacing) * 8);

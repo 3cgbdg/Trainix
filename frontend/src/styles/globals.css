@@ -11,6 +11,7 @@
   --font-outfit: var(--font-outfit);
   --color-green: #58a446ff;
   --color-custom-black: #19191fff;
+  --color-red:#DC6660FF;
 }
 
 body {
@@ -36,13 +37,13 @@ body {
   @apply text-sm  w-full inline-flex items-center justify-center leading-5.5 font-medium  bg-transparent  p-2.5 transition-colors cursor-pointer rounded-md  border-[1px]  border-neutral-300 text-neutral-900;
 }
 .page-title {
-  @apply text-3xl leading-9 font-bold text-neutral-900;
+  @apply text-3xl leading-9 font-bold text-neutral-900 font-outfit;
 }
 .banner-title {
-  @apply text-2xl leading-8 font-bold text-[#19191FFF];
+  @apply text-2xl leading-8 font-bold text-[#19191FFF] font-outfit;
 }
 .section-title {
-  @apply text-2xl leading-8 font-bold text-neutral-900;
+  @apply text-2xl leading-8 font-bold text-neutral-900 font-outfit;
 }
 .link {
   @apply text-sm leading-5.5 font-medium text-neutral-600 hover:text-green cursor-pointer transition-colors;

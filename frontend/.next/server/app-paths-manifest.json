@@ -1,5 +1,6 @@
 {
   "/(main)/ai-analysis/page": "app/(main)/ai-analysis/page.js",
   "/(main)/dashboard/page": "app/(main)/dashboard/page.js",
+  "/(main)/workout-plan/page": "app/(main)/workout-plan/page.js",
   "/_not-found/page": "app/_not-found/page.js"
 }

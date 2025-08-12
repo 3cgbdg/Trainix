@@ -1,10 +1,11 @@
-'use client';
+"use client"
+import { api } from '@/api/axiosInstance';
 import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { reportExtractFunc } from '@/utils/report';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import axios, { isAxiosError } from 'axios';
 import { useState } from 'react';
 
 const Page = () => {
@@ -16,24 +17,24 @@ const Page = () => {
     const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false);
     const sendPhoto = async (file: File) => {
         const formData = new FormData();
-        formData.append("image", file);
-        console.log("sdad1")
-        console.log("user", user);
-        const userInfo = {
-            height: user?.metrics.height,
-            weight: user?.metrics.weight,
-            targetWeight: user?.targetWeight,
-            primaryFitnessGoal: user?.primaryFitnessGoal,
-            fitnessLevel: user?.fitnessLevel,
+        if(!user){
+            return null;
         }
-        console.log("sdad2")
+        formData.append("image", file);
+        const userInfo = {
+            height: user.metrics.height,
+            weight: user.metrics.weight,
+            targetWeight: user.targetWeight,
+            primaryFitnessGoal: user.primaryFitnessGoal,
+            fitnessLevel: user.fitnessLevel,
+            gender:user.gender,
+        }
 
         formData.append("userInfo", JSON.stringify(userInfo));
         const res = await axios.post("http://127.0.0.1:8000/api", formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
-        console.log("gello3");
 
         return res.data;
     }
@@ -43,23 +44,34 @@ const Page = () => {
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
             setIsAnalyzed(true);
-            try {
-                await reportExtractFunc(data.AIreport);
-            console.log("dasd");
-
-            } catch (err) {
-                console.error(err);
-            }
-            console.dir(data, { depth: null });
+            await reportExtractFunc(data);
         },
+        onError:(err:unknown)=>{
+            if(isAxiosError(err) && err.response){
+                console.error(err.response.data,"hello");
+            }
+        }
 
+    })
+
+    const getAnalysis = async ()=>{
+        const res = await api.get("api/fitness-plan/analysis");
+        return res.data;
+    }
+
+
+    const {data} = useQuery({
+        queryKey:["getAnalysis"],
+        queryFn:getAnalysis,
+        
+        
     })
     return (
 
         <div className="">
-            {!isAnalyzed ? <UploadPhoto isPending={mutation.isPending} file={file} fileName={fileName} setFile={setFile} mutate={mutation.mutate} setFileName={setFileName} />
+            { ( !data?.advices && !isAnalyzed)  ? <UploadPhoto isPending={mutation.isPending} file={file} fileName={fileName} setFile={setFile} mutate={mutation.mutate} setFileName={setFileName} />
                 :
-                <AnalyzedResults />
+                <AnalyzedResults  data={data}/>
             }
         </div>
     );

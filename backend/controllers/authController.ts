@@ -149,7 +149,7 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
 
 export const profile = async (req: Request, res: Response): Promise<void> => {
     try {
-        const profile = await User.findById((req as AuthRequest).userId);
+        const profile = await User.findById((req as AuthRequest).userId).select("-password");
         res.json({user:profile});
         return;
     } catch (err) {

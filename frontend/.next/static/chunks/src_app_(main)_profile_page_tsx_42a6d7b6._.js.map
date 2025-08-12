@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/pet%20projects/Trainix/frontend/src/app/%28main%29/profile/page.tsx"],"sourcesContent":["\"use client\"\r\n\r\nconst Page = () => {\r\n  return (\r\n    <div>Page</div>\r\n  )\r\n}\r\n\r\nexport default Page"],"names":[],"mappings":";;;;AAAA;;AAEA,MAAM,OAAO;IACX,qBACE,6LAAC;kBAAI;;;;;;AAET;KAJM;uCAMS","debugId":null}}]
+}

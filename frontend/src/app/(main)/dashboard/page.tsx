@@ -1,9 +1,10 @@
 "use client"
 import { useAppSelector } from '@/hooks/reduxHooks';
-import { ArrowUp, Goal } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { ArrowUp, Bike, Goal, MonitorOff, Scale } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 import {
     LineChart,
@@ -16,25 +17,22 @@ import {
     Legend,
 } from "recharts";
 
-const data = [
-    { month: "Jan", weight: 100 },
-    { month: "Feb", weight: 96 },
-    { month: "Mar", weight: 90 },
-    { month: "Apr", weight: 85 },
-    { month: "May", weight: 79 },
-    { month: "Jun", weight: 75 },
-];
+
 
 const page = () => {
     const { user } = useAppSelector(state => state.auth);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    useEffect(() => {
-        if (user) {
-            setIsLoading(false);
-        }
-    }, [user])
+
+    const getNumbers =async ()=>{
+        const res = await axios.get(`http://localhost:5200/api/fitness-plan/reports/numbers`,{withCredentials:true,params:{date:new Date()}});
+        console.log(res.data);
+        return res.data;
+    }
+
+    const {data,isLoading}= useQuery({
+        queryKey:["numbers",new Date().toISOString().split('T')[0]],
+        queryFn:getNumbers,
+    })
     return (
-        !isLoading  &&
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Dashboard Overview</h1>
             <div className=" _dashboard-banner py-1 px-8  h-60 flex items-center justify-between  ">
@@ -45,41 +43,45 @@ const page = () => {
                 <Image className='rounded-lg _border' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />
 
             </div>
-            <div className="flex flex-col gap-4 ">
+            {!isLoading && <>
+              <div className="flex flex-col gap-4 ">
                 <h2 className='section-title'>Your Key Metrics</h2>
                 <div className="grid grid-cols-4 gap-6">
+                    
                     <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
                         <div className="flex items-center justify-between mb-4 text-neutral-600">
-                            <span className='text-sm leading-5 font-medium '>Daily Calorie Goal</span>
-                            <Goal size={20} />
+                            <span className='text-sm leading-5 font-medium '>Current Weight</span>
+                            <MonitorOff size={20} />
                         </div>
-                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">1850 / 2200 kcal</div>
-                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'><ArrowUp size={14} /> 75% complete</span>
+                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.weight} kg</div>
+                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'>{data.lastWeight &&`Last week - ${data.lastWeight}`}</span>
+                    </div>
+                          <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
+                        <div className="flex items-center justify-between mb-4 text-neutral-600">
+                            <span className='text-sm leading-5 font-medium '>BMI</span>
+                            <Scale size={20} />
+                        </div>
+                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{Number(data.bmi).toFixed(2)}</div>
+                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'>{data.bmi>31 ?"Obese" :data.bmi>24.5 ? "Overweight" :data.bmi<18.5?"Underweight":"Healthy" }</span>
                     </div>
                     <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
                         <div className="flex items-center justify-between mb-4 text-neutral-600">
                             <span className='text-sm leading-5 font-medium '>Daily Calorie Goal</span>
                             <Goal size={20} />
                         </div>
-                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">1850 / 2200 kcal</div>
-                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'><ArrowUp size={14} /> 75% complete</span>
+                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.calories} ccal</div>
                     </div>
+
                     <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
                         <div className="flex items-center justify-between mb-4 text-neutral-600">
-                            <span className='text-sm leading-5 font-medium '>Daily Calorie Goal</span>
-                            <Goal size={20} />
+                            <span className='text-sm leading-5 font-medium '>Workout Streak</span>
+                            <Bike size={20} />
                         </div>
-                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">1850 / 2200 kcal</div>
-                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'><ArrowUp size={14} /> 75% complete</span>
+                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.streak} days</div>
+                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'>{data.streak===true && <ArrowUp size={14} />} Longest streak: {user?.streak ?? 0} days</span>
                     </div>
-                    <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
-                        <div className="flex items-center justify-between mb-4 text-neutral-600">
-                            <span className='text-sm leading-5 font-medium '>Daily Calorie Goal</span>
-                            <Goal size={20} />
-                        </div>
-                        <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">1850 / 2200 kcal</div>
-                        <span className='text-sm leading-5 text-neutral-900 flex items-center gap-1'><ArrowUp size={14} /> 75% complete</span>
-                    </div>
+
+              
                 </div>
 
             </div>
@@ -93,7 +95,7 @@ const page = () => {
                         <p className="text-sm leading-5 text-neutral-600 ">Your progress at a glance.</p>
                     </div>
                     <ResponsiveContainer width="100%" height={350}>
-                        <LineChart data={data}>
+                        <LineChart data={data.weightsData}>
                             <CartesianGrid vertical={false} strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis domain={['auto', 'auto']} />
@@ -120,7 +122,7 @@ const page = () => {
                         </div>
                         <div className="flex flex-col justify-between grow-1">
                             <Image className='rounded-lg ' src={"/dashboard/workout.jpg"} width={310} height={174} alt='workout image' />
-                            <Link href={`/workout-plan/${new Date().getDate()}`} className='mt-4 button-green'>View Workout</Link>
+                            <Link href={`/workout-plan/${data.day}`} className='mt-4 button-green'>View Workout</Link>
                         </div>
                     </div>
                     <div className="_border rounded-[10px] p-6 pt-[25px] max-w-[358px] flex flex-col bg-white">
@@ -147,6 +149,9 @@ const page = () => {
                 </div>
 
             </div>
+            
+            </>}
+          
         </div>
     )
 }
