@@ -19,3 +19,17 @@ export interface IUser {
     fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
     primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",
 }
+
+export interface IDayPlan {
+  day: string;
+  exercises: IExercise[];
+  status: "Pending" | 'Completed' | "Missed",
+  calories: number,
+  date: Date,
+}
+export interface IExercise {
+  title: string;
+  repeats: number | null;
+  time: number | null;
+
+}

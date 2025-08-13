@@ -255,6 +255,8 @@
     --color-black: #000;
     --color-white: #fff;
     --spacing: .25rem;
+    --text-xs: .75rem;
+    --text-xs--line-height: calc(1 / .75);
     --text-sm: .875rem;
     --text-sm--line-height: calc(1.25 / .875);
     --text-lg: 1.125rem;
@@ -267,11 +269,15 @@
     --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
     --text-4xl--line-height: calc(2.5 / 2.25);
+    --text-6xl: 3.75rem;
+    --text-6xl--line-height: 1;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
+    --radius-sm: .25rem;
     --radius-md: .375rem;
     --radius-lg: .5rem;
+    --radius-xl: .75rem;
     --radius-2xl: 1rem;
     --animate-spin: spin 1s linear infinite;
     --default-transition-duration: .15s;
@@ -680,6 +686,14 @@
     right: calc(var(--spacing) * 0);
   }
 
+  .-z-1 {
+    z-index: calc(1 * -1);
+  }
+
+  .z-1 {
+    z-index: 1;
+  }
+
   .container {
     width: 100%;
   }
@@ -719,12 +733,20 @@
     margin-right: auto;
   }
 
+  .my-2\.5 {
+    margin-block: calc(var(--spacing) * 2.5);
+  }
+
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
 
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
+  }
+
+  .mt-auto {
+    margin-top: auto;
   }
 
   .mb-1 {
@@ -767,6 +789,10 @@
     margin-bottom: calc(var(--spacing) * 8);
   }
 
+  .mb-9 {
+    margin-bottom: calc(var(--spacing) * 9);
+  }
+
   .mb-10 {
     margin-bottom: calc(var(--spacing) * 10);
   }
@@ -777,6 +803,10 @@
 
   .mb-\[30px\] {
     margin-bottom: 30px;
+  }
+
+  .mb-auto {
+    margin-bottom: auto;
   }
 
   .ml-2 {
@@ -804,12 +834,28 @@
     height: 36px;
   }
 
+  .h-3 {
+    height: calc(var(--spacing) * 3);
+  }
+
+  .h-4 {
+    height: calc(var(--spacing) * 4);
+  }
+
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
 
   .h-60 {
     height: calc(var(--spacing) * 60);
+  }
+
+  .h-101 {
+    height: calc(var(--spacing) * 101);
+  }
+
+  .h-\[226px\] {
+    height: 226px;
   }
 
   .h-\[288px\] {
@@ -828,6 +874,10 @@
     width: calc(var(--spacing) * 12);
   }
 
+  .w-\[20\%\] {
+    width: 20%;
+  }
+
   .w-\[900px\] {
     width: 900px;
   }
@@ -839,6 +889,10 @@
 
   .w-full {
     width: 100%;
+  }
+
+  .max-w-\[110px\] {
+    max-width: 110px;
   }
 
   .max-w-\[182px\] {
@@ -969,12 +1023,20 @@
     gap: calc(var(--spacing) * 2);
   }
 
+  .gap-2\.5 {
+    gap: calc(var(--spacing) * 2.5);
+  }
+
   .gap-3 {
     gap: calc(var(--spacing) * 3);
   }
 
   .gap-4 {
     gap: calc(var(--spacing) * 4);
+  }
+
+  .gap-5 {
+    gap: calc(var(--spacing) * 5);
   }
 
   .gap-5\.5 {
@@ -993,8 +1055,16 @@
     overflow: hidden;
   }
 
+  .rounded {
+    border-radius: .25rem;
+  }
+
   .rounded-2xl {
     border-radius: var(--radius-2xl);
+  }
+
+  .rounded-\[6px\] {
+    border-radius: 6px;
   }
 
   .rounded-\[10px\] {
@@ -1011,6 +1081,19 @@
 
   .rounded-md {
     border-radius: var(--radius-md);
+  }
+
+  .rounded-sm {
+    border-radius: var(--radius-sm);
+  }
+
+  .rounded-xl {
+    border-radius: var(--radius-xl);
+  }
+
+  .rounded-b {
+    border-bottom-right-radius: .25rem;
+    border-bottom-left-radius: .25rem;
   }
 
   .border {
@@ -1036,6 +1119,11 @@
   .border-dashed {
     --tw-border-style: dashed;
     border-style: dashed;
+  }
+
+  .border-none {
+    --tw-border-style: none;
+    border-style: none;
   }
 
   .border-solid {
@@ -1067,12 +1155,32 @@
     background-color: var(--color-white) !important;
   }
 
+  .bg-\[\#3295ECFF\] {
+    background-color: #3295ec;
+  }
+
   .bg-\[\#CDE7C7FF\] {
     background-color: #cde7c7;
   }
 
+  .bg-\[\#E5F2FCFF\] {
+    background-color: #e5f2fc;
+  }
+
+  .bg-\[\#E67E00FF\] {
+    background-color: #e67e00;
+  }
+
+  .bg-\[\#F1F8FEFF\] {
+    background-color: #f1f8fe;
+  }
+
   .bg-neutral-100 {
     background-color: var(--color-neutral-100);
+  }
+
+  .bg-red {
+    background-color: #dc6660;
   }
 
   .bg-transparent {
@@ -1123,6 +1231,10 @@
     padding: calc(var(--spacing) * 12);
   }
 
+  .px-5\.5 {
+    padding-inline: calc(var(--spacing) * 5.5);
+  }
+
   .px-6 {
     padding-inline: calc(var(--spacing) * 6);
   }
@@ -1141,6 +1253,10 @@
 
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
+  }
+
+  .py-2\.5 {
+    padding-block: calc(var(--spacing) * 2.5);
   }
 
   .py-\[14px\] {
@@ -1165,12 +1281,32 @@
     padding-top: calc(var(--spacing) * 8);
   }
 
+  .pt-30 {
+    padding-top: calc(var(--spacing) * 30);
+  }
+
   .pt-\[25px\] {
     padding-top: 25px;
   }
 
+  .pt-\[42px\] {
+    padding-top: 42px;
+  }
+
+  .pt-\[53px\] {
+    padding-top: 53px;
+  }
+
   .pb-1 {
     padding-bottom: calc(var(--spacing) * 1);
+  }
+
+  .pb-5\.5 {
+    padding-bottom: calc(var(--spacing) * 5.5);
+  }
+
+  .pb-\[53px\] {
+    padding-bottom: 53px;
   }
 
   .text-center {
@@ -1200,6 +1336,11 @@
     line-height: var(--tw-leading, var(--text-4xl--line-height));
   }
 
+  .text-6xl {
+    font-size: var(--text-6xl);
+    line-height: var(--tw-leading, var(--text-6xl--line-height));
+  }
+
   .text-lg {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
@@ -1213,6 +1354,11 @@
   .text-xl {
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
+  }
+
+  .text-xs {
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
   }
 
   .text-\[38px\] {
@@ -1249,6 +1395,16 @@
     line-height: calc(var(--spacing) * 10);
   }
 
+  .leading-14 {
+    --tw-leading: calc(var(--spacing) * 14);
+    line-height: calc(var(--spacing) * 14);
+  }
+
+  .leading-15 {
+    --tw-leading: calc(var(--spacing) * 15);
+    line-height: calc(var(--spacing) * 15);
+  }
+
   .leading-\[22px\] {
     --tw-leading: 22px;
     line-height: 22px;
@@ -1257,6 +1413,11 @@
   .leading-\[26px\] {
     --tw-leading: 26px;
     line-height: 26px;
+  }
+
+  .leading-\[60px\] {
+    --tw-leading: 60px;
+    line-height: 60px;
   }
 
   .leading-none {
@@ -1277,6 +1438,10 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+
+  .overflow-ellipsis {
+    text-overflow: ellipsis;
   }
 
   .text-\[\#19191FFF\] {
@@ -1321,6 +1486,10 @@
 
   .text-red-500 {
     color: var(--color-red-500);
+  }
+
+  .text-white {
+    color: var(--color-white);
   }
 
   .antialiased {

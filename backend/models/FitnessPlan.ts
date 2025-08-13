@@ -1,4 +1,4 @@
-import mongoose, {Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 interface Exercise {
   title: string;
@@ -10,8 +10,9 @@ interface Exercise {
 interface IDayPlan {
   day: string;
   exercises: Exercise[];
-  status:"Pending"|'Completed'|"Missed",
-  calories:number,
+  status: "Pending" | 'Completed' | "Missed",
+  calories: number,
+  date: Date,
 }
 
 
@@ -31,13 +32,13 @@ interface IAdvices {
 
 interface IReportData {
   briefAnalysis: IBriefAnalysis;
-  plan:{
-    week1Title:string,
-    week2Title:string,
-    week3Title:string,
-    week4Title:string,
-    days:IDayPlan[],
-  } 
+  plan: {
+    week1Title: string,
+    week2Title: string,
+    week3Title: string,
+    week4Title: string,
+    days: IDayPlan[],
+  }
   advices: IAdvices;
   imageUrl: string;
 }
@@ -45,9 +46,9 @@ interface IReportData {
 
 
 interface IFitnessPlan {
-userId:mongoose.Types.ObjectId,
-report:IReportData,
- createdAt:Date
+  userId: mongoose.Types.ObjectId,
+  report: IReportData,
+  createdAt: Date
 }
 
 export interface IFitnessPlanDocument extends IFitnessPlan, Document<mongoose.Types.ObjectId> { }
