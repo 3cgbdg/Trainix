@@ -53,7 +53,7 @@ const Page = ()=>{
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "_border rounded-2xl  flex flex-col items-center justify-between font-outfit border-none px-5.5 pb-5.5 pt-30 bg-[#F1F8FEFF] h-101  ",
+                className: "_border rounded-2xl  flex flex-col items-center justify-between font-outfit border-none px-5.5 pb-5.5 pt-30  bg-[#F1F8FEFF] h-101  ",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-6xl leading-[60px] text-black font-bold ",
@@ -72,7 +72,7 @@ const Page = ()=>{
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
                                 lineNumber: 16,
-                                columnNumber: 20
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-xl leading-7 tex-black",
@@ -80,7 +80,7 @@ const Page = ()=>{
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
                                 lineNumber: 17,
-                                columnNumber: 20
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
@@ -92,6 +92,57 @@ const Page = ()=>{
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
                 lineNumber: 13,
+                columnNumber: 13
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-start gap-6",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "_border rounded-2xl p-4 pt-5 basis-[544px] grow-0",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                            className: "text-lg leading-7 font-semibold text-neutral-900 mb-2",
+                            children: "Instruction"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                            lineNumber: 22,
+                            columnNumber: 21
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-neutral-900 mb-3.5",
+                            children: "Почніть з положення планки, руки трохи ширше плечей, пальці спрямовані вперед."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                            lineNumber: 23,
+                            columnNumber: 21
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "rounded-[10px] bg-neutral-200 p-3.5",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Lightbulb, {}, void 0, false, {
+                                    fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                                    lineNumber: 26,
+                                    columnNumber: 29
+                                }, ("TURBOPACK compile-time value", void 0))
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                                lineNumber: 25,
+                                columnNumber: 25
+                            }, ("TURBOPACK compile-time value", void 0))
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                            lineNumber: 24,
+                            columnNumber: 21
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                    lineNumber: 21,
+                    columnNumber: 17
+                }, ("TURBOPACK compile-time value", void 0))
+            }, void 0, false, {
+                fileName: "[project]/src/app/(main)/workout/[id]/page.tsx",
+                lineNumber: 20,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0))
         ]
