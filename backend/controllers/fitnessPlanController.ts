@@ -8,10 +8,10 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
 
     try {
-        const fitnessPlan =  new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
-        await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
+        const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.fitnessPlan.plan, "report.advices": data.fitnessPlan.advices, "report.briefAnalysis.targetWeight": data.fitnessPlan.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.fitnessPlan.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.fitnessPlan.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
+        await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.fitnessPlan.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
         if (fitnessPlan) {
-            
+
             for (let i = 0; i < fitnessPlan.report.plan.days.length; i++) {
                 const workoutDay = new Date(fitnessPlan.createdAt);
                 workoutDay.setDate(workoutDay.getDate() + i);
@@ -31,6 +31,34 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+export const completeWorkout = async (req: Request, res: Response): Promise<void> => {
+    const completedItems = req.body;
+    const { day } = req.params;
+    try {
+        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
+        if (!plan) {
+            res.status(404).json({ message: "Not found!" });
+            return;
+        }
+        const currentDay = plan?.report.plan.days[Number(day)];
+        for (let [i, exercise] of currentDay.exercises.entries()) {
+            if (completedItems[i]?.completed) {
+                exercise.status = "completed"
+            }
+
+        }
+        if (currentDay.exercises.every(exercise => exercise.status === "completed")) {
+            currentDay.status = "Completed";
+        }
+        plan.markModified(`report.plan.days.${day}`);
+        await plan.save();
+        res.status(200).json({ message: "Day is successfully compeleted!" });
+        return;
+    } catch {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
 
 export const getNumbers = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -115,25 +143,25 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
             res.status(404).json({ message: "Not found!" })
             return;
         }
-        const today  = new Date();
+        const today = new Date();
         const dates = []
         let todayWorkoutNumber;
-        for(let [i,item] of fitnessPlan.report.plan.days.entries()){
-            const itemDate= new Date(item.date);
-            dates.push({weekDay:item.date.toLocaleDateString("en-US",{weekday:"long"}),monthAndDate:`${item.date.getDate()} ${item.date.toLocaleDateString("en-US",{month:"long"})}`});
-            
-            if( itemDate.getDate()===today.getDate() && itemDate.getMonth() === today.getMonth()){
+        for (let [i, item] of fitnessPlan.report.plan.days.entries()) {
+            const itemDate = new Date(item.date);
+            dates.push({ weekDay: item.date.toLocaleDateString("en-US", { weekday: "long" }), monthAndDate: `${item.date.getDate()} ${item.date.toLocaleDateString("en-US", { month: "long" })}` });
+
+            if (itemDate.getDate() === today.getDate() && itemDate.getMonth() === today.getMonth()) {
                 todayWorkoutNumber = i;
             }
         }
-        
+
         const workouts = fitnessPlan.report.plan.days;
         res.status(200).json({
             workouts: workouts,
-            dates:dates,
-            todayWorkoutNumber:todayWorkoutNumber,
+            dates: dates,
+            todayWorkoutNumber: todayWorkoutNumber,
         });
-        
+
         console.log("hello3");
 
         return;
@@ -151,9 +179,9 @@ export const getWorkout = async (req: Request, res: Response): Promise<void> => 
             return;
         }
         const workout = fitnessPlan.report.plan.days[Number(day)];
-        res.status(200).json({
-            workout: workout,
-        });
+        res.status(200).json(
+            workout
+        );
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

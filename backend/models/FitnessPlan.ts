@@ -4,6 +4,10 @@ interface Exercise {
   title: string;
   repeats: number | null;
   time: number | null;
+  instruction: string,
+  advices: string,
+  calories: number,
+  status: "incompleted" | 'completed',
 
 }
 
@@ -13,6 +17,7 @@ interface IDayPlan {
   status: "Pending" | 'Completed' | "Missed",
   calories: number,
   date: Date,
+
 }
 
 

@@ -5,12 +5,13 @@ import { IDayPlan } from "@/types/types"
 import { useQuery } from "@tanstack/react-query"
 import { Bolt, CalendarDays } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 
 
 
 const page = () => {
-
+const router = useRouter();
     const getWorkouts = async () => {
         const res = await api.get("api/fitness-plan/workouts");
         return res.data;
@@ -64,7 +65,7 @@ const page = () => {
                                     <span></span>
                                 </div>
                                 <div className="flex justify-end">
-                                <div className=" button-transparent max-w-[110px]  w-full">View Details</div>
+                                <div onClick={()=>router.push(`/workout/${idx+1}`)} className=" button-transparent max-w-[110px]  w-full">View Details</div>
                                 </div>
                             </div>
                         ))
