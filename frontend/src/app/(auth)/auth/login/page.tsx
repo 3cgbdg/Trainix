@@ -93,7 +93,7 @@ const Page = () => {
                 </div>
                 <button className="button-green">Login</button>
             </form>
-            <Link href={"/auth/signup"} className="button-transparent hover:underline">Sign Up</Link>
+            <Link href={"/auth/signup"} className="w-full button-transparent hover:underline">Sign Up</Link>
 
 
         </div>

@@ -37,7 +37,7 @@ const page = () => {
             <h1 className='page-title '>Dashboard Overview</h1>
             <div className=" _dashboard-banner py-1 px-8  h-60 flex items-center justify-between  ">
                 <div className="flex flex-col gap-6 max-w-[590px]">
-                    <h2 className='banner-title'>Welcome back, {user?.fullName}</h2>
+                    <h2 className='banner-title'>Welcome back, {user?.firstName} {user?.lastName}</h2>
                     <p className='text-lg leading-7 text-[#19191FFF]'>Stay consistent and trust the process. Every step counts towards your goals!</p>
                 </div>
                 <Image className='rounded-lg _border' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />

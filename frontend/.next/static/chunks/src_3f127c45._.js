@@ -90,12 +90,12 @@ const Page = ()=>{
                     src: "/onboarding.png"
                 }, void 0, false, {
                     fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                    lineNumber: 41,
+                    lineNumber: 40,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                lineNumber: 40,
+                lineNumber: 39,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -106,7 +106,7 @@ const Page = ()=>{
                         children: "Welcome to Trainix! Let's Personalize Your Journey"
                     }, void 0, false, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 45,
+                        lineNumber: 44,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -114,13 +114,13 @@ const Page = ()=>{
                         children: "To give you the most accurate and effective fitness plans, we need a few details about your current stats and goals. This information helps our AI tailor everything just for you."
                     }, void 0, false, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 46,
+                        lineNumber: 45,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                lineNumber: 44,
+                lineNumber: 43,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -139,7 +139,7 @@ const Page = ()=>{
                                         children: "Current Weight (kg)"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 51,
+                                        lineNumber: 50,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -152,7 +152,7 @@ const Page = ()=>{
                                         id: "weight"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 52,
+                                        lineNumber: 51,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     errors.weight && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -161,13 +161,13 @@ const Page = ()=>{
                                         children: errors.weight.message
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 54,
+                                        lineNumber: 53,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 50,
+                                lineNumber: 49,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -179,7 +179,7 @@ const Page = ()=>{
                                         children: "Current Height (cm)"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 60,
+                                        lineNumber: 59,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -192,7 +192,7 @@ const Page = ()=>{
                                         id: "height"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 61,
+                                        lineNumber: 60,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     errors.height && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -201,19 +201,19 @@ const Page = ()=>{
                                         children: errors.height.message
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 63,
+                                        lineNumber: 62,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 59,
+                                lineNumber: 58,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 49,
+                        lineNumber: 48,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -225,7 +225,7 @@ const Page = ()=>{
                                 children: "Target Weight (kg) - Optional"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 74,
+                                lineNumber: 73,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -238,7 +238,7 @@ const Page = ()=>{
                                 id: "targetWeight"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 75,
+                                lineNumber: 74,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             errors.targetWeight && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -247,13 +247,13 @@ const Page = ()=>{
                                 children: errors.targetWeight.message
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 77,
+                                lineNumber: 76,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 73,
+                        lineNumber: 72,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -265,10 +265,11 @@ const Page = ()=>{
                                 children: "Your Fitness Level"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 83,
+                                lineNumber: 82,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                defaultValue: "",
                                 ...register("fitnessLevel", {
                                     required: "Field is required"
                                 }),
@@ -277,12 +278,11 @@ const Page = ()=>{
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                         value: "",
                                         disabled: true,
-                                        selected: true,
                                         hidden: true,
                                         children: "Select your fitness level"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 85,
+                                        lineNumber: 84,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -290,7 +290,7 @@ const Page = ()=>{
                                         children: "Beginner"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 86,
+                                        lineNumber: 85,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -298,7 +298,7 @@ const Page = ()=>{
                                         children: "Intermediate"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 87,
+                                        lineNumber: 86,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -306,13 +306,13 @@ const Page = ()=>{
                                         children: "Advanced"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 88,
+                                        lineNumber: 87,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 84,
+                                lineNumber: 83,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             errors.fitnessLevel && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -321,13 +321,13 @@ const Page = ()=>{
                                 children: errors.fitnessLevel.message
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 91,
+                                lineNumber: 90,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 82,
+                        lineNumber: 81,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -339,22 +339,22 @@ const Page = ()=>{
                                 children: "Your Primary Fitness Goal"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 97,
+                                lineNumber: 96,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                defaultValue: "",
                                 ...register("primaryFitnessGoal"),
                                 className: "input cursor-pointer",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                         value: "",
                                         disabled: true,
-                                        selected: true,
                                         hidden: true,
                                         children: "Select your primary goal"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 99,
+                                        lineNumber: 98,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -362,7 +362,7 @@ const Page = ()=>{
                                         children: "Lose weight"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 100,
+                                        lineNumber: 99,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -370,7 +370,7 @@ const Page = ()=>{
                                         children: "Gain muscle"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 101,
+                                        lineNumber: 100,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -378,7 +378,7 @@ const Page = ()=>{
                                         children: "Stay fit"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 102,
+                                        lineNumber: 101,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -386,13 +386,13 @@ const Page = ()=>{
                                         children: "Improve endurance"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                        lineNumber: 103,
+                                        lineNumber: 102,
                                         columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 98,
+                                lineNumber: 97,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             errors.targetWeight && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -401,13 +401,13 @@ const Page = ()=>{
                                 children: errors.targetWeight.message
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                                lineNumber: 106,
+                                lineNumber: 105,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 96,
+                        lineNumber: 95,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -415,19 +415,19 @@ const Page = ()=>{
                         children: "Continue to Dashboard"
                     }, void 0, false, {
                         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                        lineNumber: 111,
+                        lineNumber: 110,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-                lineNumber: 48,
+                lineNumber: 47,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(auth)/onboarding/page.tsx",
-        lineNumber: 39,
+        lineNumber: 38,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };

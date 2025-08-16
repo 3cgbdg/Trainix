@@ -1,5 +1,6 @@
 export interface IUser {
-  fullName: string,
+  firstName: string,
+  lastName: string,
   password: string,
   email: string,
   dateOfBirth: Date,
@@ -19,6 +20,8 @@ export interface IUser {
   targetWeight: number,
   fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
   primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",
+  emailNotifications: boolean,
+  inAppNotifications: boolean,
 }
 
 export interface IDayPlan {

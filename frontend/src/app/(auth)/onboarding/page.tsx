@@ -1,7 +1,6 @@
 "use client"
 import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
-import axios from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -81,8 +80,8 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="fitnessLevel">Your Fitness Level</label>
-                    <select  {...register("fitnessLevel", { required: "Field is required" })} className="input cursor-pointer">
-                        <option value="" disabled selected hidden>Select your fitness level</option>
+                    <select  defaultValue={""} {...register("fitnessLevel", { required: "Field is required" })} className="input cursor-pointer">
+                        <option value="" disabled  hidden>Select your fitness level</option>
                         <option value="Beginner">Beginner</option>
                         <option value="Intermediate">Intermediate</option>
                         <option value="Advanced">Advanced</option>
@@ -95,8 +94,8 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="targetWeight">Your Primary Fitness Goal</label>
-                    <select   {...register("primaryFitnessGoal")} className="input cursor-pointer">
-                        <option value="" disabled selected hidden>Select your primary goal</option>
+                    <select  defaultValue={""} {...register("primaryFitnessGoal")} className="input cursor-pointer">
+                        <option value="" disabled  hidden>Select your primary goal</option>
                         <option value="Lose weight">Lose weight</option>
                         <option value="Gain muscle">Gain muscle</option>
                         <option value="Stay fit">Stay fit</option>

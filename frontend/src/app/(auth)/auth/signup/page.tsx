@@ -89,8 +89,8 @@ const Page = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                         <label className="text-sm leading-[22px] font-medium" htmlFor="gender">Gender</label>
-                        <select id="gender" {...register("gender", { required: "Field is required" })} className="input cursor-pointer">
-                            <option value="" selected disabled hidden>Select your gender</option>
+                        <select defaultValue={""} id="gender" {...register("gender", { required: "Field is required" })} className="input cursor-pointer">
+                            <option value=""  disabled hidden>Select your gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
@@ -135,9 +135,9 @@ const Page = () => {
                     )}
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2 cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
                 </div>
-                <button className="button-green">Sign Up</button>
+                <button className="button-green ">Sign Up</button>
             </form>
-            <Link href={"/auth/login"} className="button-transparent hover:underline">Login</Link>
+            <Link href={"/auth/login"} className="button-transparent w-full hover:underline">Login</Link>
 
 
         </div>

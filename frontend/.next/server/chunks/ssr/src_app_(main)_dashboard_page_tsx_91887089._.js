@@ -74,7 +74,9 @@ const page = ()=>{
                                 className: "banner-title",
                                 children: [
                                     "Welcome back, ",
-                                    user?.fullName
+                                    user?.firstName,
+                                    " ",
+                                    user?.lastName
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",

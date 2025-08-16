@@ -6,12 +6,11 @@ import Measurement from "../models/Measurement";
 
 export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
-
+    console.log(data,imageUrl);
     try {
-        const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.fitnessPlan.plan, "report.advices": data.fitnessPlan.advices, "report.briefAnalysis.targetWeight": data.fitnessPlan.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.fitnessPlan.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.fitnessPlan.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
-        await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.fitnessPlan.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
+        const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
+        await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
         if (fitnessPlan) {
-
             for (let i = 0; i < fitnessPlan.report.plan.days.length; i++) {
                 const workoutDay = new Date(fitnessPlan.createdAt);
                 workoutDay.setDate(workoutDay.getDate() + i);
@@ -51,6 +50,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             currentDay.status = "Completed";
         }
         plan.markModified(`report.plan.days.${day}`);
+        
         await plan.save();
         res.status(200).json({ message: "Day is successfully compeleted!" });
         return;

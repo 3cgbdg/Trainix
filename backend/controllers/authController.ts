@@ -13,7 +13,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
             return;
         }
         const hashedPassword = await bcrypt.hash(data.password, 10);
-        const newUser = await User.create({ fullName: data.name + " " + data.surname, password: hashedPassword, email: data.email, dateOfBirth: data.dateOfBirth, gender: data.gender })
+        const newUser = await User.create({ firstName: data.name, lastName: data.surname, password: hashedPassword, email: data.email, dateOfBirth: data.dateOfBirth, gender: data.gender })
         const refreshToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
         const accessToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         res.cookie("access-token", accessToken, {
@@ -33,7 +33,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         res.json({ message: "User signed in!" });
         return;
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
 
         return;
     }
@@ -50,7 +50,7 @@ export const onBoarding = async (req: Request, res: Response): Promise<void> => 
         res.json({ message: "User info updated!" });
         return;
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
 
         return;
     }
@@ -88,7 +88,7 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
         res.json({ message: "User logged in!", user: user });
         return;
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
         return;
     }
 }
@@ -118,7 +118,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
             }
         }
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
 
         return;
     }
@@ -141,19 +141,80 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json({ message: "Logged out successfully" });
         return;
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
         return;
     }
 }
 
 
-export const profile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
         const profile = await User.findById((req as AuthRequest).userId).select("-password");
-        res.json({user:profile});
+        res.json({ user: profile });
         return;
     } catch (err) {
-        res.json({ message: "Server error!" });
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+export const deleteProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        await User.findByIdAndDelete((req as AuthRequest).userId).select("-password");
+        res.json({ message: "Successfully deleted!" });
+        return;
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const payload = req.body;
+        console.log(payload);
+        const profile = await User.findById((req as AuthRequest).userId);
+
+        const obj = profile?.toObject();
+        if (profile) {
+            console.log("1");
+            if (payload.password) {
+                const isGood = await bcrypt.compare(payload.password, profile.password);
+                if (!isGood) {
+                    res.status(403).json({ message: "Password is incorrect!" });
+                    return;
+                }
+                console.log("2");
+
+                if (payload.newPassword && payload.newPassword === payload.newPasswordAgain) {
+                    const hashedPass = await bcrypt.hash(payload.newPassword, 10);
+                    profile.password = hashedPass;
+                    console.log("3");
+
+                } else if (payload.newPassword || payload.newPasswordAgain) {
+                    res.status(400).json({ message: "Passwords do not match!" });
+                    return;
+                }
+                console.log("4");
+            }
+            Object.entries(payload).forEach(([key, value]) => {
+                if (key === "password" || key === "newPassword" || key === "newPasswordAgain") return;
+                if (value !== undefined) {
+                    if (["height", "weight"].includes(key)) {
+                        profile.set(`metrics.${key}`, value);
+
+                    } else {
+                        profile.set(key, value);
+                    }
+                }
+
+            });
+            profile.markModified(`metrics`);
+            await profile.save();
+        }
+        res.json({ user: profile });
+        return;
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
         return;
     }
 }

@@ -1086,6 +1086,9 @@ const Page = ()=>{
             "Page.useMutation[mutation]": async (data)=>{
                 setIsAnalyzed(true);
                 await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$report$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["reportExtractFunc"])(data);
+                console.dir(data, {
+                    depth: null
+                });
             }
         }["Page.useMutation[mutation]"],
         onError: {
@@ -1117,22 +1120,22 @@ const Page = ()=>{
             setFileName: setFileName
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 72,
-            columnNumber: 51
+            lineNumber: 74,
+            columnNumber: 48
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             data: data
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 74,
+            lineNumber: 76,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-        lineNumber: 71,
+        lineNumber: 73,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Page, "q8p2l60d9mWUV7t6cWP7983cmy0=", false, function() {
+_s(Page, "3SEebSQrFIoSAz5AUZHWyrB1SJU=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"],

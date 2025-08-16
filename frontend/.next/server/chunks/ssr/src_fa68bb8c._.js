@@ -1037,6 +1037,9 @@ const Page = ()=>{
         onSuccess: async (data)=>{
             setIsAnalyzed(true);
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$report$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["reportExtractFunc"])(data);
+            console.dir(data, {
+                depth: null
+            });
         },
         onError: (err)=>{
             if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["isAxiosError"])(err) && err.response) {
@@ -1065,18 +1068,18 @@ const Page = ()=>{
             setFileName: setFileName
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 72,
-            columnNumber: 51
+            lineNumber: 74,
+            columnNumber: 48
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
             data: data
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 74,
+            lineNumber: 76,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-        lineNumber: 71,
+        lineNumber: 73,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
