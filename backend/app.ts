@@ -7,6 +7,8 @@ import authRoute from "./routes/authRoutes"
 import fitnessPlanRoute from "./routes/fitnessPlanRoutes";
 import nodeCron from "node-cron";
 import FitnessPlan from "./models/FitnessPlan";
+import nutritionPlanRoute from "./routes/nutritionPlanRoutes";
+import MeasurementsRoute from "./routes/MeasurementsRoutes";
 // dotenv config
 dotenv.config();
 
@@ -41,6 +43,8 @@ nodeCron.schedule("0 0 * * *", async () => {
 // routing
 app.use("/api/auth", authRoute);
 app.use("/api/fitness-plan", fitnessPlanRoute);
+app.use("/api/nutrition-plan", nutritionPlanRoute);
+app.use("/api/measurements", MeasurementsRoute);
 
 //route for testing auth middleware
 // app.get("/api/protected",authMiddleware, async (req: Request, res: Response) => {

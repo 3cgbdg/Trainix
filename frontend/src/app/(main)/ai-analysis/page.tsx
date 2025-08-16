@@ -31,7 +31,7 @@ const Page = () => {
         }
 
         formData.append("userInfo", JSON.stringify(userInfo));
-        const res = await axios.post("http://127.0.0.1:8000/api", formData, {
+        const res = await axios.post("http://127.0.0.1:8000/api/photo-analyze", formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
@@ -44,13 +44,12 @@ const Page = () => {
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
             setIsAnalyzed(true);
-            await reportExtractFunc(data);
-            console.dir(data, { depth: null });
+            await reportExtractFunc(data,"fitness");
 
         },
         onError: (err: unknown) => {
             if (isAxiosError(err) && err.response) {
-                console.error(err.response.data, "hello");
+                console.error(err.response.data);
             }
         }
 
