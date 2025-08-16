@@ -170,11 +170,7 @@ const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: 
                 })}
                 disabled={editing !== "password"}
               />
-              {/* {errors.newPasswordAgain && (
-                <span data-testid='error' className="text-red-500 font-medium ">
-                  {errors.newPasswordAgain.message}
-                </span>
-              )} */}
+      
               {error && !errors.newPasswordAgain && (
                 <span data-testid='error' className="text-red-500 font-medium ">
                   {error}
@@ -194,7 +190,7 @@ const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: 
         </form>
       }
       <div className=" flex flex-col gap-2 border-t-[1px] border-neutral-700 pt-4">
-        <button className="text-sm inline-flex  items-center w-40 justify-center leading-5.5 font-medium text-white bg-[#ed746eff] rounded-md p-2.5 transition-colors hover:bg-[#c52118ff] cursor-pointer">Delete Account</button>
+        <button onClick={()=>mutation.mutate()} className="text-sm inline-flex  items-center w-40 justify-center leading-5.5 font-medium text-white bg-[#ed746eff] rounded-md p-2.5 transition-colors hover:bg-[#c52118ff] cursor-pointer">Delete Account</button>
         <p className="text-neutral-400">This action is irreversible and will permanently delete your account and all data.</p>
       </div>
 

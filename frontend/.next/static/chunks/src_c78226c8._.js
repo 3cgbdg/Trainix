@@ -398,7 +398,7 @@ const AccountSettings = (param)=>{
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/profile/AccountSettings.tsx",
-                                        lineNumber: 179,
+                                        lineNumber: 175,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
@@ -423,11 +423,12 @@ const AccountSettings = (param)=>{
                 className: " flex flex-col gap-2 border-t-[1px] border-neutral-700 pt-4",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        onClick: ()=>mutation.mutate(),
                         className: "text-sm inline-flex  items-center w-40 justify-center leading-5.5 font-medium text-white bg-[#ed746eff] rounded-md p-2.5 transition-colors hover:bg-[#c52118ff] cursor-pointer",
                         children: "Delete Account"
                     }, void 0, false, {
                         fileName: "[project]/src/components/profile/AccountSettings.tsx",
-                        lineNumber: 197,
+                        lineNumber: 193,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -435,13 +436,13 @@ const AccountSettings = (param)=>{
                         children: "This action is irreversible and will permanently delete your account and all data."
                     }, void 0, false, {
                         fileName: "[project]/src/components/profile/AccountSettings.tsx",
-                        lineNumber: 198,
+                        lineNumber: 194,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/profile/AccountSettings.tsx",
-                lineNumber: 196,
+                lineNumber: 192,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
