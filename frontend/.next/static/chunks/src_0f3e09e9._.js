@@ -999,17 +999,20 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/api/axiosInstance.ts [app-client] (ecmascript)");
 ;
-const reportExtractFunc = async (data)=>{
+const reportExtractFunc = async (data, method)=>{
     const regex = /```json\s([\s\S]+?)```/;
-    console.log("1");
     let match = data.AIreport.match(regex);
-    console.log("2");
     try {
-        console.log("3");
-        await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/fitness-plan/reports", {
-            data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport),
-            imageUrl: data.imageUrl
-        });
+        if (method == "nutrition") {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/nutrition-plan/nutrition-plans", {
+                data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport)
+            });
+        } else {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/fitness-plan/reports", {
+                data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport),
+                imageUrl: data.imageUrl
+            });
+        }
         console.log("Report created!");
     } catch (err) {
         console.error(err);
@@ -1072,7 +1075,7 @@ const Page = ()=>{
             gender: user.gender
         };
         formData.append("userInfo", JSON.stringify(userInfo));
-        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://127.0.0.1:8000/api", formData, {
+        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://127.0.0.1:8000/api/photo-analyze", formData, {
             withCredentials: true,
             headers: {
                 "Content-Type": "multipart/form-data"
@@ -1085,16 +1088,13 @@ const Page = ()=>{
         onSuccess: {
             "Page.useMutation[mutation]": async (data)=>{
                 setIsAnalyzed(true);
-                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$report$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["reportExtractFunc"])(data);
-                console.dir(data, {
-                    depth: null
-                });
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$report$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["reportExtractFunc"])(data, "fitness");
             }
         }["Page.useMutation[mutation]"],
         onError: {
             "Page.useMutation[mutation]": (err)=>{
                 if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["isAxiosError"])(err) && err.response) {
-                    console.error(err.response.data, "hello");
+                    console.error(err.response.data);
                 }
             }
         }["Page.useMutation[mutation]"]
@@ -1120,18 +1120,18 @@ const Page = ()=>{
             setFileName: setFileName
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 74,
+            lineNumber: 73,
             columnNumber: 48
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             data: data
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-            lineNumber: 76,
+            lineNumber: 75,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/ai-analysis/page.tsx",
-        lineNumber: 73,
+        lineNumber: 72,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };

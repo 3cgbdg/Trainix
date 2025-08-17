@@ -43,11 +43,10 @@ interface INutritionPlan {
 }
 
 export interface INutritionPlanDocument extends INutritionPlan, Document<mongoose.Types.ObjectId> { }
-const fitnessPlanSchema = new mongoose.Schema<INutritionPlan>({
+const nutritionPlanSchema = new mongoose.Schema<INutritionPlan>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   days: { type:[Object], required: true },
   createdAt: { type: Date, default: Date.now },
-
 })
 
-export default mongoose.model<INutritionPlan>("FitnessPlan", fitnessPlanSchema);
+export default mongoose.model<INutritionPlan>("NutritionPlan", nutritionPlanSchema);

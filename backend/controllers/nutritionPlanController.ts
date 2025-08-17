@@ -1,14 +1,12 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
-import FitnessPlan from "../models/FitnessPlan";
-import Measurement from "../models/Measurement";
 import NutritionPlan from "../models/NutritionPlan";
 
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
-    const { data } = req.body;
+    const  data  = req.body;
     console.log(data);
     try {
-        const nutritionPlan = new NutritionPlan({ userId: (req as AuthRequest).userId,days:data  , createdAt: new Date() });
+        const nutritionPlan = new NutritionPlan({ userId: (req as AuthRequest).userId, days: data, createdAt: new Date() });
         if (nutritionPlan) {
         }
         await nutritionPlan.save();

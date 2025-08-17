@@ -840,7 +840,7 @@ const reportExtractFunc = async (data, method)=>{
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {
-            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/nutrition-plan/reports", {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/nutrition-plan/nutrition-plans", {
                 data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport)
             });
         } else {
@@ -942,16 +942,14 @@ const Page = ()=>{
             }
         }["Page.useMutation[mutation]"]
     });
-    const getAnalysis = async ()=>{
-        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("api/nutrition-plan/nutrition-plans");
-        return res.data;
-    };
-    const { data: nutritionPlanData } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])({
-        queryKey: [
-            "getAnalysis"
-        ],
-        queryFn: getAnalysis
-    });
+    // const getAnalysis = async () => {
+    //     const res = await api.get("api/nutrition-plan/nutrition-plans");
+    //     return res.data;
+    // }
+    // const { data:nutritionPlanData } = useQuery({
+    //     queryKey: ["getAnalysis"],
+    //     queryFn: getAnalysis,
+    // })
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "",
         children: !mutation.data && !mutation.isSuccess ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$nutrition$2d$plan$2f$GenerateNutritionPlan$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -959,27 +957,26 @@ const Page = ()=>{
             isPending: mutation.isPending
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 79,
+            lineNumber: 80,
             columnNumber: 56
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             data: mutation.data
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 81,
+            lineNumber: 82,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-        lineNumber: 78,
+        lineNumber: 79,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Page, "s4DskOOP07SDzF7Uyx+BhcB8TN4=", false, function() {
+_s(Page, "lfyIFuQ1xuQzd/eufX0S3+xp7X8=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"]
     ];
 });
 _c = Page;

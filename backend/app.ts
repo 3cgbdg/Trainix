@@ -44,7 +44,7 @@ nodeCron.schedule("0 0 * * *", async () => {
 app.use("/api/auth", authRoute);
 app.use("/api/fitness-plan", fitnessPlanRoute);
 app.use("/api/nutrition-plan", nutritionPlanRoute);
-app.use("/api/measurements", MeasurementsRoute);
+app.use("/api/measurement", MeasurementsRoute);
 
 //route for testing auth middleware
 // app.get("/api/protected",authMiddleware, async (req: Request, res: Response) => {

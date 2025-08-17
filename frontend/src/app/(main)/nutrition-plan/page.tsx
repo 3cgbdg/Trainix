@@ -50,7 +50,7 @@ const Page = () => {
         mutationFn: generateNutritionPlan,
         onSuccess: async (data) => {
             await reportExtractFunc(data, "nutrition");
-
+            
         },
     
         onError: (err: unknown) => {
@@ -61,18 +61,19 @@ const Page = () => {
 
     })
     
-    const getAnalysis = async () => {
-        const res = await api.get("api/nutrition-plan/nutrition-plans");
-        return res.data;
-    }
+    // const getAnalysis = async () => {
+    //     const res = await api.get("api/nutrition-plan/nutrition-plans");
+        
+    //     return res.data;
+    // }
 
 
-    const { data:nutritionPlanData } = useQuery({
-        queryKey: ["getAnalysis"],
-        queryFn: getAnalysis,
+    // const { data:nutritionPlanData } = useQuery({
+    //     queryKey: ["getAnalysis"],
+    //     queryFn: getAnalysis,
 
 
-    })
+    // })
     return (
 
         <div className="">

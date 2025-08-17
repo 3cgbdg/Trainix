@@ -4,7 +4,7 @@ import { createNutritionPlan } from "../controllers/nutritionPlanController";
 
 const nutritionPlanRoute = express.Router();
 
-nutritionPlanRoute.post("/nutrition-plans", authMiddleware,createNutritionPlan );
 
+nutritionPlanRoute.post("/nutrition-plans", authMiddleware,createNutritionPlan );
 export default nutritionPlanRoute;
 

@@ -1,57 +1,6 @@
 {
-  "app": {
-    "[project]/src/app/(auth)/auth/login/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(auth)/auth/signup/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(auth)/onboarding/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/ai-analysis/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/dashboard/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/nutrition-plan/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/profile/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/workout-plan/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/(main)/workout/[id]/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/_not-found/page": [
-      "static/media/1a1765e61ad3e18d-s.p.208f4df6.woff2",
-      "static/media/06ba6ef833b337bc-s.p.0faac26c.woff2",
-      "static/media/41f62e8b64c1e968-s.p.de485432.woff2"
-    ]
-  },
-  "appUsingSizeAdjust": true,
+  "app": {},
+  "appUsingSizeAdjust": false,
   "pages": {},
   "pagesUsingSizeAdjust": false
 }

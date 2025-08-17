@@ -4,7 +4,7 @@ import { getMeasurement } from "../controllers/measerementsController";
 
 const MeasurementsRoute = express.Router();
 
-MeasurementsRoute.post("/measurement", authMiddleware,getMeasurement );
+MeasurementsRoute.get("/measurements", authMiddleware,getMeasurement );
 
 export default MeasurementsRoute;
 
