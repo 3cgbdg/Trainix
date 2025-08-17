@@ -7,6 +7,7 @@ type AiDataType = {
 
 export const reportExtractFunc = async (data: AiDataType, method: "nutrition" | "fitness") => {
     const regex = /```json\s([\s\S]+?)```/;
+    console.log(data);
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {

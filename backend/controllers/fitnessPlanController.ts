@@ -6,7 +6,7 @@ import Measurement from "../models/Measurement";
 
 export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
-    console.log(data,imageUrl);
+    console.log(data, imageUrl);
     try {
         const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
@@ -50,7 +50,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             currentDay.status = "Completed";
         }
         plan.markModified(`report.plan.days.${day}`);
-        
+
         await plan.save();
         res.status(200).json({ message: "Day is successfully compeleted!" });
         return;
@@ -146,6 +146,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
         const today = new Date();
         const dates = []
         let todayWorkoutNumber;
+        let currentWeekTitle;
         for (let [i, item] of fitnessPlan.report.plan.days.entries()) {
             const itemDate = new Date(item.date);
             dates.push({ weekDay: item.date.toLocaleDateString("en-US", { weekday: "long" }), monthAndDate: `${item.date.getDate()} ${item.date.toLocaleDateString("en-US", { month: "long" })}` });
@@ -154,16 +155,23 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
                 todayWorkoutNumber = i;
             }
         }
+        if (todayWorkoutNumber) {
+            currentWeekTitle = todayWorkoutNumber < 7
+                ? fitnessPlan.report.plan.week1Title
+                : todayWorkoutNumber < 14
+                    ? fitnessPlan.report.plan.week2Title
+                    : todayWorkoutNumber < 21
+                        ? fitnessPlan.report.plan.week3Title
+                        : fitnessPlan.report.plan.week4Title;
+        }
 
         const workouts = fitnessPlan.report.plan.days;
         res.status(200).json({
-            workouts: workouts,
+            items: workouts,
             dates: dates,
             todayWorkoutNumber: todayWorkoutNumber,
-        });
-
-        console.log("hello3");
-
+            currentWeekTitle: currentWeekTitle,
+        })
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

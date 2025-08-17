@@ -5,10 +5,10 @@ import { addReport, completeWorkout, deleteFitnessPlan, getAnalysis, getNumbers,
 const fitnessPlanRoute = express.Router();
 
 fitnessPlanRoute.get("/reports/numbers", authMiddleware, getNumbers);
+fitnessPlanRoute.get("/workouts", authMiddleware, getWorkouts);
 fitnessPlanRoute.post("/reports", authMiddleware, addReport);
 fitnessPlanRoute.get("/analysis", authMiddleware, getAnalysis);
 fitnessPlanRoute.delete("/plan", authMiddleware, deleteFitnessPlan);
-fitnessPlanRoute.get("/workouts", authMiddleware, getWorkouts);
 fitnessPlanRoute.post("/workouts/:day/completed", authMiddleware, completeWorkout);
 fitnessPlanRoute.get("/workouts/:day", authMiddleware, getWorkout);
 

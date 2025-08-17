@@ -837,6 +837,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$
 ;
 const reportExtractFunc = async (data, method)=>{
     const regex = /```json\s([\s\S]+?)```/;
+    console.log(data);
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {
@@ -957,18 +958,18 @@ const Page = ()=>{
             isPending: mutation.isPending
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 80,
+            lineNumber: 81,
             columnNumber: 56
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             data: mutation.data
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 82,
+            lineNumber: 83,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-        lineNumber: 79,
+        lineNumber: 80,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
