@@ -79,15 +79,24 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
 export const updateMealStatus = async (req: Request, res: Response): Promise<void> => {
     try {
         const { day } = req.params;
-        const mealNum = req.body;
+        const { index } = req.body;
+
+
         const dayNum = Number(day);
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         if (!nutritionPlan) {
             res.status(404).json({ message: "Not found!" });
             return;
         }
-        nutritionPlan.days[dayNum].meals[mealNum].status = "eaten";
-        await nutritionPlan.save()
+        const currentDay = nutritionPlan.days[dayNum];
+        currentDay.meals[index].status = "eaten";
+        currentDay.dailyGoals.calories.current  +=currentDay.meals[index].mealCalories;
+        currentDay.dailyGoals.carbs.current  +=currentDay.meals[index].mealCarbs;
+        currentDay.dailyGoals.fats.current  +=currentDay.meals[index].mealFats;
+        currentDay.dailyGoals.protein.current  +=currentDay.meals[index].mealProtein;
+        nutritionPlan.markModified(`days.${dayNum}.meals.${index}`);
+        nutritionPlan.markModified(`days.${dayNum}.dailyGoals`);
+        await nutritionPlan.save();
         res.status(200).json("Status updated!");
         return;
     } catch {
@@ -97,3 +106,28 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
 }
 
 
+export const updateWaterCurrent = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { day } = req.params;
+        const { amount } = req.body;
+        console.log(day,amount)
+
+        const dayNum = Number(day);
+        const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
+        if (!nutritionPlan) {
+            res.status(404).json({ message: "Not found!" });
+            return;
+        }
+     
+        nutritionPlan.days[dayNum].waterIntake.current +=amount;
+        
+        nutritionPlan.markModified(`days.${dayNum}.waterIntake`);
+        await nutritionPlan.save();
+        res.status(200).json("Status updated!");
+        return;
+    } catch {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+
+}

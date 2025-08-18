@@ -962,10 +962,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$
 ;
 const reportExtractFunc = async (data, method)=>{
     const regex = /```json\s([\s\S]+?)```/;
+    console.log(data);
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {
-            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["api"].post(`/api/nutrition-plan/nutrition-plans`, {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["api"].post(`/api/nutrition-plan/nutrition-plans/days`, {
                 data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport)
             });
         } else {

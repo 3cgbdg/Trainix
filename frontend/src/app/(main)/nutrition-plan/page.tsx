@@ -1,7 +1,5 @@
 "use client"
 import { api } from '@/api/axiosInstance';
-import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
-import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import GenerateNutritionPlan from '@/components/nutrition-plan/GenerateNutritionPlan';
 import NutritionPlanPage from '@/components/nutrition-plan/NutritionPlanPage';
 import { useAppSelector } from '@/hooks/reduxHooks';
@@ -10,7 +8,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
 
 const Page = () => {
-    const { user } = useAppSelector(state => state.auth)
+    const { user } = useAppSelector(state => state.auth);
+    const data = useAppSelector(state=>state.nutritionDay.nutritionDay);
     const getMeasurements = async () => {
         const res = await api.get("/api/measurement/measurements");
         return res.data;
@@ -62,24 +61,13 @@ const Page = () => {
 
     })
     
-    const getAnalysis = async () => {
-        const res = await api.get("api/nutrition-plan/nutrition-plans");
-        return res.data;
-    }
-
-
-    const { data} = useQuery({
-        queryKey: ["getAnalysis"],
-        queryFn: getAnalysis,
-
-
-    })
+    
     return (
 
         <div className="">
             {(!data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
                 :
-                <NutritionPlanPage day={data} />
+                <NutritionPlanPage day={data!} />
             }
         </div>
     );
