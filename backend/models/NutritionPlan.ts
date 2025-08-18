@@ -10,7 +10,7 @@ interface IdailyGoals {
   fats: { current: number, target: number };
 
 }
-interface IMeal {
+export interface IMeal {
 
   mealTitle: string,
   time: number,
@@ -29,7 +29,7 @@ interface IwaterIntake  {
     current: number,
     target: number
 }
-interface IDayPlan {
+export interface IDayPlan {
   date: Date;
   dayNumber: number;
   dailyGoals: IdailyGoals

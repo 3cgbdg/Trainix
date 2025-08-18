@@ -1,17 +1,19 @@
 "use client"
 import { api } from "@/api/axiosInstance"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { Check, Clock, Lightbulb, Pause, Play, SkipForward, Square } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { IDayPlan, IExercise } from "@/types/types";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Timer from "@/components/workout/Timer"
+import { useAppSelector } from "@/hooks/reduxHooks"
 const Page = () => {
+    const { workouts } = useAppSelector(state => state.workouts);
     const { id } = useParams();
-    const memoId = useMemo(() => Number(id), [id]);
     const [completedItems, setCompletedItems] = useState<Record<"completed", boolean>[]>([]);
     const [isResting, setIsResting] = useState<boolean>(false);
+    const [workout, setWorkout] = useState<IDayPlan | null>(null);
     const [time, setTime] = useState<number>(15);
     const router = useRouter();
     const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -19,23 +21,17 @@ const Page = () => {
     const [finished, setFinished] = useState<boolean>(false);
     const [exercise, setExercise] = useState<IExercise | null>(null);
     const [idx, setIdx] = useState<number>(0);
-    // get async fync
-    const getWorkout = async () => {
-        const res = await api.get(`/api/fitness-plan/workouts/${Number(id) - 1}`);
-        return res.data;
-    }
+
+
 
     // post async fync for completed exercises
     const completeWorkout = async () => {
         const res = await api.post(`/api/fitness-plan/workouts/${Number(id) - 1}/completed`, completedItems);
     }
-
-    // get query
-    const { isSuccess, isLoading, data: workout } = useQuery<IDayPlan>({
-        queryKey: ["workout", memoId],
-        queryFn: getWorkout,
-        enabled: !!id,
-
+    // post mutation
+    const mutation = useMutation({
+        mutationFn: completeWorkout,
+        onSuccess: () => router.push("/workout/sucess"),
     })
 
     // resting process
@@ -55,11 +51,7 @@ const Page = () => {
         }
     }, [isResting])
 
-    // post mutation
-    const mutation = useMutation({
-        mutationFn: completeWorkout,
-        onSuccess: () => router.push("/workout/sucess"),
-    })
+
 
     // func for checking of is undefined next item of exercises by idx 
     const goToNextExercise = () => {
@@ -88,11 +80,13 @@ const Page = () => {
             return nextIdx;
         });
     };
-
-
+    useEffect(() => {
+      if(workouts)setWorkout(workouts.items[Number(id)-1])
+    }, [workouts]);
     // getting current exercise
     useEffect(() => {
-        if (isSuccess && workout) {
+        if (workout) {
+
             if (workout.status == "Completed") {
                 router.push("/workout/sucess");
             }
@@ -107,7 +101,7 @@ const Page = () => {
                 }
             }
         }
-    }, [isSuccess]);
+    }, [workout]);
 
     // ending day with post request
     useEffect(() => {
@@ -117,7 +111,7 @@ const Page = () => {
     }, [finished]);
 
 
-
+  
 
 
     return (
@@ -130,7 +124,7 @@ const Page = () => {
                 </div>
                 :
                 <div className="flex flex-col gap-6">
-                    {!isLoading && exercise && <>
+                    { exercise && <>
                         <div className="_border rounded-2xl px-10 pt-[42px] pb-[53px] flex flex-col gap-1.5 border-none bg-white">
                             <h1 className="section-title ">{workout?.day}</h1>
                             <p className="text-neutral-600">Training progress</p>

@@ -1,22 +1,41 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
-import NutritionPlan from "../models/NutritionPlan";
+import NutritionPlan, { IDayPlan } from "../models/NutritionPlan";
+import Image from "../models/Image";
+import { s3ImageUploading } from "../utils/images";
+
 
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
-    const { data } = req.body;
+    const { data } = req.body as { data: IDayPlan };
     try {
         const dayDate = new Date();
+        let obj = {};
         dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
         console.log(dayDate);
-        const obj = { ...data, date: dayDate };
         let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         if (nutritionPlan) {
+            for (let meal of data.meals) {
+
+                let url = await Image.findOne({ name: meal.mealTitle });
+
+                if (url) {
+                    obj = { ...data, date: dayDate, imageUrl: url };
+
+                } else {
+
+                    const url = await s3ImageUploading(meal, dayDate);
+                    obj = { ...data, date: dayDate, imageUrl: url };
+
+
+                }
+            }
 
             nutritionPlan.days.push(obj);
             await nutritionPlan.save();
             res.status(200).json({ message: "Successfully added day!" });
             return;
-        } else {
+        }
+        else {
             nutritionPlan = await NutritionPlan.create({ userId: (req as AuthRequest).userId, "days": [obj], createdAt: new Date() });
             res.status(201).json({ message: "Nutrition plan created!" });
             return;
@@ -90,10 +109,10 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
         }
         const currentDay = nutritionPlan.days[dayNum];
         currentDay.meals[index].status = "eaten";
-        currentDay.dailyGoals.calories.current  +=currentDay.meals[index].mealCalories;
-        currentDay.dailyGoals.carbs.current  +=currentDay.meals[index].mealCarbs;
-        currentDay.dailyGoals.fats.current  +=currentDay.meals[index].mealFats;
-        currentDay.dailyGoals.protein.current  +=currentDay.meals[index].mealProtein;
+        currentDay.dailyGoals.calories.current += currentDay.meals[index].mealCalories;
+        currentDay.dailyGoals.carbs.current += currentDay.meals[index].mealCarbs;
+        currentDay.dailyGoals.fats.current += currentDay.meals[index].mealFats;
+        currentDay.dailyGoals.protein.current += currentDay.meals[index].mealProtein;
         nutritionPlan.markModified(`days.${dayNum}.meals.${index}`);
         nutritionPlan.markModified(`days.${dayNum}.dailyGoals`);
         await nutritionPlan.save();
@@ -110,7 +129,7 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
     try {
         const { day } = req.params;
         const { amount } = req.body;
-        console.log(day,amount)
+        console.log(day, amount)
 
         const dayNum = Number(day);
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
@@ -118,9 +137,9 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
             res.status(404).json({ message: "Not found!" });
             return;
         }
-     
-        nutritionPlan.days[dayNum].waterIntake.current +=amount;
-        
+
+        nutritionPlan.days[dayNum].waterIntake.current += amount;
+
         nutritionPlan.markModified(`days.${dayNum}.waterIntake`);
         await nutritionPlan.save();
         res.status(200).json("Status updated!");

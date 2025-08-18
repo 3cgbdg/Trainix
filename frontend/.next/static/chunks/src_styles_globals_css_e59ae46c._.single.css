@@ -511,10 +511,6 @@
     position: relative;
   }
 
-  .top-0 {
-    top: calc(var(--spacing) * 0);
-  }
-
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
@@ -529,10 +525,6 @@
 
   .right-0 {
     right: calc(var(--spacing) * 0);
-  }
-
-  .left-0 {
-    left: calc(var(--spacing) * 0);
   }
 
   .col-span-2 {
@@ -688,11 +680,6 @@
     height: 36px;
   }
 
-  .size-full {
-    width: 100%;
-    height: 100%;
-  }
-
   .h-2 {
     height: calc(var(--spacing) * 2);
   }
@@ -753,10 +740,6 @@
     width: 130px;
   }
 
-  .w-\[150px\] {
-    width: 150px;
-  }
-
   .w-\[900px\] {
     width: 900px;
   }
@@ -776,10 +759,6 @@
 
   .max-w-\[110px\] {
     max-width: 110px;
-  }
-
-  .max-w-\[150px\] {
-    max-width: 150px;
   }
 
   .max-w-\[182px\] {
@@ -830,14 +809,6 @@
     flex-grow: 1;
   }
 
-  .basis-60 {
-    flex-basis: calc(var(--spacing) * 60);
-  }
-
-  .basis-450 {
-    flex-basis: calc(var(--spacing) * 450);
-  }
-
   .basis-\[60px\] {
     flex-basis: 60px;
   }
@@ -846,7 +817,7 @@
     flex-basis: 254px;
   }
 
-  .basis-\[450\], .basis-\[450px\] {
+  .basis-\[450px\] {
     flex-basis: 450px;
   }
 
@@ -862,10 +833,6 @@
     flex-basis: 672px;
   }
 
-  .basis-full {
-    flex-basis: 100%;
-  }
-
   .translate-x-0 {
     --tw-translate-x: calc(var(--spacing) * 0);
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -874,10 +841,6 @@
   .translate-x-4\.5\! {
     --tw-translate-x: calc(var(--spacing) * 4.5) !important;
     translate: var(--tw-translate-x) var(--tw-translate-y) !important;
-  }
-
-  .rotate-90 {
-    rotate: 90deg;
   }
 
   .rotate-180 {
@@ -1016,10 +979,6 @@
     border-radius: var(--radius-2xl);
   }
 
-  .rounded-2xl\! {
-    border-radius: var(--radius-2xl) !important;
-  }
-
   .rounded-\[6px\] {
     border-radius: 6px;
   }
@@ -1056,11 +1015,6 @@
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
-  }
-
-  .border-\[10px\] {
-    border-style: var(--tw-border-style);
-    border-width: 10px;
   }
 
   .border-t-4 {
@@ -1187,10 +1141,6 @@
 
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
-  }
-
-  .p-1\.5\! {
-    padding: calc(var(--spacing) * 1.5) !important;
   }
 
   .p-2 {
@@ -1477,10 +1427,6 @@
     font-weight: var(--font-weight-semibold);
   }
 
-  .text-\[\#\#E67E00FF\] {
-    color: # #e67e00;
-  }
-
   .text-\[\#19191FFF\] {
     color: #19191f;
   }
@@ -1540,14 +1486,6 @@
   .antialiased {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  .opacity-20 {
-    opacity: .2;
-  }
-
-  .opacity-60 {
-    opacity: .6;
   }
 
   .opacity-65 {
