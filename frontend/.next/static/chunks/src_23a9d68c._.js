@@ -776,10 +776,17 @@ __turbopack_context__.s({
     "default": ()=>__TURBOPACK__default__export__
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/reduxHooks.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
 "use client";
 ;
 const GenerateNutritionPlan = (param)=>{
-    let { mutate, isPending } = param;
+    let { mutateAsync, isPending } = param;
+    _s();
+    const { workouts } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "GenerateNutritionPlan.useAppSelector": (state)=>state.workouts
+    }["GenerateNutritionPlan.useAppSelector"]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex flex-col items-center ",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -790,33 +797,42 @@ const GenerateNutritionPlan = (param)=>{
                     children: "AI Nutrition Plan Generating"
                 }, void 0, false, {
                     fileName: "[project]/src/components/nutrition-plan/GenerateNutritionPlan.tsx",
-                    lineNumber: 9,
+                    lineNumber: 12,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                     disabled: isPending ? true : false,
-                    onClick: ()=>{
-                        mutate();
+                    onClick: async ()=>{
+                        if (workouts === null || workouts === void 0 ? void 0 : workouts.items) {
+                            for(let i = 0; i < workouts.items.length; i++){
+                                await mutateAsync(i + 1);
+                            }
+                        }
                     },
                     className: "button-green w-full disabled:bg-neutral-800 ".concat(isPending ? "!bg-neutral-700 !cursor-auto" : ""),
                     children: isPending ? "Processing" : "Proceed to Analysis"
                 }, void 0, false, {
                     fileName: "[project]/src/components/nutrition-plan/GenerateNutritionPlan.tsx",
-                    lineNumber: 11,
+                    lineNumber: 14,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/nutrition-plan/GenerateNutritionPlan.tsx",
-            lineNumber: 8,
+            lineNumber: 11,
             columnNumber: 13
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/components/nutrition-plan/GenerateNutritionPlan.tsx",
-        lineNumber: 7,
-        columnNumber: 8
+        lineNumber: 10,
+        columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
+_s(GenerateNutritionPlan, "8rRYuAXRT0rz/kfowfevEpvFUeA=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"]
+    ];
+});
 _c = GenerateNutritionPlan;
 const __TURBOPACK__default__export__ = GenerateNutritionPlan;
 var _c;
@@ -841,7 +857,7 @@ const reportExtractFunc = async (data, method)=>{
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {
-            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/nutrition-plan/nutrition-plans", {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].post("/api/nutrition-plan/nutrition-plans/days", {
                 data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport)
             });
         } else {
@@ -903,7 +919,7 @@ const Page = ()=>{
         queryFn: getMeasurements
     });
     // mutation - request for generation plan
-    const generateNutritionPlan = async ()=>{
+    const generateNutritionPlan = async (dayNumber)=>{
         if (!user) {
             return null;
         }
@@ -920,7 +936,7 @@ const Page = ()=>{
             muscleMass: measurement.muscleMass,
             leanBodyMass: measurement.leanBodyMass
         };
-        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://127.0.0.1:8000/api/nutrition", userInfo, {
+        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("http://127.0.0.1:8000/api/nutrition?dayNumber=".concat(dayNumber), userInfo, {
             withCredentials: true,
             headers: {
                 "Content-Type": "application/json"
@@ -943,41 +959,44 @@ const Page = ()=>{
             }
         }["Page.useMutation[mutation]"]
     });
-    // const getAnalysis = async () => {
-    //     const res = await api.get("api/nutrition-plan/nutrition-plans");
-    //     return res.data;
-    // }
-    // const { data:nutritionPlanData } = useQuery({
-    //     queryKey: ["getAnalysis"],
-    //     queryFn: getAnalysis,
-    // })
+    const getAnalysis = async ()=>{
+        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("api/nutrition-plan/nutrition-plans");
+        return res.data;
+    };
+    const { data: nutritionPlanData } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "getAnalysis"
+        ],
+        queryFn: getAnalysis
+    });
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "",
-        children: !mutation.data && !mutation.isSuccess ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$nutrition$2d$plan$2f$GenerateNutritionPlan$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-            mutate: mutation.mutate,
+        children: !nutritionPlanData && !mutation.isSuccess ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$nutrition$2d$plan$2f$GenerateNutritionPlan$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            mutateAsync: mutation.mutateAsync,
             isPending: mutation.isPending
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 81,
-            columnNumber: 56
+            lineNumber: 79,
+            columnNumber: 60
         }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ai$2d$analysis$2f$AnalyzedResults$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-            data: mutation.data
+            data: nutritionPlanData
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-            lineNumber: 83,
+            lineNumber: 81,
             columnNumber: 17
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/nutrition-plan/page.tsx",
-        lineNumber: 80,
+        lineNumber: 78,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Page, "lfyIFuQ1xuQzd/eufX0S3+xp7X8=", false, function() {
+_s(Page, "s4DskOOP07SDzF7Uyx+BhcB8TN4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMutation"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]
     ];
 });
 _c = Page;

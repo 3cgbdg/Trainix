@@ -3,6 +3,7 @@ import { api } from '@/api/axiosInstance';
 import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import GenerateNutritionPlan from '@/components/nutrition-plan/GenerateNutritionPlan';
+import NutritionPlanPage from '@/components/nutrition-plan/NutritionPlanPage';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -10,7 +11,6 @@ import axios, { isAxiosError } from 'axios';
 
 const Page = () => {
     const { user } = useAppSelector(state => state.auth)
-
     const getMeasurements = async () => {
         const res = await api.get("/api/measurement/measurements");
         return res.data;
@@ -21,7 +21,7 @@ const Page = () => {
     })
 
 // mutation - request for generation plan
-    const generateNutritionPlan = async () => {
+    const generateNutritionPlan = async (dayNumber:number) => {
         if (!user) {
             return null;
         }
@@ -40,7 +40,7 @@ const Page = () => {
             // days: ,
         }
 
-        const res = await axios.post("http://127.0.0.1:8000/api/nutrition",userInfo , {
+        const res = await axios.post(`http://127.0.0.1:8000/api/nutrition?dayNumber=${dayNumber}`,userInfo , {
             withCredentials: true,
             headers: { "Content-Type": "application/json" }
         });
@@ -62,25 +62,24 @@ const Page = () => {
 
     })
     
-    // const getAnalysis = async () => {
-    //     const res = await api.get("api/nutrition-plan/nutrition-plans");
-        
-    //     return res.data;
-    // }
+    const getAnalysis = async () => {
+        const res = await api.get("api/nutrition-plan/nutrition-plans");
+        return res.data;
+    }
 
 
-    // const { data:nutritionPlanData } = useQuery({
-    //     queryKey: ["getAnalysis"],
-    //     queryFn: getAnalysis,
+    const { data} = useQuery({
+        queryKey: ["getAnalysis"],
+        queryFn: getAnalysis,
 
 
-    // })
+    })
     return (
 
         <div className="">
-            {(!mutation.data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutate={mutation.mutate} isPending={mutation.isPending}/>
+            {(!data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
                 :
-                <AnalyzedResults data={mutation.data} />
+                <NutritionPlanPage day={data} />
             }
         </div>
     );

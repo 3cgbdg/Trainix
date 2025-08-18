@@ -11,7 +11,7 @@ export const reportExtractFunc = async (data: AiDataType, method: "nutrition" | 
     let match = data.AIreport.match(regex);
     try {
         if (method == "nutrition") {
-            await api.post(`/api/nutrition-plan/nutrition-plans`, { data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport) });
+            await api.post(`/api/nutrition-plan/nutrition-plans/days`, { data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport) });
         } else {
             await api.post(`/api/fitness-plan/reports`, { data: match ? JSON.parse(match[1]) : JSON.parse(data.AIreport), imageUrl: data.imageUrl });
 

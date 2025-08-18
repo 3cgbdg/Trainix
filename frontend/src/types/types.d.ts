@@ -40,3 +40,43 @@ export interface IExercise {
   calories: number,
   status: "completed" | "incompleted",
 }
+
+
+
+//  NUTRITION PLAN INTERFACES 
+interface IdailyGoals {
+  calories: {
+    current: number,
+    target: number
+  };
+  protein: { current: number, target: number };
+  carbs: { current: number, target: number };
+  fats: { current: number, target: number };
+
+}
+export interface IMeal {
+
+  mealTitle: string,
+  time: number,
+  imageUrl: string,
+  description: string,
+  ingredients: string[],
+  preparation: string,
+  mealCalories: number,
+  mealProtein: number,
+  mealCarbs: number,
+  mealFats: number
+
+}
+interface IwaterIntake  {
+    current: number,
+    target: number
+}
+export interface INutritionDayPlan {
+  date: Date;
+  dayNumber: number;
+  dailyGoals: IdailyGoals
+  meals: IMeal[],
+  waterIntake: IwaterIntake,
+}
+

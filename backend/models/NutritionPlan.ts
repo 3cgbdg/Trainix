@@ -30,7 +30,7 @@ interface IwaterIntake  {
 }
 interface IDayPlan {
   date: Date;
-  day: string;
+  dayNumber: number;
   dailyGoals: IdailyGoals
   meals: IMeal[],
   waterIntake: IwaterIntake,
