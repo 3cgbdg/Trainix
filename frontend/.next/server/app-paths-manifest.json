@@ -1,3 +1,8 @@
 {
-  "/(main)/nutrition-plan/page": "app/(main)/nutrition-plan/page.js"
+  "/(auth)/auth/login/page": "app/(auth)/auth/login/page.js",
+  "/(main)/dashboard/page": "app/(main)/dashboard/page.js",
+  "/(main)/nutrition-plan/page": "app/(main)/nutrition-plan/page.js",
+  "/(main)/profile/page": "app/(main)/profile/page.js",
+  "/(main)/workout-plan/page": "app/(main)/workout-plan/page.js",
+  "/_not-found/page": "app/_not-found/page.js"
 }

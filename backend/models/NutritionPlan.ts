@@ -22,6 +22,7 @@ interface IMeal {
   mealProtein: number,
   mealCarbs: number,
   mealFats: number
+  status:"eaten"|"pending",
 
 }
 interface IwaterIntake  {

@@ -1,14 +1,33 @@
 "use client"
 
 import { INutritionDayPlan } from "@/types/types"
+import { useState } from "react"
+import MealAccordion from "./MealAccordion";
+import { GlassWater } from "lucide-react";
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { api } from "@/api/axiosInstance";
+import { useQuery } from "@tanstack/react-query";
+
+
+
 
 
 const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
-    console.log(day);
+    const [isOpen, setIsOpen] = useState<string | null>(null);
+    const weekNumber = day.dayNumber < 8 ? 1 : day.dayNumber < 15 ? 2 : day.dayNumber < 22 ? 3 : 4
+    const getWeeklyStatistics = async () => {
+        const res = await api.get(`/api/nutrition-plan/statistics?week=${weekNumber}`);
+        return res.data;
+    }
+    const { isLoading, data: statistics } = useQuery({
+        queryKey: ["statistics", weekNumber],
+        queryFn: getWeeklyStatistics,
+    })
+    console.log(day)
     return (
         <div className="">
             <h1 className="page-title mb-6">Personalized Nutrition Plan</h1>
-            <div className="_border p-6 rounded-[10px] bg-[#F5FAF5FF] col-span-2">
+            <div className="_border p-6 rounded-[10px]  bg-[#F5FAF5FF] col-span-2">
                 <div className="flex flex-col gap-12.5">
                     <div className="flex flex-col gap-2">
                         <h2 className="text-xl leading-7 font-semibold text-black font-outfit">Today's Nutrition Goals</h2>
@@ -56,13 +75,56 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                 </div>
             </div>
             <div className="mt-9 flex gap-6">
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 grow-1">
                     <h2 className="section-title">Your Daily Meals</h2>
+                    {day.meals.map((item, idx) => (
+                        <MealAccordion dayNumber={day.dayNumber} key={idx} meal={item} isOpen={isOpen} setIsOpen={setIsOpen} />
+                    ))}
                 </div>
 
-                <div className="flex flex-col gap-6"></div>
+                <div className="flex flex-col gap-6 basis-[540px]">
+                    <div className="_border pt-6 px-4 pb-4 rounded-[10px]">
+                        <div className="flex flex-col gap-1 mb-10">
+                            <h3 className="text-lg leading-7 font-semibold text-neutral-900">Daily Tracking</h3>
+                            <p className="text-sm text-neutal-600">Log your intake to stay on target.</p>
+                        </div>
+                        <div className="flex flex-col gap-2 ">
+                            <div className="flex gap-2 items-center">
+                                <GlassWater className="text-[#E67E00FF]" size={16} />
+                                <span className="text-neutral-900 font-medium">Water Intake</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <input className="basis-[450px] text-sm input p-2!" />
+                                <button className="button-green basis-[60px] p-2!">Log</button>
+                            </div>
+                            <div className="w-full h-2 overflow-hidden bg-[#EBF5E9FF] _border rounded-sm">
+                                <div style={{ "width": `${day.waterIntake.current}%` }} className={` h-full bg-green`}></div>
+                            </div>
+                            <div className="text-sm text-neutral-600">You've consumed {day.waterIntake.current} ml out of {day.waterIntake.target} ml today.</div>
+                        </div>
+                    </div>
+                    <div className="_border pt-6 px-4 pb-4 rounded-[10px]">
+                        <div className="flex flex-col gap-1 mb-10">
+                            <h3 className="text-lg leading-7 font-semibold text-neutral-900">Weekly Nutrition Trends</h3>
+                            <p className="text-sm text-neutal-600">Overview of your daily intake over the last 7 days.</p>
+                        </div>
+                        <ResponsiveContainer width="100%" height={280}>
+                            <BarChart data={statistics}>
+                                <XAxis dataKey="day" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar radius={[10, 10, 10, 10]} className="" dataKey="calories" fill="#58A446" />
+                                <Bar radius={[10, 10, 10, 10]} dataKey="protein" fill="#0B1D2B" />
+                                <Bar radius={[10, 10, 10, 10]} dataKey="carbs" fill="#F57C00" />
+                                <Bar radius={[10, 10, 10, 10]} dataKey="fat" fill="#F5DEB3" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
             </div>
-           
+
+
 
         </div>
     )

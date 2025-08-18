@@ -66,17 +66,24 @@ export interface IMeal {
   mealProtein: number,
   mealCarbs: number,
   mealFats: number
+  status:"eaten"|"pending",
 
 }
 interface IwaterIntake  {
     current: number,
     target: number
 }
-export interface INutritionDayPlan {
+interface INutritionDayPlan {
   date: Date;
   dayNumber: number;
   dailyGoals: IdailyGoals
   meals: IMeal[],
   waterIntake: IwaterIntake,
+}
+
+interface INutritionPlan {
+  userId: mongoose.Types.ObjectId,
+  days: IDayPlan[],
+  createdAt: Date
 }
 
