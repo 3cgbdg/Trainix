@@ -22,12 +22,12 @@ export interface IMeal {
   mealProtein: number,
   mealCarbs: number,
   mealFats: number
-  status:"eaten"|"pending",
-
+  status: "eaten" | "pending",
+  foodIntake: "Snack" | "Lunch" | "Breakfast" | "Dinner",
 }
-interface IwaterIntake  {
-    current: number,
-    target: number
+interface IwaterIntake {
+  current: number,
+  target: number
 }
 export interface IDayPlan {
   date: Date;
@@ -46,7 +46,7 @@ interface INutritionPlan {
 export interface INutritionPlanDocument extends INutritionPlan, Document<mongoose.Types.ObjectId> { }
 const nutritionPlanSchema = new mongoose.Schema<INutritionPlan>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  days: { type:[Object], required: true },
+  days: { type: [Object], required: true },
   createdAt: { type: Date, default: Date.now },
 })
 

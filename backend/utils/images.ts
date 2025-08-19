@@ -44,6 +44,7 @@ export const s3ImageUploading = async (data: IMeal, dayDate: Date): Promise<stri
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             ContentType: "image/jpeg"
         }))
+        
         url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.REGION_NAME}.amazonaws.com/${key}`;
         return url;
     }

@@ -9,27 +9,22 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
     const { data } = req.body as { data: IDayPlan };
     try {
         const dayDate = new Date();
-        let obj = {};
+        let obj: IDayPlan;
         dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
         console.log(dayDate);
         let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
-        if (nutritionPlan) {
-            for (let meal of data.meals) {
-
-                let url = await Image.findOne({ name: meal.mealTitle });
-
-                if (url) {
-                    obj = { ...data, date: dayDate, imageUrl: url };
-
-                } else {
-
-                    const url = await s3ImageUploading(meal, dayDate);
-                    obj = { ...data, date: dayDate, imageUrl: url };
-
-
-                }
+        for (let meal of data.meals) {
+            const image = await Image.findOne({ name: meal.mealTitle });
+            if (image) {
+                meal.imageUrl = image.imageUrl;
+            } else {
+                const url = await s3ImageUploading(meal, dayDate);
+                await Image.create({ name: meal.mealTitle, imageUrl: url });
+                meal.imageUrl = url;
             }
-
+        }
+        obj = { ...data, date: dayDate };
+        if (nutritionPlan) {
             nutritionPlan.days.push(obj);
             await nutritionPlan.save();
             res.status(200).json({ message: "Successfully added day!" });
@@ -40,8 +35,6 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
             res.status(201).json({ message: "Nutrition plan created!" });
             return;
         }
-
-
     } catch (err) {
         res.status(500).json({ message: "Server error!" });
         return;

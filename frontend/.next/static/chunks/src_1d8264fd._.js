@@ -284,13 +284,13 @@ const AuthClientUpload = ()=>{
                     try {
                         const res1 = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("/api/auth/profile");
                         const res2 = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("/api/fitness-plan/workouts");
-                        const res3 = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("api/nutrition-plan/nutrition-plans");
-                        dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$authSlice$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getProfile"])(res1.data.user));
                         dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$workoutsSlice$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getWorkouts"])(res2.data));
-                        dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$nutritionDaySlice$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getNutritionDay"])(res3.data));
+                        dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$authSlice$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getProfile"])(res1.data.user));
                     } catch (e) {
                         router.push("/auth/login");
                     }
+                    const res3 = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("api/nutrition-plan/nutrition-plans");
+                    dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$redux$2f$nutritionDaySlice$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getNutritionDay"])(res3.data));
                 }
             }["AuthClientUpload.useEffect.getUser"];
             getUser();

@@ -28,7 +28,7 @@ const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber:
       
             <div className="flex items-center justify-between mb-1">
                 <h3 className="text-lg leading-7 font-semibold text-neutral-900">
-                    {meal.mealTitle}
+                  {meal.foodIntake} - {meal.mealTitle}
                 </h3>
                 <button onClick={() => setIsOpen(prev => prev == meal.mealTitle ? null : meal.mealTitle)} className={`text-neutral-900 transition-transform cursor-pointer outline-0 ${isOpen == meal.mealTitle ? "rotate-180 " : ""}`}>
                     <ChevronDown />
@@ -36,7 +36,7 @@ const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber:
             </div>
             <span className="text-sm text-neutral-600 mb-4"><b>Time:</b> {meal.time}</span>
             <div className="rounded-md overflow-hidden mb-4 _border">
-                <Image height={144} width={516} src={meal.imageUrl} alt="food picture" />
+                <Image className="max-h-[250px] object-cover object-center w-full" height={300} width={516} src={meal.imageUrl} alt="food picture" />
             </div>
             <div className="flex items-center justify-between">
                 <p className="text-sm text-neutral-900 ">{meal.description}</p>

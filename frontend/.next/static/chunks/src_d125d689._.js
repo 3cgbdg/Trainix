@@ -46,7 +46,7 @@ const GenerateNutritionPlan = (param)=>{
                     children: isPending ? "Processing" : "Proceed to Analysis"
                 }, void 0, false, {
                     fileName: "[project]/src/components/nutrition-plan/GenerateNutritionPlan.tsx",
-                    lineNumber: 14,
+                    lineNumber: 13,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             ]
@@ -132,8 +132,12 @@ const MealAccordion = (param)=>{
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                         className: "text-lg leading-7 font-semibold text-neutral-900",
-                        children: meal.mealTitle
-                    }, void 0, false, {
+                        children: [
+                            meal.foodIntake,
+                            " - ",
+                            meal.mealTitle
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/components/nutrition-plan/MealAccordion.tsx",
                         lineNumber: 30,
                         columnNumber: 17
@@ -178,7 +182,8 @@ const MealAccordion = (param)=>{
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "rounded-md overflow-hidden mb-4 _border",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                    height: 144,
+                    className: "max-h-[250px] object-cover object-center w-full",
+                    height: 300,
                     width: 516,
                     src: meal.imageUrl,
                     alt: "food picture"

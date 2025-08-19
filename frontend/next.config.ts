@@ -1,14 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    images: {
+  images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'trainix.s3.amazonaws.com',
+        hostname: 'trainix.s3.eu-north-1.amazonaws.com',
+        pathname: "/**",
       },
     ],
-    
+
   },
 };
 

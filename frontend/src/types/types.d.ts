@@ -66,12 +66,12 @@ export interface IMeal {
   mealProtein: number,
   mealCarbs: number,
   mealFats: number
-  status:"eaten"|"pending",
-
+  status: "eaten" | "pending",
+  foodIntake: "Snack" | "Lunch" | "Breakfast" | "Dinner",
 }
-interface IwaterIntake  {
-    current: number,
-    target: number
+interface IwaterIntake {
+  current: number,
+  target: number
 }
 interface INutritionDayPlan {
   date: Date;
