@@ -6,10 +6,9 @@
 # frontend
 /frontend/node_modules
 /frontend/.env.local
-
+/frontend/.next
+/frontend/dist
 # general
 .DS_Store
-build
 node_modules
-dist
 .env
