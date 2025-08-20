@@ -194,6 +194,7 @@
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
+      --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;
@@ -224,6 +225,7 @@
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
+      --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;
@@ -252,8 +254,16 @@
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --color-red-500: #fb2c36;
+    --color-yellow-100: #fef9c2;
+    --color-green-50: #f0fdf4;
+    --color-green-100: #dcfce7;
+    --color-green-200: #b9f8cf;
     --color-green-500: #00c758;
+    --color-blue-100: #dbeafe;
+    --color-pink-100: #fce7f3;
+    --color-gray-50: #f9fafb;
     --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
     --color-gray-500: #6a7282;
     --color-neutral-100: #f5f5f5;
     --color-neutral-200: #e5e5e5;
@@ -266,6 +276,7 @@
     --color-black: #000;
     --color-white: #fff;
     --spacing: .25rem;
+    --container-3xl: 48rem;
     --text-xs: .75rem;
     --text-xs--line-height: calc(1 / .75);
     --text-sm: .875rem;
@@ -291,6 +302,7 @@
     --radius-xl: .75rem;
     --radius-2xl: 1rem;
     --animate-spin: spin 1s linear infinite;
+    --aspect-video: 16 / 9;
     --default-transition-duration: .15s;
     --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
     --default-font-family: var(--font-sans);
@@ -303,8 +315,16 @@
   @supports (color: color(display-p3 0 0 0)) {
     :root, :host {
       --color-red-500: color(display-p3 .903738 .262579 .253307);
+      --color-yellow-100: color(display-p3 .993436 .977463 .782913);
+      --color-green-50: color(display-p3 .950677 .990571 .959366);
+      --color-green-100: color(display-p3 .885269 .984329 .910368);
+      --color-green-200: color(display-p3 .776442 .964383 .823412);
       --color-green-500: color(display-p3 .308734 .774754 .374307);
+      --color-blue-100: color(display-p3 .869214 .915931 .989622);
+      --color-pink-100: color(display-p3 .974549 .908208 .950227);
+      --color-gray-50: color(display-p3 .977213 .98084 .985102);
       --color-gray-100: color(display-p3 .953567 .956796 .964321);
+      --color-gray-200: color(display-p3 .899787 .906171 .92106);
       --color-gray-500: color(display-p3 .421287 .446085 .504784);
       --color-neutral-100: color(display-p3 .960587 .960587 .960587);
       --color-neutral-200: color(display-p3 .898161 .898161 .898161);
@@ -320,8 +340,16 @@
   @supports (color: lab(0% 0 0)) {
     :root, :host {
       --color-red-500: lab(55.4814% 75.0732 48.8528);
+      --color-yellow-100: lab(97.3564% -4.51407 27.344);
+      --color-green-50: lab(98.1563% -5.60117 2.75913);
+      --color-green-100: lab(96.186% -13.8464 6.52362);
+      --color-green-200: lab(92.4222% -26.4702 12.9427);
       --color-green-500: lab(70.5521% -66.5147 45.8072);
+      --color-blue-100: lab(92.0301% -2.24757 -11.6453);
+      --color-pink-100: lab(93.5864% 9.01193 -3.15077);
+      --color-gray-50: lab(98.2596% -.247031 -.706708);
       --color-gray-100: lab(96.1596% -.082314 -1.13575);
+      --color-gray-200: lab(91.6229% -.159085 -2.26791);
       --color-gray-500: lab(47.7841% -.393212 -10.0268);
       --color-neutral-100: lab(96.52% -.0000596046 0);
       --color-neutral-200: lab(90.952% -.0000596046 0);
@@ -854,6 +882,14 @@
     display: inline-flex;
   }
 
+  .aspect-auto {
+    aspect-ratio: auto;
+  }
+
+  .aspect-video {
+    aspect-ratio: var(--aspect-video);
+  }
+
   .size-24 {
     width: calc(var(--spacing) * 24);
     height: calc(var(--spacing) * 24);
@@ -900,20 +936,16 @@
     height: 100vh;
   }
 
-  .max-h-\[144px\] {
-    max-height: 144px;
-  }
-
-  .max-h-\[200px\] {
-    max-height: 200px;
-  }
-
-  .max-h-\[200x\] {
-    max-height: 200dppx;
-  }
-
   .max-h-\[250px\] {
     max-height: 250px;
+  }
+
+  .min-h-\[250px\] {
+    min-height: 250px;
+  }
+
+  .min-h-\[350px\] {
+    min-height: 350px;
   }
 
   .w-5 {
@@ -940,6 +972,10 @@
     width: 130px;
   }
 
+  .w-\[150px\] {
+    width: 150px;
+  }
+
   .w-\[900px\] {
     width: 900px;
   }
@@ -953,16 +989,16 @@
     width: 100%;
   }
 
+  .max-w-3xl {
+    max-width: var(--container-3xl);
+  }
+
   .max-w-\[50px\] {
     max-width: 50px;
   }
 
   .max-w-\[110px\] {
     max-width: 110px;
-  }
-
-  .max-w-\[144px\] {
-    max-width: 144px;
   }
 
   .max-w-\[182px\] {
@@ -1167,6 +1203,12 @@
     gap: 10px;
   }
 
+  :where(.space-y-2 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+    margin-bottom: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
   .gap-x-4 {
     column-gap: calc(var(--spacing) * 4);
   }
@@ -1255,8 +1297,16 @@
     border-color: #468438;
   }
 
+  .border-gray-200 {
+    border-color: var(--color-gray-200);
+  }
+
   .border-green {
     border-color: #58a446;
+  }
+
+  .border-green-200 {
+    border-color: var(--color-green-200);
   }
 
   .border-neutral-300 {
@@ -1307,6 +1357,14 @@
     background-color: #ed746e;
   }
 
+  .bg-blue-100 {
+    background-color: var(--color-blue-100);
+  }
+
+  .bg-gray-50 {
+    background-color: var(--color-gray-50);
+  }
+
   .bg-green {
     background-color: #58a446;
   }
@@ -1315,12 +1373,24 @@
     background-color: #58a446 !important;
   }
 
+  .bg-green-50 {
+    background-color: var(--color-green-50);
+  }
+
+  .bg-green-100 {
+    background-color: var(--color-green-100);
+  }
+
   .bg-neutral-100 {
     background-color: var(--color-neutral-100);
   }
 
   .bg-neutral-200 {
     background-color: var(--color-neutral-200);
+  }
+
+  .bg-pink-100 {
+    background-color: var(--color-pink-100);
   }
 
   .bg-red {
@@ -1335,12 +1405,12 @@
     background-color: var(--color-white);
   }
 
-  .stroke-black {
-    stroke: var(--color-black);
+  .bg-yellow-100 {
+    background-color: var(--color-yellow-100);
   }
 
-  .object-contain {
-    object-fit: contain;
+  .stroke-black {
+    stroke: var(--color-black);
   }
 
   .object-cover {
@@ -1667,6 +1737,10 @@
     color: #58a446;
   }
 
+  .text-green\! {
+    color: #58a446 !important;
+  }
+
   .text-green-500 {
     color: var(--color-green-500);
   }
@@ -1689,6 +1763,10 @@
 
   .text-red {
     color: #dc6660;
+  }
+
+  .text-red\! {
+    color: #dc6660 !important;
   }
 
   .text-red-500 {
@@ -2042,6 +2120,12 @@ body {
 @property --tw-skew-y {
   syntax: "*";
   inherits: false
+}
+
+@property --tw-space-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
 }
 
 @property --tw-border-style {

@@ -1,3 +1,12 @@
 {
-  "/(main)/nutrition-plan/page": "app/(main)/nutrition-plan/page.js"
+  "/(auth)/auth/login/page": "app/(auth)/auth/login/page.js",
+  "/(main)/ai-analysis/page": "app/(main)/ai-analysis/page.js",
+  "/(main)/dashboard/page": "app/(main)/dashboard/page.js",
+  "/(main)/nutrition-plan/page": "app/(main)/nutrition-plan/page.js",
+  "/(main)/profile/page": "app/(main)/profile/page.js",
+  "/(main)/workout-plan/page": "app/(main)/workout-plan/page.js",
+  "/(main)/workout/[id]/page": "app/(main)/workout/[id]/page.js",
+  "/(main)/workout/[id]/sucess/page": "app/(main)/workout/[id]/sucess/page.js",
+  "/(main)/workout/sucess/page": "app/(main)/workout/sucess/page.js",
+  "/_not-found/page": "app/_not-found/page.js"
 }

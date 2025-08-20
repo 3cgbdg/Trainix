@@ -71,11 +71,11 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
             res.status(404).json({ message: "Not found!" });
             return;
         }
-
         const days = nutritionPlan.days;
         let data = [];
 
         for (let i = 7 * weekNumber - 7; i < 7 * weekNumber; i++) {
+            if(!days[i])break;
             data.push({ day: days[i].date.toLocaleDateString("en-US", { weekday: "short" }), calories: days[i].dailyGoals.calories.current, protein: days[i].dailyGoals.protein.current, carbs: days[i].dailyGoals.carbs.current, fats: days[i].dailyGoals.fats.current })
 
 
@@ -122,7 +122,6 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
     try {
         const { day } = req.params;
         const { amount } = req.body;
-        console.log(day, amount)
 
         const dayNum = Number(day);
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });

@@ -3,12 +3,13 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
 import FitnessPlan from "../models/FitnessPlan";
 import Measurement from "../models/Measurement";
+import User from "../models/User";
 
 export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
     console.log(data, imageUrl);
     try {
-        const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
+        const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
         if (fitnessPlan) {
             for (let i = 0; i < fitnessPlan.report.plan.days.length; i++) {
@@ -35,10 +36,16 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
     const { day } = req.params;
     try {
         const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
+        const user = await User.findById((req as AuthRequest).userId);
         if (!plan) {
             res.status(404).json({ message: "Not found!" });
             return;
         }
+        if (!user) {
+            res.status(404).json({ message: "Not found!" });
+            return;
+        }
+
         const currentDay = plan?.report.plan.days[Number(day)];
         for (let [i, exercise] of currentDay.exercises.entries()) {
             if (completedItems[i]?.completed) {
@@ -48,11 +55,18 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
         }
         if (currentDay.exercises.every(exercise => exercise.status === "completed")) {
             currentDay.status = "Completed";
+            plan.report.streak += 1;
+            if (plan.report.streak > user.longestStreak) {
+                user.longestStreak += 1;
+            }
+
         }
         plan.markModified(`report.plan.days.${day}`);
-
+        plan.markModified(`report`);
         await plan.save();
-        res.status(200).json({ message: "Day is successfully compeleted!" });
+        await user.save();
+        console.log(currentDay, plan.report.streak)
+        res.status(200).json({ message: "Day is successfully compeleted!", day: currentDay, streak: plan.report.streak });
         return;
     } catch {
         res.status(500).json({ message: "Server error!" });
@@ -65,15 +79,14 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
         const { date } = req.query;
         const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: 1 });
         const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
-        let streak = 0;
+        const user = await User.findById((req as AuthRequest).userId);
+
         if (!plan || typeof date !== "string") {
             res.status(404).json({ message: "Not found!" });
             return;
         }
 
-        for (let day of plan.report.plan.days) {
-            day.status !== "Pending" ? streak++ : streak = 0;
-        }
+
         let weightsData = [];
         for (let item of measurements) {
             weightsData.push({ month: item.createdAt.toLocaleDateString("en-US", { month: "short" }), weight: item.metrics.weight });
@@ -82,13 +95,17 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
         const currentDay = new Date(date);
 
         const firstDay = new Date(plan.createdAt);
-        const day = Math.floor((currentDay.getTime() - firstDay.getTime()) / (1000 * 3600 * 24));
+        const day = Math.round((currentDay.getTime() - firstDay.getTime()) / (1000 * 3600 * 24));
+        const currentCalories = plan.report.plan.days[day].exercises.reduce((acc, cur) => {
+            return (cur.status == "completed" ? acc + cur.calories : acc);
+        }, 0)
         res.status(200).json({
             weight: measurements[measurements.length - 1].metrics.weight,
             lastWeight: measurements[measurements.length - 2] ? measurements[measurements.length - 2].metrics.weight : null,
             bmi: measurements[measurements.length - 1].metrics.weight / (Math.pow(measurements[measurements.length - 1].metrics.height * 0.01, 2)),
-            streak: streak,
-            calories: plan.report.plan.days[day].calories,
+            streak: plan.report.streak,
+            longestStreak: user?.longestStreak,
+            calories: { current: currentCalories, target: plan.report.plan.days[day].calories },
             weightsData: weightsData,
             day: day,
         });
@@ -100,6 +117,8 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
 }
 
 
+
+// full analysis of the body from measurements of the last image uploading
 export const getAnalysis = async (req: Request, res: Response): Promise<void> => {
     try {
         const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12);
@@ -108,9 +127,11 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
             return;
         }
         let chartData = [];
+        // data for chart (body-fat difference)
         for (let item of measurements) {
             chartData.push({ month: item.createdAt.toLocaleDateString("en-US", { month: "short" }), bodyFatPercent: item.metrics.bodyFatPercent });
         }
+
 
         const weightDifference = measurements[1] ? measurements[0].metrics.weight - measurements[1].metrics.weight : 0;
 
@@ -136,6 +157,8 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
     }
 }
 
+
+// getting info about the personal workout days for redux state
 export const getWorkouts = async (req: Request, res: Response): Promise<void> => {
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
@@ -143,18 +166,21 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
             res.status(404).json({ message: "Not found!" })
             return;
         }
+        // variable for getting array idx of current day item of
         const today = new Date();
         const dates = []
         let todayWorkoutNumber;
         let currentWeekTitle;
         for (let [i, item] of fitnessPlan.report.plan.days.entries()) {
             const itemDate = new Date(item.date);
+            // pushing day
             dates.push({ weekDay: item.date.toLocaleDateString("en-US", { weekday: "long" }), monthAndDate: `${item.date.getDate()} ${item.date.toLocaleDateString("en-US", { month: "long" })}` });
-
+            // if date == today - current day idx
             if (itemDate.getDate() === today.getDate() && itemDate.getMonth() === today.getMonth()) {
                 todayWorkoutNumber = i;
             }
         }
+        // getting current week title from current day idx example:(0-6)1 week
         if (todayWorkoutNumber) {
             currentWeekTitle = todayWorkoutNumber < 7
                 ? fitnessPlan.report.plan.week1Title
@@ -171,6 +197,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
             dates: dates,
             todayWorkoutNumber: todayWorkoutNumber,
             currentWeekTitle: currentWeekTitle,
+            streak: fitnessPlan.report.streak,
         })
         return;
     } catch (err) {
@@ -178,6 +205,8 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
         return;
     }
 }
+
+
 export const getWorkout = async (req: Request, res: Response): Promise<void> => {
     const { day } = req.params;
     try {
@@ -199,7 +228,7 @@ export const getWorkout = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteFitnessPlan = async (req: Request, res: Response): Promise<void> => {
     try {
-        const plan = await FitnessPlan.findOneAndDelete({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        await FitnessPlan.findOneAndDelete({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
         res.json({ message: "Successfully deleted!" });
         return;
     } catch (err) {

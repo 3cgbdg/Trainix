@@ -68,7 +68,8 @@ const __TURBOPACK__default__export__ = authSlice.reducer;
 
 __turbopack_context__.s({
     "default": ()=>__TURBOPACK__default__export__,
-    "getWorkouts": ()=>getWorkouts
+    "getWorkouts": ()=>getWorkouts,
+    "updateWorkouts": ()=>updateWorkouts
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$reduxjs$2f$toolkit$2f$dist$2f$redux$2d$toolkit$2e$modern$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs [app-ssr] (ecmascript) <locals>");
 ;
@@ -81,10 +82,18 @@ const workoutsSlice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_m
     reducers: {
         getWorkouts: (state, action)=>{
             state.workouts = action.payload;
+        },
+        updateWorkouts: (state, action)=>{
+            if (!state.workouts) return;
+            const index = state.workouts.items.findIndex((item)=>item.date === action.payload.day.date);
+            if (index !== -1) {
+                state.workouts.items[index] = action.payload.day;
+            }
+            state.workouts.streak = action.payload.streak;
         }
     }
 });
-const { getWorkouts } = workoutsSlice.actions;
+const { getWorkouts, updateWorkouts } = workoutsSlice.actions;
 const __TURBOPACK__default__export__ = workoutsSlice.reducer;
 }),
 "[project]/src/redux/nutritionDaySlice.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {

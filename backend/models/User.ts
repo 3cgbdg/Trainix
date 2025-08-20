@@ -8,7 +8,7 @@ export interface IUser {
     email: string,
     dateOfBirth: Date,
     gender: string,
-    streak: number,
+    longestStreak: number,
     emailNotifications: boolean,
     inAppNotifications: boolean,
     metrics: {
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema<IUser>({
     inAppNotifications: { type: Boolean, default:true },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: ["Male", "Female"], required: true },
-    streak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
     metrics: {
         height: { type: Number },
         weight: { type: Number },

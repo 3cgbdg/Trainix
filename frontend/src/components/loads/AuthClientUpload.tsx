@@ -15,14 +15,15 @@ const AuthClientUpload = () => {
         const getUser = async () => {
             try {
                 const res1 = await api.get(`/api/auth/profile`);
-                const res2 = await api.get(`/api/fitness-plan/workouts`);
-                dispatch(getWorkouts(res2.data));
+
                 dispatch(getProfile(res1.data.user));
 
 
             } catch {
                 router.push("/auth/login");
             }
+            const res2 = await api.get(`/api/fitness-plan/workouts`);
+            dispatch(getWorkouts(res2.data));
             const res3 = await api.get("api/nutrition-plan/nutrition-plans");
             dispatch(getNutritionDay(res3.data));
 

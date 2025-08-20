@@ -8,9 +8,9 @@ const nextConfig: NextConfig = {
         hostname: 'trainix.s3.eu-north-1.amazonaws.com',
         pathname: "/**",
       },
+ 
     ],
 
   },
 };
-
 export default nextConfig;

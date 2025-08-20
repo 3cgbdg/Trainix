@@ -36,6 +36,7 @@ interface IAdvices {
 }
 
 interface IReportData {
+  streak: number,
   briefAnalysis: IBriefAnalysis;
   plan: {
     week1Title: string,

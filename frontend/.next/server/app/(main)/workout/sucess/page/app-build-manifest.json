@@ -1,0 +1,25 @@
+{
+  "pages": {
+    "/(main)/workout/sucess/page": [
+      "static/chunks/[root-of-the-server]__391715ee._.css",
+      "static/chunks/node_modules_c86b0149._.js",
+      "static/chunks/src_56c6fdf5._.js",
+      "static/chunks/src_app_layout_tsx_68b267f5._.js",
+      "static/chunks/node_modules_next_dist_client_components_builtin_global-error_c9966a5f.js",
+      "static/chunks/node_modules_ff9f024a._.js",
+      "static/chunks/src_1d8264fd._.js",
+      "static/chunks/src_app_(main)_layout_tsx_c9966a5f._.js",
+      "static/chunks/src_app_(main)_workout_sucess_page_tsx_c10c7327._.js",
+      "static/chunks/src_app_(main)_workout_sucess_page_tsx_afc23740._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_6aaa83c7._.js",
+      "static/chunks/node_modules_next_dist_compiled_react-dom_1f56dc06._.js",
+      "static/chunks/node_modules_next_dist_compiled_next-devtools_index_d575f738.js",
+      "static/chunks/node_modules_next_dist_compiled_0f1b9fd4._.js",
+      "static/chunks/node_modules_next_dist_client_20b209c9._.js",
+      "static/chunks/node_modules_next_dist_445d8acf._.js",
+      "static/chunks/node_modules_@swc_helpers_cjs_8e433861._.js",
+      "static/chunks/_e69f0d32._.js",
+      "static/chunks/_01f48b92._.js"
+    ]
+  }
+}

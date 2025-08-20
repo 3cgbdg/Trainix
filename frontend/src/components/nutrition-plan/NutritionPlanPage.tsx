@@ -42,7 +42,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
         }
 
     })
-    return (
+        return (
         <div className="">
             <h1 className="page-title mb-6">Personalized Nutrition Plan</h1>
             <div className="_border p-6 rounded-[10px]  bg-[#F5FAF5FF] col-span-2">
@@ -127,7 +127,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                                         }
 
                                     }} className="basis-[450px] text-sm input p-2!" />
-                                    <button onClick={() => { mutation.mutate({ amount: amount, dayNumber: day.dayNumber-1 });input.current!.value="" }
+                                    <button onClick={() => { mutation.mutate({ amount: amount, dayNumber: day.dayNumber - 1 }); input.current!.value = "" }
                                     } className={`button-green basis-[60px] p-2! ${error ? "pointer-events-none opacity-65" : ""}`}>Log</button>
                                 </div>
                                 {error &&

@@ -16,7 +16,7 @@ export interface IUser {
 
   },
   imageUrl: string,
-  streak: number,
+  longestStreak: number,
   targetWeight: number,
   fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
   primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",

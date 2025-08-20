@@ -9,9 +9,9 @@ __turbopack_context__.s({
     "default": ()=>__TURBOPACK__default__export__
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/api/axiosInstance.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/reduxHooks.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useQuery.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/axios/lib/axios.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowUp$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/arrow-up.js [app-client] (ecmascript) <export default as ArrowUp>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bike$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bike$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/bike.js [app-client] (ecmascript) <export default as Bike>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$goal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Goal$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/goal.js [app-client] (ecmascript) <export default as Goal>");
@@ -43,13 +43,11 @@ const page = ()=>{
         "page.useAppSelector": (state)=>state.auth
     }["page.useAppSelector"]);
     const getNumbers = async ()=>{
-        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("http://localhost:5200/api/fitness-plan/reports/numbers", {
-            withCredentials: true,
+        const res = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$api$2f$axiosInstance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["api"].get("/api/fitness-plan/reports/numbers", {
             params: {
                 date: new Date()
             }
         });
-        console.log(res.data);
         return res.data;
     };
     const { data, isLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"])({
@@ -132,7 +130,7 @@ const page = ()=>{
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                 lineNumber: 48,
-                                columnNumber: 17
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "grid grid-cols-4 gap-6",
@@ -149,20 +147,20 @@ const page = ()=>{
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                         lineNumber: 53,
-                                                        columnNumber: 29
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$monitor$2d$off$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MonitorOff$3e$__["MonitorOff"], {
                                                         size: 20
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                         lineNumber: 54,
-                                                        columnNumber: 29
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                 lineNumber: 52,
-                                                columnNumber: 25
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-3xl leading-9 font-bold text-neutral-900 mb-1.5",
@@ -173,21 +171,32 @@ const page = ()=>{
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                 lineNumber: 56,
-                                                columnNumber: 25
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1",
-                                                children: data.lastWeight && "Last week - ".concat(data.lastWeight)
-                                            }, void 0, false, {
+                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1 ".concat(data.lastWeight > data.weight && (user === null || user === void 0 ? void 0 : user.primaryFitnessGoal) == "Lose weight" ? "text-green!" : data.lastWeight < data.weight && (user === null || user === void 0 ? void 0 : user.primaryFitnessGoal) == "Lose weight" ? "text-red!" : data.lastWeight > data.weight ? "text-red!" : "text-green!"),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowUp$3e$__["ArrowUp"], {
+                                                        size: 20,
+                                                        className: " ".concat(data.lastWeight > data.weight && (user === null || user === void 0 ? void 0 : user.primaryFitnessGoal) == "Lose weight" ? "" : data.lastWeight < data.weight && (user === null || user === void 0 ? void 0 : user.primaryFitnessGoal) == "Lose weight" ? "rotate-180" : data.lastWeight > data.weight ? "rotate-180" : "")
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                        lineNumber: 58,
+                                                        columnNumber: 33
+                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                    data.lastWeight && "From ".concat(data.lastWeight, " (last week)"),
+                                                    " kg"
+                                                ]
+                                            }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                 lineNumber: 57,
-                                                columnNumber: 25
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                         lineNumber: 51,
-                                        columnNumber: 21
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "shadow-xs p-6 pt-7 bg-white rounded-[10px] ",
@@ -200,87 +209,43 @@ const page = ()=>{
                                                         children: "BMI"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 61,
-                                                        columnNumber: 29
+                                                        lineNumber: 64,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scale$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Scale$3e$__["Scale"], {
                                                         size: 20
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 62,
-                                                        columnNumber: 29
+                                                        lineNumber: 65,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 60,
-                                                columnNumber: 25
+                                                lineNumber: 63,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-3xl leading-9 font-bold text-neutral-900 mb-1.5",
                                                 children: Number(data.bmi).toFixed(2)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 64,
-                                                columnNumber: 25
+                                                lineNumber: 67,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1",
+                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1 ".concat(data.bmi > 25 ? "text-red" : "text-green!"),
                                                 children: data.bmi > 31 ? "Obese" : data.bmi > 24.5 ? "Overweight" : data.bmi < 18.5 ? "Underweight" : "Healthy"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 65,
-                                                columnNumber: 25
-                                            }, ("TURBOPACK compile-time value", void 0))
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 59,
-                                        columnNumber: 27
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "shadow-xs p-6 pt-7 bg-white rounded-[10px] ",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center justify-between mb-4 text-neutral-600",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-sm leading-5 font-medium ",
-                                                        children: "Daily Calorie Goal"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 69,
-                                                        columnNumber: 29
-                                                    }, ("TURBOPACK compile-time value", void 0)),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$goal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Goal$3e$__["Goal"], {
-                                                        size: 20
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 70,
-                                                        columnNumber: 29
-                                                    }, ("TURBOPACK compile-time value", void 0))
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                                 lineNumber: 68,
-                                                columnNumber: 25
-                                            }, ("TURBOPACK compile-time value", void 0)),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "text-3xl leading-9 font-bold text-neutral-900 mb-1.5",
-                                                children: [
-                                                    data.calories,
-                                                    " ccal"
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 72,
-                                                columnNumber: 25
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 67,
-                                        columnNumber: 21
+                                        lineNumber: 62,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "shadow-xs p-6 pt-7 bg-white rounded-[10px] ",
@@ -293,21 +258,21 @@ const page = ()=>{
                                                         children: "Workout Streak"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 77,
-                                                        columnNumber: 29
+                                                        lineNumber: 73,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bike$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bike$3e$__["Bike"], {
                                                         size: 20
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 78,
-                                                        columnNumber: 29
+                                                        lineNumber: 74,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 76,
-                                                columnNumber: 25
+                                                lineNumber: 72,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-3xl leading-9 font-bold text-neutral-900 mb-1.5",
@@ -317,18 +282,18 @@ const page = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 80,
-                                                columnNumber: 25
+                                                lineNumber: 76,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1",
+                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1 ".concat(data.streak ? "text-green!" : ""),
                                                 children: [
                                                     data.streak === true && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowUp$3e$__["ArrowUp"], {
-                                                        size: 14
+                                                        size: 20
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 81,
-                                                        columnNumber: 125
+                                                        lineNumber: 77,
+                                                        columnNumber: 169
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     " Longest streak: ",
                                                     (_user_streak = user === null || user === void 0 ? void 0 : user.streak) !== null && _user_streak !== void 0 ? _user_streak : 0,
@@ -336,26 +301,99 @@ const page = ()=>{
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 81,
-                                                columnNumber: 25
+                                                lineNumber: 77,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 75,
-                                        columnNumber: 21
+                                        lineNumber: 71,
+                                        columnNumber: 25
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "shadow-xs p-6 pt-7 bg-white rounded-[10px] ",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-between mb-4 text-neutral-600",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-sm leading-5 font-medium ",
+                                                        children: "Daily Calorie Goal"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                        lineNumber: 82,
+                                                        columnNumber: 33
+                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$goal$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Goal$3e$__["Goal"], {
+                                                        size: 20
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                        lineNumber: 83,
+                                                        columnNumber: 33
+                                                    }, ("TURBOPACK compile-time value", void 0))
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                lineNumber: 81,
+                                                columnNumber: 29
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "text-3xl leading-9 font-bold text-neutral-900 mb-1.5",
+                                                children: [
+                                                    data.streak === true && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowUp$3e$__["ArrowUp"], {
+                                                        size: 20
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                        lineNumber: 85,
+                                                        columnNumber: 124
+                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                    " ",
+                                                    data.calories.current,
+                                                    " / ",
+                                                    data.calories.target,
+                                                    " ccal"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                lineNumber: 85,
+                                                columnNumber: 29
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "text-sm leading-5 text-neutral-900 flex items-center gap-1 ".concat(data.calories.current > 0 ? "text-green!" : ""),
+                                                children: [
+                                                    data.calories.current > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowUp$3e$__["ArrowUp"], {
+                                                        size: 20
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                        lineNumber: 86,
+                                                        columnNumber: 187
+                                                    }, ("TURBOPACK compile-time value", void 0)) : "",
+                                                    " ",
+                                                    (data.calories.current / data.calories.target * 100).toFixed(0),
+                                                    "% complete"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                lineNumber: 86,
+                                                columnNumber: 29
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                        lineNumber: 80,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                                 lineNumber: 49,
-                                columnNumber: 17
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
                         lineNumber: 47,
-                        columnNumber: 15
+                        columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex flex-col gap-4",
@@ -365,8 +403,8 @@ const page = ()=>{
                                 children: "Progress Overview"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                lineNumber: 90,
-                                columnNumber: 17
+                                lineNumber: 95,
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "rounded-[10px] bg-white p-6 shadow-xs",
@@ -379,22 +417,22 @@ const page = ()=>{
                                                 children: "Weight Trend (Last 6 Months)"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 94,
-                                                columnNumber: 25
+                                                lineNumber: 99,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm leading-5 text-neutral-600 ",
                                                 children: "Your progress at a glance."
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 95,
-                                                columnNumber: 25
+                                                lineNumber: 100,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 93,
-                                        columnNumber: 21
+                                        lineNumber: 98,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
                                         width: "100%",
@@ -407,15 +445,15 @@ const page = ()=>{
                                                     strokeDasharray: "3 3"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 99,
-                                                    columnNumber: 29
+                                                    lineNumber: 104,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
                                                     dataKey: "month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 100,
-                                                    columnNumber: 29
+                                                    lineNumber: 105,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
                                                     domain: [
@@ -424,18 +462,18 @@ const page = ()=>{
                                                     ]
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 101,
-                                                    columnNumber: 29
+                                                    lineNumber: 106,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {}, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 102,
-                                                    columnNumber: 29
+                                                    lineNumber: 107,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Legend"], {}, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 103,
-                                                    columnNumber: 29
+                                                    lineNumber: 108,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
                                                     type: "monotone",
@@ -451,31 +489,31 @@ const page = ()=>{
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                    lineNumber: 104,
-                                                    columnNumber: 29
+                                                    lineNumber: 109,
+                                                    columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                            lineNumber: 98,
-                                            columnNumber: 25
+                                            lineNumber: 103,
+                                            columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 97,
-                                        columnNumber: 21
+                                        lineNumber: 102,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                lineNumber: 92,
-                                columnNumber: 17
+                                lineNumber: 97,
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                        lineNumber: 89,
-                        columnNumber: 13
+                        lineNumber: 94,
+                        columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex flex-col gap-4 ",
@@ -485,14 +523,14 @@ const page = ()=>{
                                 children: "Quick Summaries"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                lineNumber: 116,
-                                columnNumber: 17
+                                lineNumber: 121,
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "grid grid-cols-3 gap-6",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "_border rounded-[10px] p-6 pt-[25px] max-w-[358px] flex flex-col bg-white",
+                                        className: "_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col mb-6 gap-1.5",
@@ -502,60 +540,66 @@ const page = ()=>{
                                                         children: "Today's Workout Plan"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 120,
-                                                        columnNumber: 29
+                                                        lineNumber: 125,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-neutral-600 text-sm leading-5",
                                                         children: "Daily Cardio Blast: 30 mins running, 15 mins cycling."
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 121,
-                                                        columnNumber: 29
+                                                        lineNumber: 126,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 119,
-                                                columnNumber: 25
+                                                lineNumber: 124,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col justify-between grow-1",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        className: "rounded-lg ",
-                                                        src: "/dashboard/workout.jpg",
-                                                        width: 310,
-                                                        height: 174,
-                                                        alt: "workout image"
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "rounded-lg overflow-hidden aspect-video relative ",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            className: " ",
+                                                            src: "/dashboard/workout.jpg",
+                                                            fill: true,
+                                                            alt: "workout image"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                            lineNumber: 130,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 124,
-                                                        columnNumber: 29
+                                                        lineNumber: 129,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        href: "/workout-plan/".concat(data.day),
+                                                        href: "/workout/".concat(data.day + 1),
                                                         className: "mt-4 button-green",
                                                         children: "View Workout"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 125,
-                                                        columnNumber: 29
+                                                        lineNumber: 132,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 123,
-                                                columnNumber: 25
+                                                lineNumber: 128,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 118,
-                                        columnNumber: 21
+                                        lineNumber: 123,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "_border rounded-[10px] p-6 pt-[25px] max-w-[358px] flex flex-col bg-white",
+                                        className: "_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col mb-6 gap-1.5",
@@ -565,36 +609,42 @@ const page = ()=>{
                                                         children: "Your Nutrition Summary"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 130,
-                                                        columnNumber: 29
+                                                        lineNumber: 137,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-neutral-600 text-sm leading-5",
                                                         children: "Remaining: 350 kcal. Focus on protein and vegetables."
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 131,
-                                                        columnNumber: 29
+                                                        lineNumber: 138,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 129,
-                                                columnNumber: 25
+                                                lineNumber: 136,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col justify-between grow-1",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        className: "rounded-lg ",
-                                                        src: "/dashboard/nutrition.jpg",
-                                                        width: 310,
-                                                        height: 174,
-                                                        alt: "food image"
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "rounded-lg overflow-hidden aspect-video relative ",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            className: " ",
+                                                            src: "/dashboard/nutrition.jpg",
+                                                            fill: true,
+                                                            alt: "workout image"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                            lineNumber: 142,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 135,
-                                                        columnNumber: 29
+                                                        lineNumber: 141,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                                         href: "/nutrition-plan",
@@ -602,23 +652,23 @@ const page = ()=>{
                                                         children: "View Workout"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 136,
-                                                        columnNumber: 29
+                                                        lineNumber: 144,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 133,
-                                                columnNumber: 25
+                                                lineNumber: 140,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 128,
-                                        columnNumber: 21
+                                        lineNumber: 135,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "_border rounded-[10px] p-6 pt-[25px] max-w-[358px] flex flex-col bg-white",
+                                        className: "_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col mb-6 gap-1.5",
@@ -628,36 +678,42 @@ const page = ()=>{
                                                         children: "Recent Photo Analysis"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 141,
-                                                        columnNumber: 29
+                                                        lineNumber: 149,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-neutral-600 text-sm leading-5",
                                                         children: "Daily Cardio Blast: 30 mins running, 15 mins cycling."
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 142,
-                                                        columnNumber: 29
+                                                        lineNumber: 150,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 140,
-                                                columnNumber: 25
+                                                lineNumber: 148,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col justify-between grow-1",
                                                 children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        className: "rounded-lg",
-                                                        src: "/dashboard/analysis.jpg",
-                                                        width: 310,
-                                                        height: 174,
-                                                        alt: "ai brains image"
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "rounded-lg overflow-hidden aspect-video relative ",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            className: " ",
+                                                            src: "/dashboard/analysis.jpg",
+                                                            fill: true,
+                                                            alt: "workout image"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/dashboard/page.tsx",
+                                                            lineNumber: 154,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 145,
-                                                        columnNumber: 29
+                                                        lineNumber: 153,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                                         href: "/ai-analysis",
@@ -665,32 +721,32 @@ const page = ()=>{
                                                         children: "View Workout"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                        lineNumber: 146,
-                                                        columnNumber: 29
+                                                        lineNumber: 156,
+                                                        columnNumber: 33
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                                lineNumber: 144,
-                                                columnNumber: 25
+                                                lineNumber: 152,
+                                                columnNumber: 29
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                        lineNumber: 139,
-                                        columnNumber: 21
+                                        lineNumber: 147,
+                                        columnNumber: 25
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                                lineNumber: 117,
-                                columnNumber: 17
+                                lineNumber: 122,
+                                columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/dashboard/page.tsx",
-                        lineNumber: 115,
-                        columnNumber: 13
+                        lineNumber: 120,
+                        columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true)
@@ -701,7 +757,7 @@ const page = ()=>{
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(page, "aKVGQuQSxEHnZFCCjwxZ6figV1Q=", false, function() {
+_s(page, "FSP8XPz6E9ZQ+Td6cW+ES4imip4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$reduxHooks$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useQuery"]

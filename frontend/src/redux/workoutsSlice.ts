@@ -9,6 +9,7 @@ interface IWorkouts {
     }[],
     todayWorkoutNumber: number,
     currentWeekTitle: number,
+    streak: number,
 
 }
 interface IinitialState {
@@ -26,8 +27,18 @@ const workoutsSlice = createSlice({
         getWorkouts: (state, action: PayloadAction<IWorkouts>) => {
             state.workouts = action.payload
         },
+        updateWorkouts: (state, action: PayloadAction<{ day: IDayPlan, streak: number }>) => {
+            if (!state.workouts) return;
+
+            const index = state.workouts.items.findIndex(item => item.date === action.payload.day.date);
+            if (index !== -1) {
+                state.workouts.items[index] = action.payload.day; 
+            }
+
+            state.workouts.streak = action.payload.streak;
+        },
     }
 })
 
-export const { getWorkouts } = workoutsSlice.actions;
+export const { getWorkouts, updateWorkouts } = workoutsSlice.actions;
 export default workoutsSlice.reducer;
