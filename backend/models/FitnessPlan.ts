@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
 
-interface Exercise {
+export interface IExercise {
   title: string;
   repeats: number | null;
   time: number | null;
@@ -8,12 +8,11 @@ interface Exercise {
   advices: string,
   calories: number,
   status: "incompleted" | 'completed',
-
+  imageUrl: string,
 }
-
-interface IDayPlan {
+export interface IDayPlan {
   day: string;
-  exercises: Exercise[];
+  exercises: IExercise[];
   status: "Pending" | 'Completed' | "Missed",
   calories: number,
   date: Date,

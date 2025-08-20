@@ -16,7 +16,7 @@ const Page = () => {
       <div className="flex items-center justify-center gap-6 bg-[#e5fcea] w-fit mx-auto _border rounded-2xl flex-col p-3 min-h-[350px]">
 
         <div className="p-6 max-w-3xl mx-auto">
-          <h1 className="section-title mb-4">Results for the {id} day</h1>
+          <h1 className="section-title mb-4">Results for the Day {id}</h1>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-green p-4 rounded-lg text-center ">

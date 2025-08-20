@@ -1,14 +1,40 @@
 import { Request, Response } from "express";
 
 import { AuthRequest } from "../middlewares/authMiddleware";
-import FitnessPlan from "../models/FitnessPlan";
+import FitnessPlan, { IDayPlan } from "../models/FitnessPlan";
 import Measurement from "../models/Measurement";
 import User from "../models/User";
+import ExerciseImage from "../models/ExerciseImage";
+import { s3ImageUploadingExercise } from "../utils/images";
 
 export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
-    console.log(data, imageUrl);
+    console.log(data);
     try {
+        data;
+        console.log("hello1")
+
+        await Promise.all(
+            data.plan.days.map(async (day: IDayPlan) => {
+                await Promise.all(
+                    day.exercises.map(async (exercise) => {
+
+
+                        const image = await ExerciseImage.findOne({ name: exercise.title });
+                        if (image) {
+                            exercise.imageUrl = image.imageUrl;
+                        } else {
+                            const url = await s3ImageUploadingExercise(exercise);
+                            await ExerciseImage.findOneAndUpdate(
+                                { name: exercise.title },
+                                { $setOnInsert: { imageUrl: url } },
+                                { new: true, upsert: true }
+                            );
+                            exercise.imageUrl = url;
+                        }
+                    }))
+            }))
+        console.log("hello2")
         const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
         if (fitnessPlan) {
@@ -27,6 +53,7 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });
+        console.error(err)
         return;
     }
 }
@@ -169,7 +196,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
         // variable for getting array idx of current day item of
         const today = new Date();
         const dates = []
-        let todayWorkoutNumber;
+        let todayWorkoutNumber = null;
         let currentWeekTitle;
         for (let [i, item] of fitnessPlan.report.plan.days.entries()) {
             const itemDate = new Date(item.date);
@@ -181,7 +208,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
             }
         }
         // getting current week title from current day idx example:(0-6)1 week
-        if (todayWorkoutNumber) {
+        if (todayWorkoutNumber !== null) {
             currentWeekTitle = todayWorkoutNumber < 7
                 ? fitnessPlan.report.plan.week1Title
                 : todayWorkoutNumber < 14

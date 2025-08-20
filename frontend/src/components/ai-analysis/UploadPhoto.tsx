@@ -26,7 +26,7 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
 
                     <div
                         {...getRootProps()}
-                        className={` border-2 border-dashed ${isPending ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full h-[288px] px-10 py-[50px] mb-[25px] text-center cursor-pointer transition hover:border-green`}
+                        className={` border-2 border-dashed ${isPending ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full min-h-[288px] px-10 py-[50px] mb-[25px] text-center cursor-pointer transition hover:border-green`}
                     >
                         <input {...getInputProps()} />
                         {!isPending ? <> <div className="flex flex-col items-center justify-center">
@@ -49,7 +49,7 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
                     </div>
 
                     <p className="text-sm leading-5 text-neutral-600 max-w-[450px] text-center">
-                        <span>**Photo Guidelines:**</span>  Ensure good lighting, full body visibility, and a neutral background for best analysis results. Supported formats: JPG, PNG. Max size: 10MB.
+                        <span>Photo Guidelines:</span>  Ensure good lighting, full body visibility, and a neutral background for best analysis results. Supported formats: JPG, PNG. Max size: 10MB.
                     </p>
                 </div>
                 <button disabled={isPending ? true : false} onClick={() => {

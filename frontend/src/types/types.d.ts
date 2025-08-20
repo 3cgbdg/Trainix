@@ -39,6 +39,7 @@ export interface IExercise {
   advices: string,
   calories: number,
   status: "completed" | "incompleted",
+  imageUrl:string,
 }
 
 

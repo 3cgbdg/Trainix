@@ -74,7 +74,7 @@ const page = () => {
                                 <Bike size={20} />
                             </div>
                             <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.streak} days</div>
-                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${data.streak ? "text-green!" : ""}`}>{data.streak === true && <ArrowUp size={20} />} Longest streak: {user?.streak ?? 0} days</span>
+                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${data.streak ? "text-green!" : ""}`}>{data.streak === true && <ArrowUp size={20} />} Longest streak: {user?.longestStreak} days</span>
                         </div>
 
                         <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
@@ -82,7 +82,7 @@ const page = () => {
                                 <span className='text-sm leading-5 font-medium '>Daily Calorie Goal</span>
                                 <Goal size={20} />
                             </div>
-                            <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.streak === true && <ArrowUp size={20} />} {data.calories.current} / {data.calories.target} ccal</div>
+                            <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.streak === true && <ArrowUp size={20} />} {data.calories.current} / {data.calories.target} kcal</div>
                             <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${data.calories.current > 0 ? "text-green!" : ""}`}>{data.calories.current > 0 ? <ArrowUp size={20} /> : ""} {(data.calories.current / data.calories.target * 100).toFixed(0)}% complete</span>
 
                         </div>

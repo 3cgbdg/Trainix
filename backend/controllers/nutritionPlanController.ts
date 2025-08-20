@@ -1,28 +1,35 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
-import NutritionPlan, { IDayPlan } from "../models/NutritionPlan";
-import Image from "../models/Image";
-import { s3ImageUploading } from "../utils/images";
+import NutritionPlan, { IDayPlanNutrition } from "../models/NutritionPlan";
+import { s3ImageUploadingMeal } from "../utils/images";
+import MealImage from "../models/MealImage";
+import ExerciseImage from "../models/ExerciseImage";
 
 
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
-    const { data } = req.body as { data: IDayPlan };
+    const { data } = req.body as { data: IDayPlanNutrition };
     try {
         const dayDate = new Date();
-        let obj: IDayPlan;
+        let obj: IDayPlanNutrition;
         dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
         console.log(dayDate);
         let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
-        for (let meal of data.meals) {
-            const image = await Image.findOne({ name: meal.mealTitle });
-            if (image) {
-                meal.imageUrl = image.imageUrl;
-            } else {
-                const url = await s3ImageUploading(meal, dayDate);
-                await Image.create({ name: meal.mealTitle, imageUrl: url });
-                meal.imageUrl = url;
-            }
-        }
+        await Promise.all(
+            data.meals.map(async (meal) => {
+                const image = await MealImage.findOne({ name: meal.mealTitle });
+                if (image) {
+                    meal.imageUrl = image.imageUrl;
+                } else {
+                    const url = await s3ImageUploadingMeal(meal);
+                    await ExerciseImage.findOneAndUpdate(
+                        { name: meal.mealTitle },
+                        { $setOnInsert: { imageUrl: url } },
+                        { new: true, upsert: true }
+                    );
+                    meal.imageUrl = url;
+                }
+
+            }))
         obj = { ...data, date: dayDate };
         if (nutritionPlan) {
             nutritionPlan.days.push(obj);
@@ -75,7 +82,7 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
         let data = [];
 
         for (let i = 7 * weekNumber - 7; i < 7 * weekNumber; i++) {
-            if(!days[i])break;
+            if (!days[i]) break;
             data.push({ day: days[i].date.toLocaleDateString("en-US", { weekday: "short" }), calories: days[i].dailyGoals.calories.current, protein: days[i].dailyGoals.protein.current, carbs: days[i].dailyGoals.carbs.current, fats: days[i].dailyGoals.fats.current })
 
 

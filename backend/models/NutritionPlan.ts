@@ -29,7 +29,7 @@ interface IwaterIntake {
   current: number,
   target: number
 }
-export interface IDayPlan {
+export interface IDayPlanNutrition {
   date: Date;
   dayNumber: number;
   dailyGoals: IdailyGoals
@@ -39,7 +39,7 @@ export interface IDayPlan {
 
 interface INutritionPlan {
   userId: mongoose.Types.ObjectId,
-  days: IDayPlan[],
+  days: IDayPlanNutrition[],
   createdAt: Date
 }
 

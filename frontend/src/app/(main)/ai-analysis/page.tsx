@@ -4,11 +4,12 @@ import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { reportExtractFunc } from '@/utils/report';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
 import { useState } from 'react';
 
 const Page = () => {
+    const queryClient = useQueryClient()
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const { user } = useAppSelector(state => state.auth)
@@ -40,12 +41,18 @@ const Page = () => {
     }
 
 
+
+
+    const getAnalysis = async () => {
+        const res = await api.get("api/fitness-plan/analysis");
+        return res.data;
+    }
     const mutation = useMutation({
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
-            setIsAnalyzed(true);
             await reportExtractFunc(data,"fitness");
-
+            await queryClient.invalidateQueries({queryKey:["getAnalysis"]});
+            setIsAnalyzed(true);
         },
         onError: (err: unknown) => {
             if (isAxiosError(err) && err.response) {
@@ -54,12 +61,6 @@ const Page = () => {
         }
 
     })
-
-    const getAnalysis = async () => {
-        const res = await api.get("api/fitness-plan/analysis");
-        return res.data;
-    }
-
 
     const { data } = useQuery({
         queryKey: ["getAnalysis"],

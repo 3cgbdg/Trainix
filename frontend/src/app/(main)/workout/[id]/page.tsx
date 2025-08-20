@@ -119,18 +119,63 @@ const Page = () => {
 
 
 
+    const totalCalories = workout?.exercises.reduce((acc, cur) => { return (cur.status == "completed" ? acc + cur.calories : acc) }, 0);
 
     return (
         <div>
             {!start ?
                 // getting ready section to start doing exercises
-                <div className="flex items-center justify-center gap-6 bg-[#e5fcea] _border rounded-2xl flex-col p-3 min-h-[350px]">
-                    <span className="text-center text-[40px] leading-7 font-semibold font-outfit pb-10">Start workout: {exercise?.title}</span>
-                    {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
-                        : <span className="text-xl leading-7 text-black flex gap-1 items-center"><Clock size={20} />{exercise.time !== null ? exercise.time / 60 >= 10 ? Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : "0" + Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : ""}</span>}
-                    <button onClick={() => setStart(true)} className="button-transparent max-w-[200px]  font-outfit flex items-center gap-2 w-full"> <span className="text-2xl">Start</span></button>
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="flex items-center justify-center gap-6 bg-[#e5fcea] w-fit mx-auto _border rounded-2xl flex-col p-3 min-h-[350px]">
 
-                </div> : isResting ?
+                        <div className="p-6 max-w-3xl mx-auto">
+                            <h1 className="page-title mb-4"> Day {id}</h1>
+
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="bg-green p-4 rounded-lg text-center ">
+                                    <p className="text-sm">Calories</p>
+                                    <p className="text-xl font-semibold">{totalCalories} kcal</p>
+                                </div>
+
+                                <div className="bg-green p-4 rounded-lg text-center">
+                                    <p className="text-sm">Exercises completed</p>
+                                    <p className="text-xl font-semibold">
+                                        {workout?.exercises.filter((ex) => ex.status === "completed").length} / {workout?.exercises.length}
+                                    </p>
+                                </div>
+                                <div className="bg-green p-4 rounded-lg text-center">
+                                    <p className="text-sm">Streak</p>
+                                    <p className="text-xl font-semibold">{workouts?.streak} </p>
+                                </div>
+                            </div>
+
+
+                            <h2 className="text-xl font-semibold mb-2">Exercises</h2>
+                            <ul className="flex flex-col gap-2">
+                                {workout?.exercises.map((ex, idx) => (
+                                    <li
+                                        key={idx}
+                                        className={`flex justify-between p-3 rounded-lg gap-1 border ${ex.status === "completed" ? "bg-green-50 border-green" : "bg-gray-50 border-gray-200"
+                                            }`}>
+                                        <span>{ex.title}</span>
+                                        <span>
+                                            {ex.calories} kcal | {ex.time ? (ex.time / 60).toFixed(0) + " min" : ex.repeats + " repeats"}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+
+                    </div>
+                    <div className="flex items-center justify-center gap-6 bg-[#e5fcea] _border rounded-2xl flex-col p-6 min-h-[350px]">
+                        <span className="text-center page-title pb-10">Start workout: {exercise?.title}</span>
+                        {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
+                            : <span className="text-xl leading-7 text-black flex gap-1 items-center"><Clock size={20} />{exercise.time !== null ? exercise.time / 60 >= 10 ? Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : "0" + Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : ""}</span>}
+                        <button onClick={() => setStart(true)} className="button-transparent max-w-[200px]  font-outfit flex items-center gap-2 w-full"> <span className="text-2xl">Start</span></button>
+
+                    </div></div>
+                : isResting ?
                     // resting section between exercise completing
                     <div className="flex items-center justify-center bg-[#e5fcea] _border rounded-2xl flex-col p-3">
                         <div className="text-6xl leading-[60px] text-black font-bold h-60 flex items-center justify-center">00:{time < 10 ? "0" + time : time}</div>
@@ -152,6 +197,9 @@ const Page = () => {
                                 {exercise.time && <Timer goToNextExercise={goToNextExercise} setCompletedItems={setCompletedItems} isPaused={isPaused} workoutTime={exercise.time} />}
                                 <div className="flex flex-col gap-5 items-center">
                                     <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
+                                    <div className="w-[250px] rounded-[10px] overflow-hidden relative aspect-square">
+                                    <Image className="" src={exercise.imageUrl} fill alt="exercise image"/>
+                                    </div>
                                     {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
                                         : <span className="text-xl leading-7 text-black flex gap-1 items-center"><Clock size={20} />{exercise.time !== null ? exercise.time / 60 >= 10 ? Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : "0" + Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : ""}</span>}
                                 </div>
@@ -171,7 +219,7 @@ const Page = () => {
                                 </div>
                                 <div className="flex flex-col gap-12">
                                     <div className="_border rounded-2xl p-4 pt-4.5 flex items-center gap-7 bg-white">
-                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image width={80} height={80} src={"/dashboard/workout.jpg"} alt="exercise image" />
+                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image width={80} height={80} src={workout.exercises[idx+1].imageUrl} alt="exercise image" />
                                             <div className="">
                                                 <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
                                                 <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>
