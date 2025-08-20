@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 5, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/pet%20projects/Trainix/frontend/src/app/%28main%29/workout/sucess/page.tsx"],"sourcesContent":["\"use client\"\r\n\r\nconst page = () => {\r\n  return (\r\n    <div className=\"\">\r\n\r\n    </div>\r\n  )\r\n}\r\n\r\nexport default page"],"names":[],"mappings":";;;;AAAA;;AAEA,MAAM,OAAO;IACX,qBACE,8OAAC;QAAI,WAAU;;;;;;AAInB;uCAEe","debugId":null}}]
-}

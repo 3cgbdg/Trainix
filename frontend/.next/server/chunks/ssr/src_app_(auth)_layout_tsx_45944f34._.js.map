@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 5, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/pet%20projects/Trainix/frontend/src/app/%28auth%29/layout.tsx"],"sourcesContent":["import Header from \"@/components/Header\";\r\nimport Sidebar from \"@/components/Sidebar\";\r\n\r\nexport default async function AuthLayout({\r\n    children,\r\n}: Readonly<{\r\n    children: React.ReactNode;\r\n}>) {\r\n\r\n    return (\r\n        <div className={`py-2 flex items-center justify-center `}>\r\n            {children}\r\n        </div>\r\n    );\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"],"names":[],"mappings":";;;;;AAGe,eAAe,WAAW,EACrC,QAAQ,EAGV;IAEE,qBACI,8OAAC;QAAI,WAAW,CAAC,sCAAsC,CAAC;kBACnD;;;;;;AAGb","debugId":null}}]
-}
