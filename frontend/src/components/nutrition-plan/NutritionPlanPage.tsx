@@ -51,9 +51,9 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                         <h2 className="text-xl leading-7 font-semibold text-black font-outfit">Today's Nutrition Goals</h2>
                         <p className="text-black text-sm">Stay on track with your personalized diet plan.</p>
                     </div>
-                    <div className="grid grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-4 gap-6">
                         <div className="flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-black">
+                            <div className="flex justify-between  text-black gap-2 flex-col">
                                 <span className="font-medium">Calories</span>
                                 <span className="text-sm font-semibold">{day.dailyGoals.calories.current}/{day.dailyGoals.calories.target} kcal</span>
                             </div>
@@ -62,7 +62,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-black">
+                            <div className="flex justify-between  text-black gap-2 flex-col">
                                 <span className="font-medium">Protein</span>
                                 <span className="text-sm font-semibold">{day.dailyGoals.protein.current}/{day.dailyGoals.protein.target} g</span>
                             </div>
@@ -71,7 +71,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-black">
+                            <div className="flex justify-between  text-black gap-2 flex-col">
                                 <span className="font-medium">Carbs</span>
                                 <span className="text-sm font-semibold">{day.dailyGoals.carbs.current}/{day.dailyGoals.carbs.target} g</span>
                             </div>
@@ -80,7 +80,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-black">
+                            <div className="flex justify-between  text-black gap-2 flex-col">
                                 <span className="font-medium">Fats</span>
                                 <span className="text-sm font-semibold">{day.dailyGoals.fats.current}/{day.dailyGoals.fats.target} g</span>
                             </div>
@@ -92,7 +92,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
 
                 </div>
             </div>
-            <div className="mt-9 flex gap-6">
+            <div className="mt-9 flex gap-6 md:flex-row flex-col-reverse">
                 <div className="flex flex-col gap-6 grow-1">
                     <h2 className="section-title">Your Daily Meals</h2>
                     {day.meals.map((item, idx) => (
@@ -111,7 +111,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                                 <GlassWater className="text-[#E67E00FF]" size={16} />
                                 <span className="text-neutral-900 font-medium">Water Intake</span>
                             </div><div className="">
-                                <div className="flex gap-2">
+                                <div className="flex gap-2  flex-wrap">
                                     <input ref={input} onChange={(e) => {
                                         const amount = Number(e.target.value);
                                         if (amount) {
@@ -128,7 +128,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
 
                                     }} className="basis-[450px] text-sm input p-2!" />
                                     <button onClick={() => { mutation.mutate({ amount: amount, dayNumber: day.dayNumber - 1 }); input.current!.value = "" }
-                                    } className={`button-green basis-[60px] p-2! ${error ? "pointer-events-none opacity-65" : ""}`}>Log</button>
+                                    } className={`button-green basis-[100px] md:basis-[60px] p-2! ${error ? "pointer-events-none opacity-65" : ""}`}>Log</button>
                                 </div>
                                 {error &&
                                     <span data-testid='error' className="text-red-500 font-medium ">

@@ -15,18 +15,19 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
 
     return (
         <div className="flex flex-col items-center ">
-            <div className="w-[900px] text-center">
+            <div className="max-w-[900px] w-full text-center">
                 <h1 className='page-title mb-10'>AI Photo Analysis - Upload</h1>
 
-                <div className="_border rounded-[10px] p-12 items-center flex flex-col mb-4    bg-white">
+                <div className="_border rounded-[10px] p-7 md:p-12 items-center flex flex-col mb-4    bg-white">
                     <div className="flex flex-col text-center gap-2 max-w-[520px] w-full mb-10">
                         <h2 className='section-title'>Upload Your Fitness Photo</h2>
-                        <p className='text-sm leading-5 text-neutral-600'>Drag and drop your fitness photo here, or click to select a file. Our AI will analyze your progress and provide insights.</p>
+                        <p className='text-sm  leading-5 text-neutral-600'>Drag and drop your fitness photo here, or click to select a file. Our AI will analyze your progress and provide insights.</p>
                     </div>
+                   
 
                     <div
                         {...getRootProps()}
-                        className={` border-2 border-dashed ${isPending ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full min-h-[288px] px-10 py-[50px] mb-[25px] text-center cursor-pointer transition hover:border-green`}
+                        className={` border-2 border-dashed ${isPending ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full sm:min-h-[288px] min-h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
                     >
                         <input {...getInputProps()} />
                         {!isPending ? <> <div className="flex flex-col items-center justify-center">

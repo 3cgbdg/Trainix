@@ -50,8 +50,8 @@ const Page = () => {
     const mutation = useMutation({
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
-            await reportExtractFunc(data,"fitness");
-            await queryClient.invalidateQueries({queryKey:["getAnalysis"]});
+            await reportExtractFunc(data, "fitness");
+            await queryClient.invalidateQueries({ queryKey: ["getAnalysis"] });
             setIsAnalyzed(true);
         },
         onError: (err: unknown) => {
@@ -62,7 +62,7 @@ const Page = () => {
 
     })
 
-    const { data } = useQuery({
+    const { data,isLoading } = useQuery({
         queryKey: ["getAnalysis"],
         queryFn: getAnalysis,
 
@@ -71,9 +71,10 @@ const Page = () => {
     return (
 
         <div className="">
-            {(!data?.advices && !isAnalyzed) ? <UploadPhoto isPending={mutation.isPending} file={file} fileName={fileName} setFile={setFile} mutate={mutation.mutate} setFileName={setFileName} />
+            {!isLoading ? (!data?.advices && !isAnalyzed) ? <UploadPhoto isPending={mutation.isPending} file={file} fileName={fileName} setFile={setFile} mutate={mutation.mutate} setFileName={setFileName} />
                 :
-                <AnalyzedResults data={data} />
+                <AnalyzedResults data={data} /> : <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>
+
             }
         </div>
     );

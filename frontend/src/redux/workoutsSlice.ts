@@ -32,7 +32,7 @@ const workoutsSlice = createSlice({
 
             const index = state.workouts.items.findIndex(item => item.date === action.payload.day.date);
             if (index !== -1) {
-                state.workouts.items[index] = action.payload.day; 
+                state.workouts.items[index] = action.payload.day;
             }
 
             state.workouts.streak = action.payload.streak;

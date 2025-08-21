@@ -65,10 +65,12 @@ const Page = () => {
     return (
 
         <div className="">
-            {(!data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
+          { !isLoading ?
+            (!data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
                 :
                 <NutritionPlanPage day={data!} />
-            }
+               
+            :<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
         </div>
     );
 }

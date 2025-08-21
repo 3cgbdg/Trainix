@@ -31,7 +31,7 @@ body {
   @apply border-neutral-300 border-[1px] overflow-hidden p-2.5 rounded-md outline-0;
 }
 .button-green {
-  @apply text-sm inline-flex w-full items-center justify-center leading-5.5 font-medium text-white bg-green rounded-md p-2.5 transition-colors hover:bg-[#468438FF] cursor-pointer;
+  @apply text-sm inline-flex  items-center justify-center leading-5.5 font-medium text-white bg-green rounded-md p-2.5 transition-colors hover:bg-[#468438FF] cursor-pointer;
 }
 .button-transparent {
   @apply text-sm inline-flex  items-center justify-center leading-5.5 font-medium  bg-transparent  p-2.5 transition-colors cursor-pointer rounded-md  border-[1px]  hover:text-green hover:border-green  border-neutral-300 text-neutral-900;

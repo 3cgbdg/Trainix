@@ -49,29 +49,34 @@ const page = () => {
             {!isLoading && <>
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
-                    <div className="grid grid-cols-4 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
 
-                        <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] _border">
+                         <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] flex flex-col justify-between gap-2 _border">
                             <div className="flex items-center justify-between mb-2 text-neutral-900">
                                 <span className='text-lg leading-7 font-semibold '>Weight Lost</span>
                                 <Scale className='text-neutral-600' size={24} />
                             </div>
+                            
+                            <div className="">
                             <div className={`text-4xl leading-10 font-bold text-neutral-900 mb-4 ${data.lastWeight >= data.weight ? "text-green!" : "text-red!"}`}>{data.weight} kg</div>
                             <span className={`text-sm leading-5 font-medium text-neutral-900 flex items-center gap-1 ${data.lastWeight >= data.weight ? "text-green!" : "text-red!"}`}>
                                 {data.lastWeight > data.weight && <ArrowUp size={20} className={` ${data.lastWeight > data.weight ? "rotate-180 text-red" : "text-green"}`} />}
                                 {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>
+                        </div>
 
-                        <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] _border">
+                        <div className="shadow-xs p-6 pt-7 flex flex-col justify-between gap-2 bg-white rounded-[10px] _border">
                             <div className="flex items-center justify-between mb-2 text-neutral-900">
                                 <span className='text-lg leading-7 font-semibold '>Body Fat %</span>
                                 <Percent className='text-neutral-600' size={24} />
                             </div>
+                            <div className="">
                             <div className={`text-4xl leading-10 font-bold text-neutral-900 mb-4 ${!data.fatsData[data.fatsData.length - 2] ? "text-green!" : data.fatsData[data.fatsData.length - 2].bodyFat >= data.bodyFat ? "text-green!" : "text-red!"}`}>{data.bodyFat}%</div>
                             {data.fatsData[data.fatsData.length - 2] && <span className={`text-sm leading-5 font-medium text-neutral-900 flex items-center gap-1 ${data.fatsData[data.fatsData.length - 2].bodyFat >= data.bodyFat ? "text-green!" : "text-red!"}`}>
                                 `${data.bodyFat - data.fatsData[data.fatsData.length - 2].bodyFat} % (last month)`
                             </span>}
+                            </div>
                         </div>
 
                         <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] _border">
@@ -79,19 +84,21 @@ const page = () => {
                                 <span className='text-lg leading-7 font-semibold '>Workout Streak</span>
                                 <Bike size={24} />
                             </div>
-                            <div className={`text-4xl leading-10 font-bold text-neutral-900 mb-4 ${data.streak ? "text-green!" : ""}`}>{data.streak} days</div>
+                            <div className={`text-4xl leading-10 font-bold  text-neutral-900 mb-4 ${data.streak ? "text-green!" : ""}`}>{data.streak} days</div>
                             <span className={`text-sm leading-5 font-medium text-neutral-900 flex items-center gap-1 ${data.streak ? "text-green!" : ""}`}>{data.streak === true && <ArrowUp size={20} />} Longest streak: {user?.longestStreak} days</span>
                         </div>
 
-                        <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] _border">
+                        <div className="shadow-xs p-6 pt-7 flex flex-col justify-between gap-2 bg-white rounded-[10px] _border">
                             <div className="flex items-center justify-between mb-2 text-neutral-900">
                                 <span className='text-lg leading-7 font-semibold '>BMI</span>
                                 <Footprints className='text-neutral-600' size={24} />
                             </div>
+                            <div className="">
                             <div className={`text-4xl leading-10 font-bold text-neutral-900 mb-4 ${!data.bmiData[data.bmiData.length - 2] ? data.bmi > 25 ? "text-red!" : "text-green!" : data.bmiData[data.bmiData.length - 2].bmi >= data.dmi ? "text-green!" : data.bmi > 25 ? "text-red!" : "text-green!"}`}>{data.bmi}</div>
                             {data.bmiData[data.bmiData.length - 2] && <span className={`text-sm leading-5 font-medium text-neutral-900 flex items-center  gap-1 ${data.bmiData[data.bmiData.length - 2].bmi >= data.dmi ? "text-green!" : "text-red!"}`}>
                                 `${data.bmi - data.bmiData[data.bmiData.length - 2].bmi} (last month)`
                             </span>}
+                            </div>
                         </div>
                     </div>
 
@@ -102,7 +109,7 @@ const page = () => {
 
                         <h2 className='section-title mb-4'>Progress Trends</h2>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid lg:grid-cols-2 gap-6">
 
                             <div className="rounded-[10px] bg-white p-6 shadow-xs _border">
                                 <div className="mb-6 flex flex-col gap-1.5">
@@ -165,9 +172,9 @@ const page = () => {
                 }
                 <div className="flex flex-col gap-6">
                     <h2 className="section-title">Progress Photos</h2>
-                    <div className="gap-6 grid grid-cols-4">
+                    <div className="gap-6 flex  flex-wrap sm:grid! grid-cols-2 md:grid-cols-3  lg:grid-cols-4">
                         {data.imagesData.map((item: { date: string, imageUrl: string }, idx: number) => (
-                            <div key={idx} className="rounded-[10px] _border flex flex-col gap-2 p-2">
+                            <div key={idx} className="rounded-[10px] _border flex sm:max-w-full max-w-[300px] w-full flex-col gap-2 p-2">
                                 <div className=" aspect-square overflow-hidden rounded-md relative ">
                                     <Image fill src={item.imageUrl} alt='body picture'/>
                                 </div>

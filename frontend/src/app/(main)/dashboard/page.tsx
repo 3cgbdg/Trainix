@@ -21,6 +21,8 @@ import {
 
 const page = () => {
     const { user } = useAppSelector(state => state.auth);
+    const { nutritionDay } = useAppSelector(state => state.nutritionDay);
+    const { workouts } = useAppSelector(state => state.workouts);
 
     const getNumbers = async () => {
         const res = await api.get(`/api/fitness-plan/reports/numbers`, { params: { date: new Date() } });
@@ -36,18 +38,18 @@ const page = () => {
     return (
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Dashboard Overview</h1>
-            <div className=" _dashboard-banner py-1 px-8  h-60 flex items-center justify-between  ">
+            <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  ">
                 <div className="flex flex-col gap-6 max-w-[590px]">
                     <h2 className='banner-title'>Welcome back, {user?.firstName} {user?.lastName}</h2>
                     <p className='text-lg leading-7 text-[#19191FFF]'>Stay consistent and trust the process. Every step counts towards your goals!</p>
                 </div>
-                <Image className='rounded-lg _border' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />
+                <Image className='rounded-lg _border lg:block hidden' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />
 
             </div>
             {!isLoading && <>
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
-                    <div className="grid grid-cols-4 gap-6">
+                    <div className="grid sm:grid-cols-2  gap-6">
 
                         <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
                             <div className="flex items-center justify-between mb-4 text-neutral-600">
@@ -122,41 +124,67 @@ const page = () => {
                 </div>
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Quick Summaries</h2>
-                    <div className="grid grid-cols-3 gap-6">
-                        <div className="_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white">
+                    <div className="grid sm:p-0 justify-center sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  flex flex-col justify-between gap-1 bg-white">
                             <div className="flex flex-col mb-6 gap-1.5">
                                 <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Today's Workout Plan</h3>
-                                <p className='text-neutral-600 text-sm leading-5'>Daily Cardio Blast: 30 mins running, 15 mins cycling.</p>
+
+                                <p className='text-neutral-600 text-left text-sm leading-5 mb-auto '>
+                                    <span>{workouts?.items[workouts.todayWorkoutNumber].day}: </span>
+                                    {workouts?.items[workouts.todayWorkoutNumber].exercises.map((item, idx) => {
+                                        const minutes = String(Math.floor(item.time! / 60)).padStart(2, "0");
+                                        const seconds = String(item.time! % 60).padStart(2, "0");
+                                        return (
+                                            <span key={idx}>{item.title} {item.time !== null ? minutes + ":" + seconds + " mins" : item.repeats + " repeats"}{workouts?.items[workouts.todayWorkoutNumber].exercises[idx + 1] ? "," : "."} </span>
+                                        )
+                                    })}
+
+                                </p>
                             </div>
-                            <div className="flex flex-col justify-between grow-1">
+                            <div className="flex flex-col  ">
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">
                                     <Image className=' ' src={"/dashboard/workout.jpg"} fill alt='workout image' />
                                 </div>
                                 <Link href={`/workout/${data.day + 1}`} className='mt-4 button-green'>View Workout</Link>
                             </div>
                         </div>
-                        <div className="_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white">
-                            <div className="flex flex-col mb-6 gap-1.5">
+                        <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  flex flex-col justify-between gap-1 bg-white">
+                            <div className="flex flex-col  gap-1.5">
                                 <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Your Nutrition Summary</h3>
-                                <p className='text-neutral-600 text-sm leading-5'>Remaining: 350 kcal. Focus on protein and vegetables.</p>
+                                <p className='text-neutral-600 text-sm leading-5  '>Remaining: {nutritionDay?.dailyGoals.calories.target! - nutritionDay?.dailyGoals.calories.current!} kcal. Focus on protein and vegetables.</p>
                             </div>
-                            <div className="flex flex-col justify-between grow-1">
+                            <div className="flex flex-col">
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">
-                                    <Image className=' ' src={"/dashboard/nutrition.jpg"} fill alt='workout image' />
+                                    <Image className=' ' src={"/dashboard/nutrition.jpg"} fill alt='food image' />
                                 </div>
-                                <Link href={`/nutrition-plan`} className='mt-4 button-green'>View Workout</Link>
+                                <Link href={`/nutrition-plan`} className='mt-4 button-green'>View Nutrition Plan</Link>
                             </div>
                         </div>
-                        <div className="_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white">
+                        <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  justify-between  flex flex-col gap-1 bg-white">
                             <div className="flex flex-col mb-6 gap-1.5">
                                 <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Recent Photo Analysis</h3>
-                                <p className='text-neutral-600 text-sm leading-5'>Daily Cardio Blast: 30 mins running, 15 mins cycling.</p>
+                                <p className='text-neutral-600 text-sm leading-5'>Go check your ai-analyzed photo statistics</p>
                             </div>
-                            <div className="flex flex-col justify-between grow-1">
+                            <div className="flex flex-col  ">
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">
-                                    <Image className=' ' src={"/dashboard/analysis.jpg"} fill alt='workout image' />
+                                    <Image className=' ' src={"/dashboard/analysis.jpg"} fill alt='brain image' />
                                 </div>
-                                <Link href={`/ai-analysis`} className='mt-4 button-green'>View Workout</Link>
+                                <Link href={`/ai-analysis`} className='mt-4 button-green'>View Image Analysis</Link>
+                            </div>
+                        </div>
+
+                        <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px] justify-between  flex flex-col gap-1 bg-white">
+                            <div className="flex flex-col mb-6 gap-1.5">
+                                <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Your progress</h3>
+                                <p className='text-neutral-600 text-left text-sm leading-5 flex gap-0.5'>
+                                    Go check your progress process
+                                </p>
+                            </div>
+                            <div className="flex flex-col  ">
+                                <div className="rounded-lg overflow-hidden aspect-video relative ">
+                                    <Image className=' ' src={"/dashboard/progress.jpg"} fill alt='image of a running-person' />
+                                </div>
+                                <Link href={`/progress`} className='mt-4 button-green'>View Progress</Link>
                             </div>
                         </div>
                     </div>

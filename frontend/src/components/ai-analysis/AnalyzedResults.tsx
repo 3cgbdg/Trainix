@@ -50,7 +50,7 @@ const retakePhotoMutation = useMutation({
           {/* image */}
           {
             data.imageUrlLast !== data.imageUrlCurrent && data.imageUrlLast ?
-              <div className=" flex justify-between">
+              <div className=" flex justify-between gap-6 flex-wrap">
                 <div className="flex gap-2 justify-center flex-col text-center">
                   <h3 className="text-xl leading-7 font-semibold text-neutral-900 font-outfit">Before</h3>
                   <Image className="rounded-[10px] " src={`${data.imageUrlCurrent}`} width={267} height={400} alt="body image" />
@@ -70,46 +70,46 @@ const retakePhotoMutation = useMutation({
 
         </div>
         {/* metrics */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Body Fat %</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2 ">
               <span className="text-4xl leading-10 font-bold text-black">{data.bodyFatPercent.data}%</span>
               <span className={`tex-sm leading-5 font-semibold ${data.bodyFatPercent.difference && data.bodyFatPercent.difference < 0 ? "text-red" : "text-green"} `}>{data.bodyFatPercent.difference ? data.bodyFatPercent.difference > 0 ? "+" + data.bodyFatPercent.difference : data.bodyFatPercent.difference : "+" + 0}%</span>
             </div>
           </div>
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Muscle Mass</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.MuscleMass.data} kg</span>
               <span className={`tex-sm leading-5 font-semibold ${data.MuscleMass.difference && data.MuscleMass.difference < 0 ? "text-red" : "text-black"} `}>{data.MuscleMass.difference ? data.MuscleMass.difference > 0 ? "+" + data.MuscleMass.difference : data.MuscleMass.difference : "+" + 0} kg</span>
             </div>
           </div>
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">BMI</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.bmi.data}</span>
               <span className={`tex-sm leading-5 font-semibold ${data.bmi.difference && data.bmi.difference < 0 ? "text-red" : "text-green"} `}>{data.bmi.difference ? data.bmi.difference > 0 ? "+" + data.bmi.difference : data.bmi.difference : "+" + 0}</span>
             </div>
           </div>
 
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Waist-to-Hip Ratio</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.waistToHipRatio.data}</span>
               <span className={`tex-sm leading-5 font-semibold ${data.waistToHipRatio.difference && data.waistToHipRatio.difference < 0 ? "text-red" : "text-green"} `}>{data.waistToHipRatio.difference ? data.waistToHipRatio.difference > 0 ? "+" + data.waistToHipRatio.difference : data.waistToHipRatio.difference : "+" + 0}</span>
             </div>
           </div>
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Body Weight</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.weight.data} kg</span>
               <span className={`tex-sm leading-5 font-semibold ${data.weight.difference && data.weight.difference < 0 ? "text-red" : "text-green"} `}>{data.weight.difference ? data.weight.difference > 0 ? "+" + data.weight.difference : data.weight.difference : "+" + 0} kg</span>
             </div>
           </div>
-          <div className="pt-8 p-6 _border rounded-[10px] bg-white flex flex-col gap-4 font-outfit">
+          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Lean Body Mass</h3>
-            <div className="flex items-end justify-between">
+            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.leanBodyMass.data} kg</span>
               <span className={`tex-sm leading-5 font-semibold ${data.leanBodyMass.difference && data.leanBodyMass.difference < 0 ? "text-red" : "text-black"} `}>{data.leanBodyMass.difference ? data.leanBodyMass.difference > 0 ? "+" + data.leanBodyMass.difference : data.leanBodyMass.difference : "+" + 0} kg</span>
             </div>

@@ -13,7 +13,9 @@ export default async function RootLayout({
       <AuthClientUpload />
       <Header />
       <div className="flex items-start grow-1 bg-neutral-100">
+        
         <Sidebar />
+      
         <div className="p-8 w-full">
           {children}
         </div>

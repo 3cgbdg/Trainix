@@ -56,8 +56,8 @@ const Page = () => {
                 <p className="text-sm leading-5 text-neutral-600 ">Login or create an account to personalize your fitness with AI.</p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4 mb-4">
-                <div className="flex gap-4">
-                    <div className="flex flex-col gap-2">
+                <div className="flex flex-col sm:flex-row  gap-4">
+                    <div className="flex  flex-col gap-2">
                         <label className="text-sm leading-[22px] font-medium" htmlFor="name">Name</label>
                         <input {...register("name", { required: "Field is required" })} className="input w-full" placeholder="Enter your name" type="text" id="name" />
                         {errors.name && (

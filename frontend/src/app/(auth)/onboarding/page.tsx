@@ -45,7 +45,7 @@ const Page = () => {
                 <p className=" text-neutral-600 ">To give you the most accurate and effective fitness plans, we need a few details about your current stats and goals. This information helps our AI tailor everything just for you.</p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-6 ">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid sm:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                         <label className="text-sm leading-[22px] font-medium" htmlFor="weight">Current Weight (kg)</label>
                         <input {...register("weight", { required: "Field is required" })} className="input w-full" placeholder="e.g., 70" type="text" id="weight" />
