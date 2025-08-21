@@ -42,10 +42,10 @@ const Page = () => {
             {workout?.exercises.map((ex, idx) => (
               <li
                 key={idx}
-                className={`flex justify-between p-3 rounded-lg gap-1 border ${ex.status === "completed" ? "bg-green-50 border-green" : "bg-gray-50 border-gray-200"
+                className={`flex justify-between p-3  rounded-lg gap-3 border ${ex.status === "completed" ? "bg-green-50 border-green" : "bg-gray-50 border-gray-200"
                   }`}>
                 <span>{ex.title}</span>
-                <span>
+                <span className=" whitespace-nowrap">
                   {ex.calories} kcal | {ex.time ?(ex.time/60).toFixed(0) + " min": ex.repeats + " repeats"} 
                 </span>
               </li>

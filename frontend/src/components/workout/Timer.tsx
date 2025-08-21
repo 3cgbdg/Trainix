@@ -25,7 +25,7 @@ const Timer = ({ workoutTime, isPaused, setCompletedItems, goToNextExercise }: {
     const seconds = time % 60;
 
     return (
-        <div className="text-6xl leading-[60px] text-black font-bold h-40 flex items-center justify-center">{minutes < 10 ? "0" + minutes : minutes}:{seconds < 10 ? "0" + seconds : seconds}</div>
+        <div className="text-6xl leading-[60px] text-black font-bold md:h-40 h-20 flex items-center justify-center mb-2">{minutes < 10 ? "0" + minutes : minutes}:{seconds < 10 ? "0" + seconds : seconds}</div>
 
     )
 }

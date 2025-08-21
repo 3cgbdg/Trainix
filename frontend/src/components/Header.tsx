@@ -74,7 +74,7 @@ const Header = () => {
                     {!active ? <Menu size={30} /> : <X size={30} />}
                 </button>
                 {/* fixed menu  */}
-                <div className={`fixed w-full h-full z-100 top-[70px] p-3 ${active ? "left-0" : "left-500"} bg-green  `}>
+                <div className={`fixed w-full md:hidden transition-all h-full z-100 top-[70px] p-3 ${active ? "right-0" : "right-500"} bg-green  `}>
                     {links.map(item => (
                         <Link onClick={() => setActive(false)} key={item.link} href={item.link} className={`p-2   flex items-center gap-2 section-title border-b-[2px]   `}>{item.icon} {item.title}</Link>
                     ))}
@@ -88,7 +88,7 @@ const Header = () => {
             </div>
 
             <div className="relative">
-                <button onClick={() => setPanel(panel !== "menu" ? "menu" : null)} className={`size - [36px] cursor - pointer  hover:text-[#468438FF] hover:border-[#468438FF] ${panel === "menu" ? "text-[#468438FF] border-[#468438FF]" : ""} transition-colors rounded-full overflow-hidden _border flex items-center justify-center p-2`}>
+                <button onClick={() => setPanel(panel !== "menu" ? "menu" : null)} className={` cursor-pointer  hover:text-[#468438FF] hover:border-[#468438FF] ${panel === "menu" ? "text-[#468438FF] border-[#468438FF]" : ""} transition-colors rounded-full overflow-hidden _border flex items-center justify-center p-2`}>
                     {panel !== "menu" ? <UserRound /> : <X />}
                 </button>
                 {panel &&

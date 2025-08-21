@@ -19,9 +19,9 @@ const Sidebar = () => {
     const [active, setActive] = useState<boolean>(false);
 
     return (
-        <div className={`lg:basis-[254px] hidden md:block ${active ?"basis-[254px]" : ""} shrink-0 relative overflow-hidden  _border h-full bg-white`}>
+        <div className={`lg:basis-[254px] hidden md:block ${active ?"basis-[254px] " : ""} shrink-0 relative overflow-hidden  _border h-full bg-white`}>
 
-            <button onClick={()=>setActive(!active)} className={`p-3 cursor-pointer w-full  hover:text-green ${active && "bg-[#F5FAF5FF] text-green"} transition-colors hover:bg-[#F5FAF5FF] border-b-[1px] border-b-neutral-600 lg:hidden`}>
+            <button onClick={()=>setActive(!active)} className={`p-3 cursor-pointer w-full  hover:text-green ${active && "bg-[#F5FAF5FF] text-green"} transition-colors flex justify-center hover:bg-[#F5FAF5FF] border-b-[1px] border-b-neutral-600 lg:hidden!`}>
                 <Menu />
             </button>
             <div className={`p-2 ${active ? " left-0 " :" -left-[500px]"} transition-all absolute lg:left-0  w-[254px] lg:w-full lg:relative`}>
