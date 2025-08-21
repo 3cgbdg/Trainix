@@ -15,6 +15,7 @@ export interface IUser {
     shoulderAngle: number
 
   },
+  _id:string,
   imageUrl: string,
   longestStreak: number,
   targetWeight: number,

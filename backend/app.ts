@@ -12,7 +12,6 @@ import MeasurementsRoute from "./routes/MeasurementsRoutes";
 import { sendEmail } from "./utils/email";
 // dotenv config
 dotenv.config();
-
 export const app = express();
 app.use(cookieParser());
 app.use(express.json());
