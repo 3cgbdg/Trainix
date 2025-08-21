@@ -56,7 +56,7 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
             res.status(404).json({ message: "Not found!" });
             return;
         }
-        const idxOfCurrentDay = Math.floor(
+        const idxOfCurrentDay = Math.round(
             (new Date().getTime() - new Date(nutritionPlan.createdAt).getTime()) /
             (1000 * 60 * 60 * 24)
         );

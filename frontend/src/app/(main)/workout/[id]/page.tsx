@@ -119,7 +119,6 @@ const Page = () => {
 
 
 
-    const totalCalories = workout?.exercises.reduce((acc, cur) => { return (cur.status == "completed" ? acc + cur.calories : acc) }, 0);
 
     return (
         <div>
@@ -130,15 +129,14 @@ const Page = () => {
 
                         <div className="p-6 max-w-3xl mx-auto">
                             <h1 className="page-title mb-4"> Day {id}</h1>
-
                             <div className="grid grid-cols-2 gap-4 mb-6">
                                 <div className="bg-green p-4 rounded-lg text-center ">
-                                    <p className="text-sm">Calories</p>
-                                    <p className="text-xl font-semibold">{totalCalories} kcal</p>
+                                    <p className="text-sm">Total Calories</p>
+                                    <p className="text-xl font-semibold">{workout?.calories} kcal</p>
                                 </div>
 
                                 <div className="bg-green p-4 rounded-lg text-center">
-                                    <p className="text-sm">Exercises completed</p>
+                                    <p className="text-sm">Exercises Completed</p>
                                     <p className="text-xl font-semibold">
                                         {workout?.exercises.filter((ex) => ex.status === "completed").length} / {workout?.exercises.length}
                                     </p>
@@ -171,7 +169,12 @@ const Page = () => {
                     <div className="flex items-center justify-center gap-6 bg-[#e5fcea] _border rounded-2xl flex-col p-6 min-h-[350px]">
                         <span className="text-center page-title pb-10">Start workout: {exercise?.title}</span>
                         {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
-                            : <span className="text-xl leading-7 text-black flex gap-1 items-center"><Clock size={20} />{exercise.time !== null ? exercise.time / 60 >= 10 ? Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : "0" + Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : ""}</span>}
+                            : <span className="text-xl leading-7 text-black flex gap-1 items-center">
+                                <Clock size={20} />
+                                {exercise?.time != null ? (
+                                    `${String(Math.floor(exercise.time / 60)).padStart(2, "0")} : ${String(exercise.time % 60).padStart(2, "0")}`
+                                ) : "00 : 00"}
+                            </span>}
                         <button onClick={() => setStart(true)} className="button-transparent max-w-[200px]  font-outfit flex items-center gap-2 w-full"> <span className="text-2xl">Start</span></button>
 
                     </div></div>
@@ -198,10 +201,15 @@ const Page = () => {
                                 <div className="flex flex-col gap-5 items-center">
                                     <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
                                     <div className="w-[250px] rounded-[10px] overflow-hidden relative aspect-square">
-                                    <Image className="" src={exercise.imageUrl} fill alt="exercise image"/>
+                                        <Image className="" src={exercise.imageUrl} fill alt="exercise image" />
                                     </div>
                                     {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
-                                        : <span className="text-xl leading-7 text-black flex gap-1 items-center"><Clock size={20} />{exercise.time !== null ? exercise.time / 60 >= 10 ? Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : "0" + Math.floor(exercise.time / 60) + ":0" + exercise.time % 60 : ""}</span>}
+                                        : <span className="text-xl leading-7 text-black flex gap-1 items-center">
+                                            <Clock size={20} />
+                                            {exercise?.time != null ? (
+                                                `${String(Math.floor(exercise.time / 60)).padStart(2, "0")} : ${String(exercise.time % 60).padStart(2, "0")}`
+                                            ) : "00 : 00"}
+                                        </span>}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 items-start gap-6">
@@ -219,7 +227,7 @@ const Page = () => {
                                 </div>
                                 <div className="flex flex-col gap-12">
                                     <div className="_border rounded-2xl p-4 pt-4.5 flex items-center gap-7 bg-white">
-                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image width={80} height={80} src={workout.exercises[idx+1].imageUrl} alt="exercise image" />
+                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image className="overflow-hidden rounded-[10px]" width={80} height={80} src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
                                             <div className="">
                                                 <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
                                                 <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>

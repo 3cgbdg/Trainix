@@ -103,7 +103,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
 
 export const getNumbers = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { date } = req.query;
+        const { date, progress } = req.query;
         const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: 1 });
         const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
         const user = await User.findById((req as AuthRequest).userId);
@@ -113,11 +113,39 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
+        // getting info for charts (example {month:"Aug",weight:74}[])
 
-        let weightsData = [];
+
+
+        let weightsData: { month: string, weight: number }[] = [];
+        let imagesData: { date: string, imageUrl: string }[] = [];
+        let bodyFatData: { month: string, bodyFat: number }[] = [];
+        let bmiData: { month: string, bmi: number }[] = [];
+
+        // for getting only one  measurement per month 
+        let unavailableMonth: string[] = [];
         for (let item of measurements) {
-            weightsData.push({ month: item.createdAt.toLocaleDateString("en-US", { month: "short" }), weight: item.metrics.weight });
+            if (weightsData.length > 6) break;
+            const month = item.createdAt.toLocaleDateString("en-US", { month: "short" });
+            if (!unavailableMonth.includes(month)) {
+
+                weightsData.push({ month: month, weight: item.metrics.weight });
+                if (progress) {
+                    const date = item.createdAt.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    });;
+                    (weightsData.length < 5)
+                    imagesData.push({ date: date, imageUrl: item.imageUrl });
+                    bodyFatData.push({ month: month, bodyFat: +item.metrics.bodyFatPercent.toFixed(2) });
+                    bmiData.push({ month: month, bmi: +((item.metrics.weight / (item.metrics.height * item.metrics.height / 10000)).toFixed(2)) });
+                }
+                unavailableMonth.push(month);
+            }
+            else continue;
         }
+
         console.log(weightsData);
         const currentDay = new Date(date);
 
@@ -129,11 +157,15 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
         res.status(200).json({
             weight: measurements[measurements.length - 1].metrics.weight,
             lastWeight: measurements[measurements.length - 2] ? measurements[measurements.length - 2].metrics.weight : null,
-            bmi: measurements[measurements.length - 1].metrics.weight / (Math.pow(measurements[measurements.length - 1].metrics.height * 0.01, 2)),
+            bmi: +(measurements[measurements.length - 1].metrics.weight / (Math.pow(measurements[measurements.length - 1].metrics.height * 0.01, 2))).toFixed(2),
+            bodyFat: measurements[measurements.length - 1].metrics.bodyFatPercent,
             streak: plan.report.streak,
             longestStreak: user?.longestStreak,
             calories: { current: currentCalories, target: plan.report.plan.days[day].calories },
             weightsData: weightsData,
+            fatsData: bodyFatData ?? null,
+            bmiData: bmiData ?? null,
+            imagesData: imagesData ?? null,
             day: day,
         });
         return;

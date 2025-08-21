@@ -34,8 +34,8 @@ const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber:
                     <ChevronDown />
                 </button>
             </div>
-            <span className="text-sm text-neutral-600 mb-4"><b>Time:</b> {meal.time}</span>
-            <div className="rounded-md overflow-hidden mb-4 _border">
+            <span className="text-sm text-neutral-600 "><b>Time:</b> {meal.time}</span>
+            <div className="rounded-md overflow-hidden mt-4 mb-4 _border">
                 <Image className="max-h-[250px] object-cover object-center w-full" height={300} width={516} src={meal.imageUrl} alt="food picture" />
             </div>
             <div className="flex items-center justify-between">

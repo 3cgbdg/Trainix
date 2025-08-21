@@ -19,7 +19,6 @@ import {
 } from "recharts";
 
 
-
 const page = () => {
     const { user } = useAppSelector(state => state.auth);
 
@@ -32,6 +31,8 @@ const page = () => {
         queryKey: ["numbers", new Date().toISOString().split('T')[0]],
         queryFn: getNumbers,
     })
+    console.log(data);
+
     return (
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Dashboard Overview</h1>
@@ -56,7 +57,7 @@ const page = () => {
                             <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.weight} kg</div>
                             <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${data.lastWeight > data.weight && user?.primaryFitnessGoal == "Lose weight" ? "text-green!" : data.lastWeight < data.weight && user?.primaryFitnessGoal == "Lose weight" ? "text-red!" : data.lastWeight > data.weight ? "text-red!" : "text-green!"}`}>
                                 <ArrowUp size={20} className={` ${data.lastWeight > data.weight && user?.primaryFitnessGoal == "Lose weight" ? "" : data.lastWeight < data.weight && user?.primaryFitnessGoal == "Lose weight" ? "rotate-180" : data.lastWeight > data.weight ? "rotate-180" : ""}`} />
-                                {data.lastWeight && `From ${data.lastWeight} (last week)`} kg
+                                {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>
                         <div className="shadow-xs p-6 pt-7 bg-white rounded-[10px] ">
@@ -107,12 +108,14 @@ const page = () => {
                                 <Tooltip />
                                 <Legend />
                                 <Line
+                                    name='Weight (kg)'
                                     type="monotone"
                                     dataKey="weight"
                                     stroke="#22c55e"
                                     dot={{ stroke: "#22c55e", strokeWidth: 2, r: 4 }}
                                     activeDot={{ r: 6 }}
                                 />
+
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -129,7 +132,7 @@ const page = () => {
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">
                                     <Image className=' ' src={"/dashboard/workout.jpg"} fill alt='workout image' />
                                 </div>
-                                <Link href={`/workout/${data.day+1}`} className='mt-4 button-green'>View Workout</Link>
+                                <Link href={`/workout/${data.day + 1}`} className='mt-4 button-green'>View Workout</Link>
                             </div>
                         </div>
                         <div className="_border rounded-[10px] p-6 pt-[25px]  flex flex-col bg-white">
