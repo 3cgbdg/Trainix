@@ -13,7 +13,7 @@ interface IdailyGoals {
 export interface IMeal {
 
   mealTitle: string,
-  time: number,
+  time: string,
   imageUrl: string,
   description: string,
   ingredients: string[],

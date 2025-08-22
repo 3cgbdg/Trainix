@@ -1,42 +1,67 @@
 "use client"
 import { api } from '@/api/axiosInstance';
 import { useAppSelector } from '@/hooks/reduxHooks';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 
 const Notification = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [data, setData] = useState<{ topic: string, _id: string, info: string }[] | null>(null);
+    const [notifications, setNotifications] = useState<{ topic: string, _id: string, info: string }[] | null>(null);
     const { user } = useAppSelector(state => state.auth)
-    useEffect(() => {
-        const socket = io(`${process.env.NEXT_PUBLIC_API_URL}`);
-        setSocket(socket);
-        return () => { socket.disconnect() };
-    }, []);
 
+// joining room and listening to notif's
     useEffect(() => {
         if (socket && user) {
             socket.emit("joinNotifications", (user._id));
             socket.on("getNotifications", ({ data }) => {
-                setData(prev => prev ? [...prev, data] : [data]);
+                setNotifications(prev => prev ? [...prev, data] : [data]);
             })
         }
     }, [socket, user])
-    // TODO ask about stuff whether use it or tanstack query
+    
+    // using simple interceptor (Without tanstack!)
     const deleteItem = async (id: string) => {
         try {
+            setNotifications(prev => prev ? prev?.filter(item => item._id !== id) : null)
             await api.delete(`/api/notification/notifications/${id}`);
 
         } catch (err) {
             console.error(err);
         }
     }
+
+    // get request async func
+    const getDataFunc = async () => {
+        const res = await api.get("/api/notification/notifications");
+        return res.data;
+    }
+    const { data, isSuccess } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: getDataFunc,
+
+
+    })
+
+    // connecting to io server
+    useEffect(() => {
+        const socket = io(`${process.env.NEXT_PUBLIC_API_URL}`);
+        setSocket(socket);
+        return () => { socket.disconnect() };
+    }, []);
+
+    // getting data ( available notifications ) after render 
+    useEffect(() => {
+        if (isSuccess)
+            setNotifications(data)
+    }, [isSuccess])
+
     return (
         <>
-            {data &&
-                data.map((item, idx) => {
-                    return <div key={idx} className='_border flex flex-col bg-white gap-4 rounded-[10px]  max-w-[400px] w-full p-3 fixed z-10 top-10 left-1/2 -translate-x-1/2'>
-                        <p className='text-lg leading-7 font-semibold'><span className='text-xl'>{item.topic == "water" ? "💧" : item.topic == "sport" ? "💪" : "🍇"}</span> Hi guys</p>
+            {notifications &&
+                notifications.map((item, idx) => {
+                    return <div key={idx} className={`mt-${idx * 1} ml-${idx * 1} _border flex flex-col bg-white gap-4 rounded-[10px] fixed z-10 top-10 right-20 w-[380px] p-3`}>
+                        <p className='text-lg leading-7 font-semibold'>{item.info}  <span className='text-xl'>{item.topic == "water" ? "💧" : item.topic == "sport" ? "💪" : "🍇"}</span></p>
                         <button onClick={async () => { await deleteItem(item._id) }} className='button-green w-fit ml-auto'>
                             OK
                         </button>

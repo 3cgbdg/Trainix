@@ -10,6 +10,8 @@ import FitnessPlan from "./models/FitnessPlan";
 import nutritionPlanRoute from "./routes/nutritionPlanRoutes";
 import MeasurementsRoute from "./routes/MeasurementsRoutes";
 import { sendEmail } from "./utils/email";
+import notificationRoute from "./routes/notificationRoutes";
+import { cronNotifs } from "./utils/cronNotifs";
 // dotenv config
 dotenv.config();
 export const app = express();
@@ -50,11 +52,15 @@ nodeCron.schedule("0 0 * * * *", async () => {
         "<h1>Привіт!</h1><p>Дякуємо за реєстрацію 🚀</p>")
 
 })
+
+cronNotifs();
+
 // routing
 app.use("/api/auth", authRoute);
 app.use("/api/fitness-plan", fitnessPlanRoute);
 app.use("/api/nutrition-plan", nutritionPlanRoute);
 app.use("/api/measurement", MeasurementsRoute);
+app.use("/api/notification", notificationRoute);
 
 //route for testing auth middleware
 // app.get("/api/protected",authMiddleware, async (req: Request, res: Response) => {
