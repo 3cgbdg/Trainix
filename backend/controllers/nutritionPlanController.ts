@@ -60,7 +60,6 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
             (new Date().getTime() - new Date(nutritionPlan.createdAt).getTime()) /
             (1000 * 60 * 60 * 24)
         );
-
         res.status(200).json(nutritionPlan.days[idxOfCurrentDay]);
         return;
     } catch {

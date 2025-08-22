@@ -9,7 +9,7 @@ import axios, { isAxiosError } from 'axios';
 
 const Page = () => {
     const { user } = useAppSelector(state => state.auth);
-    const data = useAppSelector(state=>state.nutritionDay.nutritionDay);
+    const {nutritionDay} = useAppSelector(state=>state.nutritionDay);
     const getMeasurements = async () => {
         const res = await api.get("/api/measurement/measurements");
         return res.data;
@@ -61,14 +61,13 @@ const Page = () => {
 
     })
     
-    
     return (
 
         <div className="">
           { !isLoading ?
-            (!data && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
+            (!nutritionDay && !mutation.isSuccess) ? <GenerateNutritionPlan  mutateAsync={mutation.mutateAsync} isPending={mutation.isPending}/>
                 :
-                <NutritionPlanPage day={data!} />
+                <NutritionPlanPage day={nutritionDay!} />
                
             :<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
         </div>

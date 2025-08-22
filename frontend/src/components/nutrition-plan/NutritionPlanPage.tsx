@@ -111,7 +111,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                                 <GlassWater className="text-[#E67E00FF]" size={16} />
                                 <span className="text-neutral-900 font-medium">Water Intake</span>
                             </div><div className="">
-                                <div className="flex gap-2  flex-wrap">
+                                <div className="flex gap-2  flex-wrap md:flex-no">
                                     <input ref={input} onChange={(e) => {
                                         const amount = Number(e.target.value);
                                         if (amount) {
@@ -128,7 +128,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
 
                                     }} className="basis-[450px] text-sm input p-2!" />
                                     <button onClick={() => { mutation.mutate({ amount: amount, dayNumber: day.dayNumber - 1 }); input.current!.value = "" }
-                                    } className={`button-green basis-[100px] md:basis-[60px] p-2! ${error ? "pointer-events-none opacity-65" : ""}`}>Log</button>
+                                    } className={`button-green basis-[100px] md:basis-[45px] p-2! ${error ? "pointer-events-none opacity-65" : ""}`}>Log</button>
                                 </div>
                                 {error &&
                                     <span data-testid='error' className="text-red-500 font-medium ">

@@ -26,7 +26,7 @@ const AuthClientUpload = () => {
             dispatch(getWorkouts(res2.data));
             const res3 = await api.get("api/nutrition-plan/nutrition-plans");
             dispatch(getNutritionDay(res3.data));
-
+            console.log(res3.data);
         }
 
         getUser();
