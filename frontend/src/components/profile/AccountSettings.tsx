@@ -18,7 +18,6 @@ type formType = {
 
 const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: string | null, setEditing: Dispatch<SetStateAction<"password" | "personal" | "goals" | null>> }) => {
   const { register, formState: { errors }, handleSubmit, reset, watch } = useForm<formType>({});
-  const [emailNotifsEnabled, setEmailNotifsEnabled] = useState<boolean | null>(null);
   const [inAppNotifsEnabled, setInAppNotifsEnabled] = useState<boolean | null>(null);
   const [error, setError] = useState<null | string>(null);
   const router = useRouter();
@@ -50,32 +49,25 @@ const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: 
   // starting value of switchers
   useEffect(() => {
     if (user) {
-      setEmailNotifsEnabled(user.emailNotifications);
       setInAppNotifsEnabled(user.inAppNotifications);
     }
   }, [user])
 
   // requests for switchers
   useEffect(() => {
-    if (emailNotifsEnabled === null || inAppNotifsEnabled === null) return;
+    if (inAppNotifsEnabled === null) return;
     const updateNotifications = async () => {
       const payload: any = {};
       if (inAppNotifsEnabled !== user.inAppNotifications) {
         payload.inAppNotifications = inAppNotifsEnabled;
       }
-
-      if (emailNotifsEnabled !== user.emailNotifications) {
-        payload.emailNotifications = emailNotifsEnabled;
-
-      }
-
       if (Object.keys(payload).length > 0) {
         await updateProfile(payload, setError);
       }
     };
 
     updateNotifications();
-  }, [inAppNotifsEnabled, emailNotifsEnabled])
+  }, [inAppNotifsEnabled])
 
   // mutatin delete account request
   const mutation = useMutation({
@@ -89,13 +81,6 @@ const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: 
 
       <h2 className="section-title mb-6">Account Settings</h2>
       <div className="flex flex-col gap-6 mb-4">
-        <div className="flex items-center justify-between">
-          <h3 className="leading-3.5 font-medium ">Email Notifications</h3>
-          <button type="button" onClick={() => { setEmailNotifsEnabled(!emailNotifsEnabled) }} className={`w-11 h-6  overflow-hidden relative flex items-center cursor-pointer _border rounded-xl p-0.5 ${!emailNotifsEnabled ? "bg-white" : "bg-green"}`}>
-            <div className={`bg-white w-5 h-5 border rounded-full  transform transition-transform duration-300 ${emailNotifsEnabled ? "translate-x-4.5!" : "translate-x-0 bg-green!"
-              }`}></div>
-          </button>
-        </div>
         <div className="flex items-center justify-between">
           <h3 className="leading-3.5 font-medium ">In-App Notifications</h3>
           <button type="button" onClick={() => { setInAppNotifsEnabled(!inAppNotifsEnabled) }} className={`w-11 h-6  overflow-hidden relative flex items-center cursor-pointer _border rounded-xl p-0.5 ${!inAppNotifsEnabled ? "bg-white" : "bg-green"}`}>

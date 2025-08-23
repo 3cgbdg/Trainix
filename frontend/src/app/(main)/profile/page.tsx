@@ -22,7 +22,7 @@ const Page = () => {
     console.log(user);
   }, [user])
   return (<>
-    { user &&
+    { user ?
     <div className="flex flex-col gap-6">
       {/* banner */}
       <div className="flex sm:flex-row flex-col  items-center gap-6 rounded-[10px]  bg-white py-4 px-8">
@@ -40,7 +40,7 @@ const Page = () => {
       <GoalsInfoForm user={user} editing={editing} setEditing={setEditing}/>
       <AccountSettings user={user}  editing={editing} setEditing={setEditing}/>
 
-    </div>}</>
+    </div>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}</>
   )
 }
 

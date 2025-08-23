@@ -9,7 +9,6 @@ export interface IUser {
     dateOfBirth: Date,
     gender: string,
     longestStreak: number,
-    emailNotifications: boolean,
     inAppNotifications: boolean,
     metrics: {
         weight: number,
@@ -32,7 +31,6 @@ const userSchema = new mongoose.Schema<IUser>({
     lastName: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, unique: true },
-    emailNotifications:  { type: Boolean, default:true },
     inAppNotifications: { type: Boolean, default:true },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: ["Male", "Female"], required: true },

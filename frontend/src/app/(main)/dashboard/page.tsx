@@ -38,14 +38,16 @@ const page = () => {
     return (
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Dashboard Overview</h1>
-            <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  ">
-                <div className="flex flex-col gap-6 max-w-[590px]">
-                    <h2 className='banner-title'>Welcome back, {user?.firstName} {user?.lastName}</h2>
-                    <p className='text-lg leading-7 text-[#19191FFF]'>Stay consistent and trust the process. Every step counts towards your goals!</p>
-                </div>
-                <Image className='rounded-lg _border lg:block hidden' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />
+            {user ?
+                <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  ">
+                    <div className="flex flex-col gap-6 max-w-[590px]">
+                        <h2 className='banner-title'>Welcome back, {user?.firstName} {user?.lastName}</h2>
+                        <p className='text-lg leading-7 text-[#19191FFF]'>Stay consistent and trust the process. Every step counts towards your goals!</p>
+                    </div>
+                    <Image className='rounded-lg _border lg:block hidden' src={"/dashboard/dashboardBanner.jpg"} width={300} height={180} alt='dashboard image' />
 
-            </div>
+                </div>
+                : <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  skeleton"></div>}
             {!isLoading && <>
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
@@ -57,8 +59,8 @@ const page = () => {
                                 <MonitorOff size={20} />
                             </div>
                             <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.weight} kg</div>
-                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${data.lastWeight > data.weight && user?.primaryFitnessGoal == "Lose weight" ? "text-green!" : data.lastWeight < data.weight && user?.primaryFitnessGoal == "Lose weight" ? "text-red!" : data.lastWeight > data.weight ? "text-red!" : "text-green!"}`}>
-                                <ArrowUp size={20} className={` ${data.lastWeight > data.weight && user?.primaryFitnessGoal == "Lose weight" ? "" : data.lastWeight < data.weight && user?.primaryFitnessGoal == "Lose weight" ? "rotate-180" : data.lastWeight > data.weight ? "rotate-180" : ""}`} />
+                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "text-red!" : "text-green!" : data.lastWeight < data.weight ?"text-green!" :"text-red!" }`}>
+                                <ArrowUp size={20} className={` ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "rotate-180" : "" : data.lastWeight < data.weight ?"" :"rotate-180" }`} />
                                 {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>

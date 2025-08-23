@@ -46,7 +46,7 @@ const page = () => {
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Your Progress Overview</h1>
 
-            {!isLoading && <>
+            {!isLoading ? <>
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
@@ -185,7 +185,7 @@ const page = () => {
                     </div>
                 </div>
 
-            </>}
+            </>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
 
         </div >
     )

@@ -6,7 +6,6 @@ import NutritionPlan from "../models/NutritionPlan";
 import FitnessPlan from "../models/FitnessPlan";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
-import { sendEmail } from "./email";
 
 
 export const cronNotifs = () => {
@@ -196,13 +195,6 @@ export const cronNotifs = () => {
 
     })
 
-    // cron for sending email every friday 
-    nodeCron.schedule("0 0 * * * *", async () => {
-        console.log("hello")
-        await sendEmail("bogdantytysh5@gmail.com", "Welcome to Trainix 🎉",
-            "<h1>Привіт!</h1><p>Дякуємо за реєстрацію 🚀</p>")
-
-    })
 }
 
 

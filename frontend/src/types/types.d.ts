@@ -21,7 +21,6 @@ export interface IUser {
   targetWeight: number,
   fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
   primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",
-  emailNotifications: boolean,
   inAppNotifications: boolean,
 }
 

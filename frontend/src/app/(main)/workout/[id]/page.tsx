@@ -121,8 +121,8 @@ const Page = () => {
 
 
     return (
-        <div>
-            {!start ?
+        <div>{workouts ?
+            !start ?
                 // getting ready section to start doing exercises
                 <div className="grid lg:grid-cols-2 justify-center gap-6">
                     <div className="flex items-center justify-center gap-6 bg-[#e5fcea] w-fit mx-auto _border rounded-2xl flex-col p-3 ">
@@ -186,6 +186,7 @@ const Page = () => {
                         <button onClick={() => setIsResting(false)} className="button-transparent max-w-[200px]  font-outfit flex items-center gap-2 w-full"> <span className="text-2xl">Skip</span> <SkipForward size={20} /></button>
                     </div>
                     :
+                    exercise &&
                     <div className="flex flex-col gap-6">
                         {exercise && <>
                             {/* exercise page  */}
@@ -202,7 +203,7 @@ const Page = () => {
                                 <div className="flex flex-col gap-5 items-center">
                                     <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
                                     <div className="w-[250px] rounded-[10px] overflow-hidden relative aspect-square">
-                                        <Image className="" src={exercise.imageUrl} fill alt="exercise image" />
+                                        <Image className="" src={exercise.imageUrl} fill alt="exercise image" priority/>
                                     </div>
                                     {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
                                         : <span className="text-xl leading-7 text-black flex gap-1 items-center">
@@ -211,7 +212,7 @@ const Page = () => {
                                                 `${String(Math.floor(exercise.time / 60)).padStart(2, "0")} : ${String(exercise.time % 60).padStart(2, "0")}`
                                             ) : "00 : 00"}
                                         </span>}
-                                           <div className=" items-start gap-6 mx-auto  flex md:hidden!">
+                                    <div className=" items-start gap-6 mx-auto  flex md:hidden!">
                                         <button onClick={() => {
                                             if (workout) {
                                                 goToNextExercise();
@@ -257,7 +258,7 @@ const Page = () => {
                                 </div>
                                 <div className="flex flex-col gap-12 w-full">
                                     <div className="_border rounded-2xl p-4 pt-4.5 flex items-center gap-7 bg-white">
-                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image className="overflow-hidden rounded-[10px]" width={80} height={80} src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
+                                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image className="overflow-hidden rounded-[10px]" priority width={80} height={80} src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
                                             <div className="">
                                                 <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
                                                 <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>
@@ -303,8 +304,8 @@ const Page = () => {
 
                         </>}
 
-                    </div >}
-
+                    </div >
+            : <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
 
         </div>
 

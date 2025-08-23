@@ -68,7 +68,7 @@ const Page = () => {
 
 
 
-                {/* lable + valiadtion */}
+              
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="targetWeight">Target Weight (kg) - Optional</label>
                     <input {...register("targetWeight", { required: "Field is required" })} className="input w-full" placeholder="e.g., 65" type="text" id="targetWeight" />

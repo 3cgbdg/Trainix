@@ -90,18 +90,20 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             if (plan.report.streak > user.longestStreak) {
                 user.longestStreak += 1;
             }
-
-            const socketId = userSocketMap.get(String(user._id));
-            let notification: INotification | null;
-            notification = await Notification.findOne({ userId: user._id, topic: "measurement" });
             // updating current metrics (weight + bodyFat with calories release)
             const measurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
             if (measurement) {
-                measurement.metrics.weight -= currentDay.calories / 7700;
-                measurement.metrics.bodyFatPercent  = ((measurement.metrics.weight - measurement.metrics.leanBodyMass)/measurement.metrics.weight)*100
+                measurement.metrics.weight -= +(currentDay.calories / 7700).toFixed(2);
+                const fatMass = Math.max(measurement.metrics.weight - measurement.metrics.leanBodyMass, 0);
+                if (!fatMass)
+                    measurement.metrics.leanBodyMass = measurement.metrics.weight;
+                measurement.metrics.bodyFatPercent = (fatMass / measurement.metrics.weight) * 100;
                 measurement.markModified(`metrics`);
                 await measurement.save();
             }
+            const socketId = userSocketMap.get(String(user._id));
+            let notification: INotification | null;
+            notification = await Notification.findOne({ userId: user._id, topic: "measurement" });
             if (!notification) {
                 const notification = new Notification({ userId: user._id, info: `Reminder:  Want to update your metrics ?`, topic: "measurement" })
 

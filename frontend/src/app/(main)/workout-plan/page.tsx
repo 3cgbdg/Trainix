@@ -14,7 +14,7 @@ const Page = () => {
     return (
 
         <>
-            {workouts && <>
+            {workouts ? <>
                 <div className='flex flex-col gap-6'>
                     <h1 className='page-title '>Workout Plan</h1>
                     <div className=" _workout-plan-banner sm:py-1 px-8 py-4  min-h-60 flex items-center  justify-between  ">
@@ -67,7 +67,7 @@ const Page = () => {
 
 
                 </div>
-            </>}
+            </> : <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
         </>
     )
 }
