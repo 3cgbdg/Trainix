@@ -5,15 +5,16 @@ import { s3ImageUploadingMeal } from "../utils/images";
 import MealImage from "../models/MealImage";
 import ExerciseImage from "../models/ExerciseImage";
 
-
+// func for looping use - adding day to nutrition plan -- creating plan
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
-    const { data } = req.body as { data: IDayPlanNutrition };
+    const { data } = req.body as { data: IDayPlanNutrition }; 
     try {
         const dayDate = new Date();
         let obj: IDayPlanNutrition;
         dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
         console.log(dayDate);
         let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
+        // parallel for optimized using in adding images to each meal
         await Promise.all(
             data.meals.map(async (meal) => {
                 const image = await MealImage.findOne({ name: meal.mealTitle });
@@ -30,13 +31,16 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
                 }
 
             }))
+            // creating data with a real date of that day
         obj = { ...data, date: dayDate };
+        // if plan exists just pushing
         if (nutritionPlan) {
             nutritionPlan.days.push(obj);
             await nutritionPlan.save();
             res.status(200).json({ message: "Successfully added day!" });
             return;
         }
+        // otherwise creating plan with this item
         else {
             nutritionPlan = await NutritionPlan.create({ userId: (req as AuthRequest).userId, "days": [obj], createdAt: new Date() });
             res.status(201).json({ message: "Nutrition plan created!" });
@@ -48,7 +52,7 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
     }
 }
 
-
+// func for getting nutr. day
 export const getNutritionDay = async (req: Request, res: Response): Promise<void> => {
     try {
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
@@ -56,6 +60,7 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
             res.status(404).json({ message: "Not found!" });
             return;
         }
+        // idx of the array item -- day
         const idxOfCurrentDay = Math.round(
             (new Date().getTime() - new Date(nutritionPlan.createdAt).getTime()) /
             (1000 * 60 * 60 * 24)
@@ -68,10 +73,12 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
     }
 }
 
+// getting week statistics for food intake 
 export const getWeekStatistics = async (req: Request, res: Response): Promise<void> => {
     try {
         const { week } = req.query;
         const weekNumber = Number(week);
+        // finding week number forlater loop idx using
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         if (!nutritionPlan) {
             res.status(404).json({ message: "Not found!" });
@@ -79,7 +86,7 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
         }
         const days = nutritionPlan.days;
         let data = [];
-
+        // loop for 7 days
         for (let i = 7 * weekNumber - 7; i < 7 * weekNumber; i++) {
             if (!days[i]) break;
             data.push({ day: days[i].date.toLocaleDateString("en-US", { weekday: "short" }), calories: days[i].dailyGoals.calories.current, protein: days[i].dailyGoals.protein.current, carbs: days[i].dailyGoals.carbs.current, fats: days[i].dailyGoals.fats.current })
@@ -94,6 +101,7 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
         return;
     }
 }
+// updating status to eaten
 export const updateMealStatus = async (req: Request, res: Response): Promise<void> => {
     try {
         const { day } = req.params;
@@ -108,6 +116,7 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
         }
         const currentDay = nutritionPlan.days[dayNum];
         currentDay.meals[index].status = "eaten";
+        //adding fresh numbers to dailyGoals - calories,fats,carbs,protein.
         currentDay.dailyGoals.calories.current += currentDay.meals[index].mealCalories;
         currentDay.dailyGoals.carbs.current += currentDay.meals[index].mealCarbs;
         currentDay.dailyGoals.fats.current += currentDay.meals[index].mealFats;
@@ -123,19 +132,19 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
     }
 }
 
-
+// updating water intake numbers
 export const updateWaterCurrent = async (req: Request, res: Response): Promise<void> => {
     try {
         const { day } = req.params;
         const { amount } = req.body;
-
+        // getting parsed to num idx of the day
         const dayNum = Number(day);
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         if (!nutritionPlan) {
             res.status(404).json({ message: "Not found!" });
             return;
         }
-
+        // adding numbers to current waterIntake
         nutritionPlan.days[dayNum].waterIntake.current += amount;
 
         nutritionPlan.markModified(`days.${dayNum}.waterIntake`);

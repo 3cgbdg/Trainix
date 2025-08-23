@@ -6,14 +6,14 @@ import Measurement from "../models/Measurement";
 import User from "../models/User";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise } from "../utils/images";
+import { io, userSocketMap } from "../server";
+import Notification, { INotification } from "../models/Notification";
 
+// adding report-fitnessplan func
 export const addReport = async (req: Request, res: Response): Promise<void> => {
     const { data, imageUrl } = req.body;
-    console.log(data);
     try {
-        data;
-        console.log("hello1")
-
+        // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
         await Promise.all(
             data.plan.days.map(async (day: IDayPlan) => {
                 await Promise.all(
@@ -25,6 +25,7 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
                             exercise.imageUrl = image.imageUrl;
                         } else {
                             const url = await s3ImageUploadingExercise(exercise);
+                            // if exists continue otherwise adding new doc
                             await ExerciseImage.findOneAndUpdate(
                                 { name: exercise.title },
                                 { $setOnInsert: { imageUrl: url } },
@@ -34,9 +35,9 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
                         }
                     }))
             }))
-        console.log("hello2")
         const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan": data.plan, "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis.targetWeight": data.briefAnalysis.targetWeight, "report.briefAnalysis.fitnessLevel": data.briefAnalysis.fitnessLevel, "report.briefAnalysis.primaryFitnessGoal": data.briefAnalysis.primaryFitnessGoal, createdAt: new Date() });
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: data.briefAnalysis.currentMetrics, imageUrl: imageUrl, createdAt: new Date() });
+        //    adding real date for each day - ai doesn`t generate real dates
         if (fitnessPlan) {
             for (let i = 0; i < fitnessPlan.report.plan.days.length; i++) {
                 const workoutDay = new Date(fitnessPlan.createdAt);
@@ -58,8 +59,10 @@ export const addReport = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// completing workout-day func
 export const completeWorkout = async (req: Request, res: Response): Promise<void> => {
     const completedItems = req.body;
+    // array of completed ,non-completed exercises
     const { day } = req.params;
     try {
         const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
@@ -72,7 +75,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             res.status(404).json({ message: "Not found!" });
             return;
         }
-
+        // setting similar status to db 
         const currentDay = plan?.report.plan.days[Number(day)];
         for (let [i, exercise] of currentDay.exercises.entries()) {
             if (completedItems[i]?.completed) {
@@ -80,6 +83,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             }
 
         }
+        // if every exercise`s status is completed than day status is Completed + streak+=1
         if (currentDay.exercises.every(exercise => exercise.status === "completed")) {
             currentDay.status = "Completed";
             plan.report.streak += 1;
@@ -87,12 +91,31 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
                 user.longestStreak += 1;
             }
 
+            const socketId = userSocketMap.get(String(user._id));
+            let notification: INotification | null;
+            notification = await Notification.findOne({ userId: user._id, topic: "measurement" });
+            // updating current metrics (weight + bodyFat with calories release)
+            const measurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
+            if (measurement) {
+                measurement.metrics.weight -= currentDay.calories / 7700;
+                measurement.metrics.bodyFatPercent  = ((measurement.metrics.weight - measurement.metrics.leanBodyMass)/measurement.metrics.weight)*100
+                measurement.markModified(`metrics`);
+                await measurement.save();
+            }
+            if (!notification) {
+                const notification = new Notification({ userId: user._id, info: `Reminder:  Want to update your metrics ?`, topic: "measurement" })
+
+                if (socketId)
+                    io.to(socketId).emit("getNotifications", { data: notification })
+            }
+
         }
+
+
         plan.markModified(`report.plan.days.${day}`);
         plan.markModified(`report`);
         await plan.save();
         await user.save();
-        console.log(currentDay, plan.report.streak)
         res.status(200).json({ message: "Day is successfully compeleted!", day: currentDay, streak: plan.report.streak });
         return;
     } catch {
@@ -100,12 +123,12 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
         return;
     }
 }
-
+// getting numbers of statistics for dashboard and progress pages using query filter
 export const getNumbers = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { date, progress } = req.query;
-        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: 1 });
-        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        const { date, progress } = req.query; //progress-filter,date-for current day numbers
+        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12).sort({ createdAt: 1 });
+        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         const user = await User.findById((req as AuthRequest).userId);
 
         if (!plan || typeof date !== "string") {
@@ -125,6 +148,7 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
         // for getting only one  measurement per month 
         let unavailableMonth: string[] = [];
         for (let item of measurements) {
+            // for 6 month
             if (weightsData.length > 6) break;
             const month = item.createdAt.toLocaleDateString("en-US", { month: "short" });
             if (!unavailableMonth.includes(month)) {
@@ -136,7 +160,7 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
                         month: "long",
                         day: "numeric",
                     });;
-                    (weightsData.length < 5)
+
                     imagesData.push({ date: date, imageUrl: item.imageUrl });
                     bodyFatData.push({ month: month, bodyFat: +item.metrics.bodyFatPercent.toFixed(2) });
                     bmiData.push({ month: month, bmi: +((item.metrics.weight / (item.metrics.height * item.metrics.height / 10000)).toFixed(2)) });
@@ -146,7 +170,6 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
             else continue;
         }
 
-        console.log(weightsData);
         const currentDay = new Date(date);
 
         const firstDay = new Date(plan.createdAt);
@@ -185,24 +208,30 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
             res.status(404).json({ message: "Not found!" });
             return;
         }
-        let chartData = [];
+        let chartData: { month: string, bodyFat: number }[] = [];
         // data for chart (body-fat difference)
+        let unavailableMonth: string[] = [];
         for (let item of measurements) {
-            chartData.push({ month: item.createdAt.toLocaleDateString("en-US", { month: "short" }), bodyFatPercent: item.metrics.bodyFatPercent });
+            // for 6 month
+            if (chartData.length > 6) break;
+            const month = item.createdAt.toLocaleDateString("en-US", { month: "short" });
+            if (!unavailableMonth.includes(month)) {
+                unavailableMonth.push(month);
+                chartData.push({ month: month, bodyFat: +item.metrics.bodyFatPercent.toFixed(2) });
+
+            }
         }
-
-
         const weightDifference = measurements[1] ? measurements[0].metrics.weight - measurements[1].metrics.weight : 0;
 
         const currentBMI = measurements[0].metrics.weight / (Math.pow(measurements[0].metrics.height * 0.01, 2));
         const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
         const lastBMI = measurements[1] ? measurements[1].metrics.weight / (Math.pow(measurements[1].metrics.height * 0.01, 2)) : 0;
         res.status(200).json({
-            weight: { data: measurements[0].metrics.weight, difference: !measurements[1] ? null : weightDifference.toFixed(2) },
+            weight: { data: measurements[0].metrics.weight, difference: !measurements[1] ? null : +weightDifference.toFixed(2) },
             leanBodyMass: { data: measurements[0].metrics.leanBodyMass, difference: !measurements[1] ? null : measurements[0].metrics.leanBodyMass - measurements[1].metrics.leanBodyMass },
             bodyFatPercent: { data: measurements[0].metrics.bodyFatPercent, difference: !measurements[1] ? null : measurements[0].metrics.bodyFatPercent - measurements[1].metrics.bodyFatPercent },
             MuscleMass: { data: measurements[0].metrics.muscleMass, difference: !measurements[1] ? null : measurements[0].metrics.muscleMass - measurements[1].metrics.muscleMass },
-            bmi: { data: currentBMI.toFixed(1), difference: !measurements[1] ? null : (currentBMI - lastBMI).toFixed(2) },
+            bmi: { data: currentBMI.toFixed(1), difference: !measurements[1] ? null : +(currentBMI - lastBMI).toFixed(2) },
             imageUrlCurrent: measurements[0].imageUrl,
             imageUrlLast: measurements[1]?.imageUrl ?? null,
             waistToHipRatio: { data: measurements[0].metrics.waistToHipRatio, difference: !measurements[1] ? null : measurements[0].metrics.waistToHipRatio - measurements[1].metrics.waistToHipRatio },

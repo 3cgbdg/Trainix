@@ -2,6 +2,7 @@
 import { api } from '@/api/axiosInstance';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 
@@ -9,8 +10,8 @@ const Notification = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [notifications, setNotifications] = useState<{ topic: string, _id: string, info: string }[] | null>(null);
     const { user } = useAppSelector(state => state.auth)
-
-// joining room and listening to notif's
+    const router = useRouter();
+    // joining room and listening to notif's
     useEffect(() => {
         if (socket && user) {
             socket.emit("joinNotifications", (user._id));
@@ -19,7 +20,7 @@ const Notification = () => {
             })
         }
     }, [socket, user])
-    
+
     // using simple interceptor (Without tanstack!)
     const deleteItem = async (id: string) => {
         try {
@@ -61,7 +62,12 @@ const Notification = () => {
             {notifications &&
                 notifications.map((item, idx) => {
                     return <div key={idx} className={`mt-${idx * 1} ml-${idx * 1} _border flex flex-col bg-white gap-4 rounded-[10px] fixed z-10 top-10 right-20 w-[380px] p-3`}>
-                        <p className='text-lg leading-7 font-semibold'>{item.info}  <span className='text-xl'>{item.topic == "water" ? "💧" : item.topic == "sport" ? "💪" : "🍇"}</span></p>
+                        <p className='text-lg leading-7 font-semibold'>{item.info}  <span className='text-xl'>{item.topic == "water" ? "💧" : item.topic == "sport" ? "💪" : item.topic == "measurement" ? "📏" : "🍇"}</span></p>
+                        {item.topic == "measurement" &&
+                            <button onClick={async () => { await deleteItem(item._id); router.push("/profile") }} className='button-green w-fit ml-auto'>
+                                Go to profile
+                            </button>
+                        }
                         <button onClick={async () => { await deleteItem(item._id) }} className='button-green w-fit ml-auto'>
                             OK
                         </button>

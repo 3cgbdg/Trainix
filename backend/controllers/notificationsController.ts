@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Notification from "../models/Notification";
 import { AuthRequest } from "../middlewares/authMiddleware";
 
+// delete notifications from the db ater reading it and pressing ok
 export const deleteNotification = async (req: Request, res: Response): Promise<void> => {
     const {id}= req.params;
     try {
@@ -14,7 +15,7 @@ export const deleteNotification = async (req: Request, res: Response): Promise<v
     }
 }
 
-
+// getting available notifs 
 export const getNotifications = async (req: Request, res: Response): Promise<void> => {
     try {
         const notifications =await Notification.find({userId:(req as AuthRequest).userId});

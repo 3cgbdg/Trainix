@@ -3,19 +3,22 @@ import User from "../models/User";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import { AuthRequest } from "../middlewares/authMiddleware";
+
+// signup func
 export const signUp = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
-        console.log(data);
         const user = await User.findOne({ email: data.email });
         if (user) {
             res.status(409).json({ message: "User with such an email exists" });
             return;
         }
+        // hashing and saving password into db
         const hashedPassword = await bcrypt.hash(data.password, 10);
         const newUser = await User.create({ firstName: data.name, lastName: data.surname, password: hashedPassword, email: data.email, dateOfBirth: data.dateOfBirth, gender: data.gender })
         const refreshToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
         const accessToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+        //   creating jwt, saving it into a cookie 
         res.cookie("access-token", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "production",
@@ -23,6 +26,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
+        // refresh token system
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "production",
@@ -39,6 +43,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// post info of  onboadrding section
 export const onBoarding = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
@@ -69,6 +74,7 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
             res.status(403).json({ message: "Wrong password!" });
             return;
         }
+        // refresh token system
         const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
         const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         res.cookie("access-token", accessToken, {
@@ -93,6 +99,7 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// refresh every time using protected-middleware api
 export const refresh = async (req: Request, res: Response): Promise<void> => {
     try {
         const refreshToken = req.cookies?.["refresh-token"];
@@ -124,6 +131,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// log-out func
 export const logOut = async (req: Request, res: Response): Promise<void> => {
     try {
         res.clearCookie("refresh-token", {
@@ -146,7 +154,7 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
-
+// profile getting
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
         const profile = await User.findById((req as AuthRequest).userId).select("-password");
@@ -157,6 +165,8 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         return;
     }
 }
+
+// deleting profile func
 export const deleteProfile = async (req: Request, res: Response): Promise<void> => {
     try {
         await User.findByIdAndDelete((req as AuthRequest).userId).select("-password");
@@ -168,37 +178,35 @@ export const deleteProfile = async (req: Request, res: Response): Promise<void> 
     }
 }
 
+// updating info in user document
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
     try {
+        // payload-Partial-IUser( including pass-changing )
         const payload = req.body;
-        console.log(payload);
         const profile = await User.findById((req as AuthRequest).userId);
-
-        const obj = profile?.toObject();
         if (profile) {
-            console.log("1");
+            // pass check (fields-newPassword - newPasswordAgain -password)
             if (payload.password) {
                 const isGood = await bcrypt.compare(payload.password, profile.password);
                 if (!isGood) {
                     res.status(403).json({ message: "Password is incorrect!" });
                     return;
                 }
-                console.log("2");
 
                 if (payload.newPassword && payload.newPassword === payload.newPasswordAgain) {
                     const hashedPass = await bcrypt.hash(payload.newPassword, 10);
                     profile.password = hashedPass;
-                    console.log("3");
 
                 } else if (payload.newPassword || payload.newPasswordAgain) {
                     res.status(400).json({ message: "Passwords do not match!" });
                     return;
                 }
-                console.log("4");
             }
+            // updating metrics expect pass
             Object.entries(payload).forEach(([key, value]) => {
                 if (key === "password" || key === "newPassword" || key === "newPasswordAgain") return;
                 if (value !== undefined) {
+                    // height,weight have different location  
                     if (["height", "weight"].includes(key)) {
                         profile.set(`metrics.${key}`, value);
 

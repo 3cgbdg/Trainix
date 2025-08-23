@@ -21,37 +21,7 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
-nodeCron.schedule("0 0 * * * *", async () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const fitnessPlans = await FitnessPlan.find({});
-    for (let plan of fitnessPlans) {
-        let changed = false;
-        for (let day of plan.report.plan.days) {
-            if (day.status == "Pending") break;
-            if (day.status !== "Completed" && (today > new Date(day.date))) {
-                day.status = "Missed";
-                changed = true
-                plan.report.streak = 0
-            }
 
-        }
-        if (changed) {
-            plan.markModified("report.plan.days");
-            plan.markModified("report");
-            await plan.save();
-        }
-        plan.markModified(`report`);
-        await plan.save();
-    }
-
-})
-nodeCron.schedule("0 0 * * * *", async () => {
-    console.log("hello")
-    await sendEmail("bogdantytysh5@gmail.com", "Welcome to Trainix 🎉",
-        "<h1>Привіт!</h1><p>Дякуємо за реєстрацію 🚀</p>")
-
-})
 
 cronNotifs();
 

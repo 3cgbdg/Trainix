@@ -5,7 +5,7 @@ import mongoose, { Document } from "mongoose";
 
 export interface INotification {
   userId: mongoose.Types.ObjectId,
-  topic: "water" | "sport" | "nutrition";
+  topic: "water" | "sport" | "nutrition"|"measurement";
   info: string,
   createdAt: Date,
 }
@@ -13,7 +13,7 @@ export interface INotification {
 
 const notificationSchema = new mongoose.Schema<INotification>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  topic: { type: String, enum: ["water", "sport", "nutrition"], required: true },
+  topic: { type: String, enum: ["water", "sport", "nutrition","measurement"], required: true },
   info: { type: String, required: true },
   createdAt: { type: Date, default: Date.now, expires: 7200 }, //document expires in 2 hours
 })

@@ -176,7 +176,7 @@ const page = () => {
                         {data.imagesData.map((item: { date: string, imageUrl: string }, idx: number) => (
                             <div key={idx} className="rounded-[10px] _border flex sm:max-w-full max-w-[300px] w-full flex-col gap-2 p-2">
                                 <div className=" aspect-square overflow-hidden rounded-md relative ">
-                                    <Image fill src={item.imageUrl} alt='body picture'/>
+                                    <Image className='object-cover object-top' fill src={item.imageUrl} alt='body picture'/>
                                 </div>
                                 <span className='text-sm text-neutral-600'>{item.date}</span>
 

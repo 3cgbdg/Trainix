@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
 import Measurement from "../models/Measurement";
 
+// getting measurement func
 export const getMeasurement = async (req: Request, res: Response): Promise<void> => {
     try {
         const measurement = await Measurement.findOne({userId:(req as AuthRequest).userId}).sort({ createdAt: -1 });

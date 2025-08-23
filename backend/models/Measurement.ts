@@ -5,24 +5,27 @@ interface IMetrics {
   weight: number,
   waistToHipRatio: number,
   shoulderToWaistRatio: number,
-  bodyFatPercent:number,
-  muscleMass:number,
-  leanBodyMass:number,
+  bodyFatPercent: number,
+  muscleMass: number,
+  leanBodyMass: number,
 }
 
 interface IMeasurements {
   userId: mongoose.Types.ObjectId,
   metrics: IMetrics,
   createdAt: Date
-  imageUrl:string,
+  imageUrl: string,
+
 }
 
 export interface IMeasurementsDocument extends IMeasurements, Document<mongoose.Types.ObjectId> { }
 const measurementsSchema = new mongoose.Schema<IMeasurements>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   metrics: { type: Object, required: true },
-  imageUrl:{type:String,required:true},
+  imageUrl: { type: String, required: true },
+ 
   createdAt: { type: Date, default: Date.now },
+
 
 })
 
