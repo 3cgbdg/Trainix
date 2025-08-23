@@ -4,13 +4,14 @@ import { useAppSelector } from "@/hooks/reduxHooks";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 
 const Page = () => {
   const {id} = useParams() ;
   const { workouts } = useAppSelector(state => state.workouts);
 
   const workout = workouts?.items[Number(id) - 1];
-  const totalCalories = workout?.exercises.reduce((acc, cur) => { return (cur.status == "completed" ? acc + cur.calories : acc) }, 0);
+  const totalCalories = useMemo(()=>workout?.exercises.reduce((acc, cur) => { return (cur.status == "completed" ? acc + cur.calories : acc) }, 0),[workout]);
   return (
     <div className="flex flex-col gap-3 items-center">
       <div className="flex items-center justify-center gap-6 bg-[#e5fcea] w-fit mx-auto _border rounded-2xl flex-col p-3 min-h-[350px]">

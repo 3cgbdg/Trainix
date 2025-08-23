@@ -18,10 +18,12 @@ export const cronNotifs = () => {
 
             const plans = await NutritionPlan.find({
                 "days.date": { $gte: startOfDay, $lte: endOfDay }
-            });
+            }).populate<{ userId: { inAppNotifications: boolean } }>("userId", "inAppNotifications");
             const notifications: INotification[] = [];
             // parallel promises
             await Promise.all(plans.map(async (item) => {
+                // checking whether user turned off in-app-notifications
+                if (!item.userId.inAppNotifications) return;
                 const day = item.days.find(day => new Date(day.date).getDate() === today.getDate());
                 if (!day) return;
                 // check water
@@ -68,12 +70,14 @@ export const cronNotifs = () => {
 
             const plans = await FitnessPlan.find({
                 "report.plan.days.date": { $gte: startOfDay, $lte: endOfDay }
-            });
+            }).populate<{ userId: { inAppNotifications: boolean } }>("userId", "inAppNotifications");
             const notifications: INotification[] = [];
             // parallel promises
             await Promise.all(plans.map(async (item) => {
-
+                // checking whether user turned off in-app-notifications
+                if (!item.userId.inAppNotifications) return;
                 const day = item.report.plan.days.find(day => new Date(day.date).getDate() === today.getDate());
+
                 if (!day) return;
 
 
@@ -85,7 +89,7 @@ export const cronNotifs = () => {
                 if (day.status !== "Completed") {
                     notification = await Notification.findOne({ userId: item.userId, topic: "sport" });
                     if (!notification) {
-                        const notification = new Notification({ userId: item.userId, info: `Reminder: Time for your workout`, topic: "sport" })
+                        const notification = new Notification({ userId: item.userId, info: `Reminder: Time for workout`, topic: "sport" })
                         notifications.push(notification);
                         if (socketId)
                             io.to(socketId).emit("getNotifications", { data: notification })
@@ -108,6 +112,8 @@ export const cronNotifs = () => {
             const notifications: INotification[] = [];
 
             for (const user of users) {
+                // checking whether user turned off in-app-notifications
+                if (!user.inAppNotifications) continue;
                 const socketId = userSocketMap.get(String(user._id));
                 let notification: INotification | null;
 

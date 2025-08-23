@@ -4,9 +4,9 @@ import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { reportExtractFunc } from '@/utils/report';
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 const Page = () => {
     const queryClient = useQueryClient()
@@ -16,7 +16,8 @@ const Page = () => {
 
 
     const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false);
-    const sendPhoto = async (file: File) => {
+    // request func fro sending photo to python api  
+    const sendPhoto = useCallback(async (file: File) => {
         const formData = new FormData();
         if (!user) {
             return null;
@@ -38,15 +39,15 @@ const Page = () => {
         });
 
         return res.data;
-    }
+    }, [user])
 
 
 
 
-    const getAnalysis = async () => {
+    const getAnalysis = useCallback(async () => {
         const res = await api.get("api/fitness-plan/analysis");
         return res.data;
-    }
+    }, []);
     const mutation = useMutation({
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
@@ -61,22 +62,30 @@ const Page = () => {
         }
 
     })
-
-    const { data,isLoading } = useQuery({
+    // getting ai-analyzed  data
+    const { data, isLoading } = useQuery({
         queryKey: ["getAnalysis"],
         queryFn: getAnalysis,
 
 
     })
-    return (
+    if (isLoading) {
+        return <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green mx-auto mt-20"></div>;
+    }
 
-        <div className="">
-            {!isLoading ? (!data?.advices && !isAnalyzed) ? <UploadPhoto isPending={mutation.isPending} file={file} fileName={fileName} setFile={setFile} mutate={mutation.mutate} setFileName={setFileName} />
-                :
-                <AnalyzedResults data={data} /> : <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>
+    if (!data?.advices && !isAnalyzed) {
+        return (
+            <UploadPhoto
+                isPending={mutation.isPending}
+                file={file}
+                fileName={fileName}
+                setFile={setFile}
+                setFileName={setFileName}
+                mutate={mutation.mutate}
+            />
+        );
+    }
 
-            }
-        </div>
-    );
+    return <AnalyzedResults data={data} />;
 }
 export default Page;

@@ -68,7 +68,7 @@ const Notification = () => {
                                 Go to profile
                             </button>
                         }
-                            <button onClick={async () => { await deleteItem(item._id) }} className='button-green w-fit ml-auto'>
+                            <button onClick={async () => { await deleteItem(item._id) }} className='button-green w-fit '>
                                 OK
                             </button>
                         </div>

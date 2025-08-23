@@ -6,6 +6,7 @@ import axios from 'axios';
 import { ArrowUp, Bike, Goal, MonitorOff, Scale } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link';
+import { useCallback } from 'react';
 
 import {
     LineChart,
@@ -24,10 +25,10 @@ const page = () => {
     const { nutritionDay } = useAppSelector(state => state.nutritionDay);
     const { workouts } = useAppSelector(state => state.workouts);
 
-    const getNumbers = async () => {
+    const getNumbers = useCallback(async () => {
         const res = await api.get(`/api/fitness-plan/reports/numbers`, { params: { date: new Date() } });
         return res.data;
-    }
+    }, [])
 
     const { data, isLoading } = useQuery({
         queryKey: ["numbers", new Date().toISOString().split('T')[0]],
@@ -39,6 +40,7 @@ const page = () => {
         <div className='flex flex-col gap-6'>
             <h1 className='page-title '>Dashboard Overview</h1>
             {user ?
+                // banner
                 <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  ">
                     <div className="flex flex-col gap-6 max-w-[590px]">
                         <h2 className='banner-title'>Welcome back, {user?.firstName} {user?.lastName}</h2>
@@ -49,6 +51,7 @@ const page = () => {
                 </div>
                 : <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  skeleton"></div>}
             {!isLoading && <>
+                {/* metrics banners */}
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
                     <div className="grid sm:grid-cols-2  gap-6">
@@ -59,8 +62,8 @@ const page = () => {
                                 <MonitorOff size={20} />
                             </div>
                             <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.weight} kg</div>
-                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "text-red!" : "text-green!" : data.lastWeight < data.weight ?"text-green!" :"text-red!" }`}>
-                                <ArrowUp size={20} className={` ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "rotate-180" : "" : data.lastWeight < data.weight ?"" :"rotate-180" }`} />
+                            <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "text-red!" : "text-green!" : data.lastWeight < data.weight ? "text-green!" : "text-red!"}`}>
+                                <ArrowUp size={20} className={` ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "rotate-180" : "" : data.lastWeight < data.weight ? "" : "rotate-180"}`} />
                                 {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>
@@ -124,6 +127,7 @@ const page = () => {
                         </ResponsiveContainer>
                     </div>
                 </div>
+                {/* quick banners to each of the pages */}
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Quick Summaries</h2>
                     <div className="grid sm:p-0 justify-center sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -199,4 +203,4 @@ const page = () => {
     )
 }
 
-export default page
+export default page;

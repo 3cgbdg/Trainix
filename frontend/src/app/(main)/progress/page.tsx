@@ -4,8 +4,8 @@ import { useAppSelector } from '@/hooks/reduxHooks';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUp, Bike, Footprints, Goal, MonitorOff, Percent, Scale } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
 
 import {
     LineChart,
@@ -20,13 +20,13 @@ import {
 
 
 
-const page = () => {
+const Page = () => {
     const { user } = useAppSelector(state => state.auth);
     const [chartData, setChartData] = useState<{ month: string, bodyFat: number, bmi: number }[] | null>(null);
-    const getNumbers = async () => {
+    const getNumbers = useCallback(async () => {
         const res = await api.get(`/api/fitness-plan/reports/numbers`, { params: { date: new Date(), progress: true } });
         return res.data;
-    }
+    },[]);
 
     const { data, isLoading, isSuccess } = useQuery({
         queryKey: ["numbers", new Date().toISOString().split('T')[0]],
@@ -48,6 +48,7 @@ const page = () => {
 
             {!isLoading ? <>
                 <div className="flex flex-col gap-4 ">
+                    {/* metrics banners */}
                     <h2 className='section-title'>Your Key Metrics</h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
 
@@ -60,7 +61,7 @@ const page = () => {
                             <div className="">
                             <div className={`text-4xl leading-10 font-bold text-neutral-900 mb-4 ${data.lastWeight >= data.weight ? "text-green!" : "text-red!"}`}>{data.weight} kg</div>
                             <span className={`text-sm leading-5 font-medium text-neutral-900 flex items-center gap-1 ${data.lastWeight >= data.weight ? "text-green!" : "text-red!"}`}>
-                                {data.lastWeight > data.weight && <ArrowUp size={20} className={` ${data.lastWeight > data.weight ? "rotate-180 text-red" : "text-green"}`} />}
+                                
                                 {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>
@@ -170,6 +171,7 @@ const page = () => {
                         </div>
                     </div>
                 }
+                {/* progres photos for last months */}
                 <div className="flex flex-col gap-6">
                     <h2 className="section-title">Progress Photos</h2>
                     <div className="gap-6 flex  flex-wrap sm:grid! grid-cols-2 md:grid-cols-3  lg:grid-cols-4">
@@ -185,10 +187,10 @@ const page = () => {
                     </div>
                 </div>
 
-            </>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
+            </>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto mt-20"></div>}
 
         </div >
     )
 }
 
-export default page
+export default Page

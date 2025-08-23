@@ -10,11 +10,11 @@ import Image from "next/image"
 import { Dispatch, SetStateAction } from "react"
 const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber: number, idx: number, meal: IMeal, isOpen: string | null, setIsOpen: Dispatch<SetStateAction<string | null>> }) => {
     const dispatch = useAppDispatch();
-    const updateMealStatus = async (dayNumber: number, index: number) => {
+    const updateMealStatus = (async (dayNumber: number, index: number) => {
         const res = await api.patch(`api/nutrition-plan/nutrition-plans/days/${dayNumber}/meal/status`, { index });
         return res.data;
 
-    }
+    })//todo
     const mutation = useMutation({
         mutationFn: ({ dayNumber, index }: { dayNumber: number; index: number }) => updateMealStatus(dayNumber, index),
         onSuccess: () => {

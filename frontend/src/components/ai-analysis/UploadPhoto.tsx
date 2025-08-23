@@ -1,7 +1,7 @@
 "use client"
 import { UseMutateFunction } from '@tanstack/react-query';
 import { UploadIcon } from 'lucide-react';
-import { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }: { mutate: UseMutateFunction<any, unknown, File, unknown>, isPending: boolean, setFileName: Dispatch<SetStateAction<string>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
@@ -10,7 +10,7 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
             setFileName(acceptedFiles[0].name);
             setFile(acceptedFiles[0]);
         }
-    }, []);
+    }, [setFile, setFileName]);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
@@ -23,7 +23,7 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
                         <h2 className='section-title'>Upload Your Fitness Photo</h2>
                         <p className='text-sm  leading-5 text-neutral-600'>Drag and drop your fitness photo here, or click to select a file. Our AI will analyze your progress and provide insights.</p>
                     </div>
-                   
+
 
                     <div
                         {...getRootProps()}
@@ -61,4 +61,4 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
     )
 }
 
-export default UploadPhoto  
+export default React.memo(UploadPhoto)  

@@ -13,6 +13,7 @@ type formType = {
     email: string;
     password: string;
 }
+// login request
 const loginUser = async (data: formType) => {
     const res = await api.post(`/api/auth/login`, data);
     return res.data;
@@ -28,7 +29,9 @@ const Page = () => {
         onSuccess: (data) => {
             if (data.user.weight !== undefined) {
                 router.push("/dashboard");
+                // fully-registered ->dahboard
             } else {
+                //othewise -> onboarding
                 router.push("/onboarding");
 
             }

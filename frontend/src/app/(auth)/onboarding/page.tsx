@@ -21,7 +21,7 @@ const Page = () => {
         errors
     } } = useForm<formType>();
     const router = useRouter();
-
+// onboarding request to fully cover profile info with current metrics- weight, etc. 
     const mutation = useMutation({
         mutationFn: onboardingFunc,
         onSuccess: () => {

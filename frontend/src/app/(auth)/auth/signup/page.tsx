@@ -26,7 +26,7 @@ const Page = () => {
         errors
     } } = useForm<formType>();
     const router = useRouter();
-
+    // auth register request ->router to onboarding on sucess
     const mutation = useMutation({
         mutationFn: loginUser,
         onSuccess: () => {

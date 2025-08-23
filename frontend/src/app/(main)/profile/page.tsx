@@ -4,23 +4,21 @@ import AccountSettings from "@/components/profile/AccountSettings"
 import GoalsInfoForm from "@/components/profile/GoalsInfoForm"
 import PersonalInfoForm from "@/components/profile/PersonalInfoForm"
 import { useAppSelector } from "@/hooks/reduxHooks"
-import { Check, SquarePen, UserRound } from "lucide-react"
+import {  UserRound } from "lucide-react"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 
 
 
 const Page = () => {
   const { user } = useAppSelector(state => state.auth);
-
+// editing one of the 3 fields
   const [editing, setEditing] = useState<null | "personal" | "password" | "goals">(null);
 
 
 
-  useEffect(() => {
-    console.log(user);
-  }, [user])
+
   return (<>
     { user ?
     <div className="flex flex-col gap-6">
@@ -40,7 +38,7 @@ const Page = () => {
       <GoalsInfoForm user={user} editing={editing} setEditing={setEditing}/>
       <AccountSettings user={user}  editing={editing} setEditing={setEditing}/>
 
-    </div>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}</>
+    </div>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto mt-20"></div>}</>
   )
 }
 

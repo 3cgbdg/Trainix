@@ -1,6 +1,6 @@
 import { IDayPlan } from "@/types/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-interface IWorkouts {
+export interface IWorkouts {
     items: IDayPlan[],
     dates: {
         weekDay: string,

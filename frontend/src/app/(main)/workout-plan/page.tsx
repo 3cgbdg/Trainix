@@ -1,6 +1,4 @@
 "use client"
-
-import { api } from "@/api/axiosInstance"
 import { useAppSelector } from "@/hooks/reduxHooks"
 import { IDayPlan } from "@/types/types"
 import { Bolt, CalendarDays } from "lucide-react"

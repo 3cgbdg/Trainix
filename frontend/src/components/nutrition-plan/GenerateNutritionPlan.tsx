@@ -2,6 +2,7 @@
 
 import { useAppSelector } from "@/hooks/reduxHooks"
 import { UseMutateFunction } from "@tanstack/react-query"
+import React from "react"
 
 const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMutateFunction<any, unknown, number, unknown>, isPending: boolean }) => {
     const { workouts } = useAppSelector(state => state.workouts)
@@ -23,4 +24,4 @@ const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMut
     )
 }
 
-export default GenerateNutritionPlan
+export default React.memo(GenerateNutritionPlan)
