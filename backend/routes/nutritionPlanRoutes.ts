@@ -5,11 +5,11 @@ import { createNutritionPlan, getNutritionDay, getWeekStatistics, updateMealStat
 const nutritionPlanRoute = express.Router();
 
 
-nutritionPlanRoute.post("/nutrition-plans/days", authMiddleware,createNutritionPlan );
-nutritionPlanRoute.get("/nutrition-plans", authMiddleware,getNutritionDay );
-nutritionPlanRoute.get("/statistics", authMiddleware,getWeekStatistics );
-nutritionPlanRoute.patch("/nutrition-plans/days/:day/meal/status", authMiddleware,updateMealStatus );
-nutritionPlanRoute.patch("/nutrition-plans/days/:day/water", authMiddleware,updateWaterCurrent );
+nutritionPlanRoute.post("/nutrition-plans/days", createNutritionPlan);
+nutritionPlanRoute.get("/nutrition-plans", getNutritionDay);
+nutritionPlanRoute.get("/statistics", getWeekStatistics);
+nutritionPlanRoute.patch("/nutrition-plans/days/:day/meal/status", updateMealStatus);
+nutritionPlanRoute.patch("/nutrition-plans/days/:day/water", updateWaterCurrent);
 
 export default nutritionPlanRoute;
 

@@ -1,28 +1,32 @@
 "use client"
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const Timer = ({ workoutTime, isPaused, setCompletedItems, goToNextExercise }: { workoutTime: number, goToNextExercise: () => void, setCompletedItems: Dispatch<SetStateAction<Record<"completed", boolean>[]>>, isPaused: boolean }) => {
     const [time, setTime] = useState<number>(workoutTime);
 
     // timer engine
     useEffect(() => {
-        if (!isPaused && time > 0) {
-            const interval = setInterval(() => {
-                setTime(prev => prev - 1);
-            }, 1000)
-            return () => clearInterval(interval);
-        }
+        if (isPaused) return;
 
-    }, [isPaused]);
+        const interval = setInterval(() => {
+            setTime(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        setCompletedItems(prev => [...prev, { completed: true }]);
+                        goToNextExercise();
+                    }, 0);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [isPaused, goToNextExercise, setCompletedItems]);
 
 
-    useEffect(() => {
-        if (time === 0) {
-            setCompletedItems(prev => [...prev, { completed: true }]);
-            goToNextExercise();
-        }
-    }, [time, setCompletedItems, goToNextExercise]);
+
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
 
@@ -32,4 +36,4 @@ const Timer = ({ workoutTime, isPaused, setCompletedItems, goToNextExercise }: {
     )
 }
 
-export default Timer
+export default React.memo(Timer)

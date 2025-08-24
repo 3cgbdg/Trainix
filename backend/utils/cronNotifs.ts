@@ -1,7 +1,7 @@
 
 import nodeCron from "node-cron";
 import Notification, { INotification } from "../models/Notification";
-import { io, userSocketMap } from "../server";
+import { io, userSocketMap } from "../socket";
 import NutritionPlan from "../models/NutritionPlan";
 import FitnessPlan from "../models/FitnessPlan";
 import User from "../models/User";

@@ -5,13 +5,11 @@ import dotenv from "dotenv";
 // route import
 import authRoute from "./routes/authRoutes"
 import fitnessPlanRoute from "./routes/fitnessPlanRoutes";
-import nodeCron from "node-cron";
-import FitnessPlan from "./models/FitnessPlan";
 import nutritionPlanRoute from "./routes/nutritionPlanRoutes";
-import MeasurementsRoute from "./routes/MeasurementsRoutes";
-import { sendEmail } from "./utils/email";
+import measurementsRoute from "./routes/MeasurementsRoutes";
 import notificationRoute from "./routes/notificationRoutes";
 import { cronNotifs } from "./utils/cronNotifs";
+import { authMiddleware } from "./middlewares/authMiddleware";
 // dotenv config
 dotenv.config();
 export const app = express();
@@ -22,15 +20,15 @@ app.use(cors({
     credentials: true
 }));
 
-
+//cron notifications
 cronNotifs();
 
 // routing
 app.use("/api/auth", authRoute);
-app.use("/api/fitness-plan", fitnessPlanRoute);
-app.use("/api/nutrition-plan", nutritionPlanRoute);
-app.use("/api/measurement", MeasurementsRoute);
-app.use("/api/notification", notificationRoute);
+app.use("/api/fitness-plan",authMiddleware, fitnessPlanRoute);
+app.use("/api/nutrition-plan",authMiddleware, nutritionPlanRoute);
+app.use("/api/measurement",authMiddleware, measurementsRoute);
+app.use("/api/notification",authMiddleware, notificationRoute);
 
 //route for testing auth middleware
 // app.get("/api/protected",authMiddleware, async (req: Request, res: Response) => {

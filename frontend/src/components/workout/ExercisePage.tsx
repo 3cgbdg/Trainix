@@ -73,9 +73,9 @@ const ExercisePage = ({ workout, exercise, setIdx,idx, setExercise, setProgressP
                 {exercise.time && <Timer goToNextExercise={goToNextExercise} setCompletedItems={setCompletedItems} isPaused={isPaused} workoutTime={exercise.time} />}
                 <div className="flex flex-col gap-5 items-center">
                     <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
-                    <div className="w-[250px] rounded-[10px] overflow-hidden relative aspect-square">
-                        <Image className="" src={exercise.imageUrl} fill alt="exercise image" priority />
-                    </div>
+                    
+                        <Image className="aspect-square rounded-[10px]" src={exercise.imageUrl} width={250} height={250} alt="exercise image" priority />
+                    
                     {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
                         : <span className="text-xl leading-7 text-black flex gap-1 items-center">
                             <Clock size={20} />
@@ -129,7 +129,8 @@ const ExercisePage = ({ workout, exercise, setIdx,idx, setExercise, setProgressP
                 </div>
                 <div className="flex flex-col gap-12 w-full">
                     <div className="_border rounded-2xl p-4 pt-4.5 flex items-center gap-7 bg-white">
-                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> <Image className="overflow-hidden rounded-[10px]" priority width={80} height={80} src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
+                        {!workout?.exercises[idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <> 
+                        <Image className="overflow-hidden rounded-[10px] object-cover " priority width={80} height={80} src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
                             <div className="">
                                 <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
                                 <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>

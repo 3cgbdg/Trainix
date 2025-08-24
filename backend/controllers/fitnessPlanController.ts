@@ -6,7 +6,7 @@ import Measurement from "../models/Measurement";
 import User from "../models/User";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise } from "../utils/images";
-import { io, userSocketMap } from "../server";
+import { io, userSocketMap } from "../socket";
 import Notification, { INotification } from "../models/Notification";
 
 // adding report-fitnessplan func
@@ -93,7 +93,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             // updating current metrics (weight + bodyFat with calories release)
             const measurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
             if (measurement) {
-                measurement.metrics.weight -= +(currentDay.calories / 7700).toFixed(2);
+                measurement.metrics.weight = +(measurement.metrics.weight - currentDay.calories / 7700).toFixed(2);
                 const fatMass = Math.max(measurement.metrics.weight - measurement.metrics.leanBodyMass, 0);
                 if (!fatMass)
                     measurement.metrics.leanBodyMass = measurement.metrics.weight;

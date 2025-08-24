@@ -2,9 +2,9 @@ import express from "express"
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { getMeasurement } from "../controllers/measerementsController";
 
-const MeasurementsRoute = express.Router();
+const measurementsRoute = express.Router();
 
-MeasurementsRoute.get("/measurements", authMiddleware,getMeasurement );
+measurementsRoute.get("/measurements", getMeasurement );
 
-export default MeasurementsRoute;
+export default measurementsRoute;
 

@@ -26,17 +26,13 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
         const res = await api.get(`/api/nutrition-plan/statistics?week=${weekNumber}`);
         return res.data;
     }
-    const { isLoading, data: statistics } = useQuery({
+    const {  data: statistics } = useQuery({
         queryKey: ["statistics", weekNumber],
         queryFn: getWeeklyStatistics,
     })
-    const logWaterAmount = async (dayNumber: number, amount: number) => {
-        const res = await api.patch(`api/nutrition-plan/nutrition-plans/days/${dayNumber}/water`, { amount });
-        return res.data;
 
-    }
     const mutation = useMutation({
-        mutationFn: ({ dayNumber, amount }: { dayNumber: number; amount: number }) => logWaterAmount(dayNumber, amount),
+        mutationFn: ({ dayNumber, amount }: { dayNumber: number; amount: number }) =>  api.patch(`api/nutrition-plan/nutrition-plans/days/${dayNumber}/water`, { amount }).then(res=>res.data),
         onSuccess: () => {
             dispatch(logWater(amount))
         }
@@ -147,16 +143,17 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                             <h3 className="text-lg leading-7 font-semibold text-neutral-900">Weekly Nutrition Trends</h3>
                             <p className="text-sm text-neutal-600">Overview of your daily intake over the week</p>
                         </div>
+                        {/* chart for tracking last days nutrition  */}
                         <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={statistics}>
                                 <XAxis dataKey="day" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar radius={[10, 10, 10, 10]} className="" dataKey="calories" fill="#58A446" />
-                                <Bar radius={[10, 10, 10, 10]} dataKey="protein" fill="#0B1D2B" />
-                                <Bar radius={[10, 10, 10, 10]} dataKey="carbs" fill="#F57C00" />
-                                <Bar radius={[10, 10, 10, 10]} dataKey="fats" fill="#F5DEB3" />
+                                <Bar radius={10} className="" dataKey="calories" fill="#58A446" />
+                                <Bar radius={10} dataKey="protein" fill="#0B1D2B" />
+                                <Bar radius={10} dataKey="carbs" fill="#F57C00" />
+                                <Bar radius={10} dataKey="fats" fill="#F5DEB3" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

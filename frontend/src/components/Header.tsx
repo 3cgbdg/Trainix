@@ -27,12 +27,10 @@ const Header = () => {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [active, setActive] = useState<boolean>(false);
-    const logOutFunc = async () => {
-        await api.delete("/api/auth/logout");
-    }
+
 
     const mutation = useMutation({
-        mutationFn: logOutFunc,
+        mutationFn: async () => await api.delete("/api/auth/logout"),
         onSuccess: () => {
             dispatch(logOut());
             router.push("/auth/login");
@@ -63,7 +61,7 @@ const Header = () => {
         }
 
         return () => {
-            document.body.style.overflow = "auto"; 
+            document.body.style.overflow = "auto";
         };
     }, [active]);
     return (

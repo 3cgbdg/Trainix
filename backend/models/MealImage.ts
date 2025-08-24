@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
-const MealImageSchema = new mongoose.Schema({
-name:{type:String,unique:true,required:true},
-imageUrl:{type:String,required:true},
+import { IImage } from "../types/types";
+
+const MealImageSchema = new mongoose.Schema<IImage>({
+    name: { type: String, unique: true, required: true },
+    imageUrl: { type: String, required: true },
 })
 
-export default mongoose.model("MealImage", MealImageSchema);
+export default mongoose.model<IImage>("MealImage", MealImageSchema);

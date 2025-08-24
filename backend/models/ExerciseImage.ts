@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
-const ExerciseImageSchema = new mongoose.Schema({
+import { IImage } from "../types/types";
+
+const ExerciseImageSchema = new mongoose.Schema<IImage>({
     name: { type: String, unique: true, required: true },
     imageUrl: { type: String, required: true },
 })
 
-export default mongoose.model("ExerciseImage", ExerciseImageSchema);
+export default mongoose.model<IImage>("ExerciseImage", ExerciseImageSchema);

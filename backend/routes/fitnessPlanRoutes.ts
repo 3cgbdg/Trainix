@@ -4,13 +4,13 @@ import { addReport, completeWorkout, deleteFitnessPlan, getAnalysis, getNumbers,
 
 const fitnessPlanRoute = express.Router();
 
-fitnessPlanRoute.get("/reports/numbers", authMiddleware, getNumbers);
-fitnessPlanRoute.get("/workouts", authMiddleware, getWorkouts);
-fitnessPlanRoute.post("/reports", authMiddleware, addReport);
-fitnessPlanRoute.get("/analysis", authMiddleware, getAnalysis);
-fitnessPlanRoute.delete("/plan", authMiddleware, deleteFitnessPlan);
-fitnessPlanRoute.post("/workouts/:day/completed", authMiddleware, completeWorkout);
-fitnessPlanRoute.get("/workouts/:day", authMiddleware, getWorkout);
+fitnessPlanRoute.get("/reports/numbers",  getNumbers);
+fitnessPlanRoute.get("/workouts",  getWorkouts);
+fitnessPlanRoute.post("/reports",  addReport);
+fitnessPlanRoute.get("/analysis",  getAnalysis);
+fitnessPlanRoute.delete("/plan",  deleteFitnessPlan);
+fitnessPlanRoute.post("/workouts/:day/completed",  completeWorkout);
+fitnessPlanRoute.get("/workouts/:day",  getWorkout);
 
 export default fitnessPlanRoute;
 
