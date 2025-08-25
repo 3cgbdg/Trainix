@@ -21,7 +21,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         //   creating jwt, saving it into a cookie 
         res.cookie("access-token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
             path: "/"
@@ -29,7 +29,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         // refresh token system
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
@@ -47,6 +47,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
 export const onBoarding = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
+        console.log(data)
         const user = await User.findByIdAndUpdate((req as AuthRequest).userId, { $set: { "metrics.weight": data.weight, "metrics.height": data.height, targetWeight: data.targetWeight, primaryFitnessGoal: data.primaryFitnessGoal, fitnessLevel: data.fitnessLevel } });
         if (!user) {
             res.status(404).json({ message: "User was not found!" })
@@ -79,14 +80,14 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
         const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         res.cookie("access-token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
@@ -112,7 +113,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
                 const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET!, { expiresIn: "15m" });
                 res.cookie("access-token", accessToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV !== "production",
+                    secure: process.env.NODE_ENV == "production",
                     sameSite: "none",
                     maxAge: 15 * 60 * 1000,
                     path: "/"
@@ -136,13 +137,13 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
     try {
         res.clearCookie("refresh-token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             path: "/",
         })
         res.clearCookie("access-token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             path: "/",
         })
@@ -169,7 +170,7 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 // deleting profile func
 export const deleteProfile = async (req: Request, res: Response): Promise<void> => {
     try {
-        await User.findByIdAndDelete((req as AuthRequest).userId).select("-password");
+        await User.findByIdAndDelete((req as AuthRequest).userId);
         res.json({ message: "Successfully deleted!" });
         return;
     } catch (err) {
@@ -219,7 +220,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
             profile.markModified(`metrics`);
             await profile.save();
         }
-        res.json({ user: profile });
+        const { password, ...newObj } = profile!.toObject();
+        res.json({ user: newObj });
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

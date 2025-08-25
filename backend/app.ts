@@ -6,9 +6,8 @@ import dotenv from "dotenv";
 import authRoute from "./routes/authRoutes"
 import fitnessPlanRoute from "./routes/fitnessPlanRoutes";
 import nutritionPlanRoute from "./routes/nutritionPlanRoutes";
-import measurementsRoute from "./routes/MeasurementsRoutes";
+import measurementsRoute from "./routes/measurementsRoutes";
 import notificationRoute from "./routes/notificationRoutes";
-import { cronNotifs } from "./utils/cronNotifs";
 import { authMiddleware } from "./middlewares/authMiddleware";
 // dotenv config
 dotenv.config();
@@ -20,8 +19,7 @@ app.use(cors({
     credentials: true
 }));
 
-//cron notifications
-cronNotifs();
+
 
 // routing
 app.use("/api/auth", authRoute);
