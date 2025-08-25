@@ -1,10 +1,10 @@
 "use client"
-import { UseMutateFunction } from '@tanstack/react-query';
+import { UseMutationResult } from '@tanstack/react-query';
 import { UploadIcon } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }: { mutate: UseMutateFunction<any, unknown, File, unknown>, isPending: boolean, setFileName: Dispatch<SetStateAction<string>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
+const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName, fileName, setFile, file, mutation }: { mutation: UseMutationResult<any, unknown, File, unknown>, isAnalyzed: boolean, setFileName: Dispatch<SetStateAction<string>>, setIsAnalyzed: Dispatch<SetStateAction<boolean>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
             setFileName(acceptedFiles[0].name);
@@ -27,10 +27,10 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
 
                     <div
                         {...getRootProps()}
-                        className={` border-2 border-dashed ${isPending ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full sm:min-h-[288px] min-h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
+                        className={` border-2 border-dashed ${!isAnalyzed ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full sm:min-h-[288px] min-h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
                     >
                         <input {...getInputProps()} />
-                        {!isPending ? <> <div className="flex flex-col items-center justify-center">
+                        {isAnalyzed ? <> <div className="flex flex-col items-center justify-center">
                             <UploadIcon className='text-neutral-600 mb-4.5' size={64} />
                             <p className="text-neutral-600 font-medium">
                                 {isDragActive ? 'Drop the file here...' : 'Drag and drop your photo here'}
@@ -53,9 +53,10 @@ const UploadPhoto = ({ isPending, setFileName, fileName, setFile, file, mutate }
                         <span>Photo Guidelines:</span>  Ensure good lighting, full body visibility, and a neutral background for best analysis results. Supported formats: JPG, PNG. Max size: 10MB.
                     </p>
                 </div>
-                <button disabled={isPending ? true : false} onClick={() => {
-                    if (file) mutate(file);
-                }} className={`button-green w-full disabled:bg-neutral-800 ${isPending ? "!bg-neutral-700 !cursor-auto" : ""}`}>{isPending ? "Processing" : "Proceed to Analysis"}</button>
+                <button disabled={!isAnalyzed ? true : false} onClick={() => {
+                    setIsAnalyzed(false);
+                    if (file) mutation.mutate(file);
+                }} className={`button-green w-full disabled:bg-neutral-800 ${!isAnalyzed ? "!bg-neutral-700 !cursor-auto" : ""}`}>{!isAnalyzed ? "Processing" : "Proceed to Analysis"}</button>
             </div>
         </div >
     )

@@ -11,6 +11,7 @@ export interface IExercise {
   imageUrl: string,
 }
 export interface IDayPlan {
+  dayNumber:number
   day: string;
   exercises: IExercise[];
   status: "Pending" | 'Completed' | "Missed",
@@ -21,13 +22,13 @@ export interface IDayPlan {
 
 
 
-interface IBriefAnalysis {
+export interface IBriefAnalysis {
   targetWeight: number;
   fitnessLevel: string;
   primaryFitnessGoal: string;
 }
 
-interface IAdvices {
+export interface IAdvices {
   nutrition: string;
   hydration: string;
   recovery: string;
@@ -45,7 +46,7 @@ interface IReportData {
     days: IDayPlan[],
   }
   advices: IAdvices;
-  imageUrl: string;
+ 
 }
 
 
@@ -55,6 +56,7 @@ interface IFitnessPlan {
   report: IReportData,
   createdAt: Date
 }
+
 
 export interface IFitnessPlanDocument extends IFitnessPlan, Document<mongoose.Types.ObjectId> { }
 const fitnessPlanSchema = new mongoose.Schema<IFitnessPlan>({

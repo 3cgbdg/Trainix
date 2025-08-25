@@ -3,7 +3,7 @@ import { api } from "@/api/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import BodyImages from "./BodyImages";
 
@@ -159,4 +159,4 @@ const AnalyzedResults = ({ data }: { data: IReceivedAnalysis }) => {
   )
 }
 
-export default AnalyzedResults
+export default React.memo(AnalyzedResults)

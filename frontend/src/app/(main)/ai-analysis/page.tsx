@@ -13,9 +13,74 @@ const Page = () => {
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const { user } = useAppSelector(state => state.auth)
+    const [isAnalyzed, setIsAnalyzed] = useState<boolean>(true);
 
 
-    const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false);
+    // getting ai-analyzed  data
+    const getAnalysis = useCallback(async () => {
+        const res = await api.get("api/fitness-plan/analysis");
+        return res.data;
+    }, []);
+    const { data, isLoading } = useQuery({
+        queryKey: ["getAnalysis"],
+        queryFn: getAnalysis,
+
+
+    })
+
+    //getting data for creating plan 
+    const getMeasurements = async () => {
+        const res = await api.get("/api/measurement/measurements");
+        return res.data;
+    }
+    const { data: measurement } = useQuery({
+        queryKey: ["measurement"],
+        queryFn: getMeasurements,
+    })
+
+    // mutation - request for generation plan
+    const generateFitnessPlan = useCallback(async ({ dayNumber, measurement }: { dayNumber: number, measurement: any }) => {
+        if (!user) {
+            return null;
+        }
+        const userInfo = {
+            height: user.metrics.height,
+            weight: user.metrics.weight,
+            targetWeight: user.targetWeight,
+            primaryFitnessGoal: user.primaryFitnessGoal,
+            fitnessLevel: user.fitnessLevel,
+            gender: user.gender,
+            waistToHipRatio: measurement.waistToHipRatio,
+            shoulderToWaistRatio: measurement.shoulderToWaistRatio,
+            bodyFatPercent: measurement.bodyFatPercent,
+            muscleMass: measurement.muscleMass,
+            leanBodyMass: measurement.leanBodyMass,
+            // days: ,
+        }
+
+        const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan?dayNumber=${dayNumber + 1}`, userInfo, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" }
+        });
+
+        return res.data;
+    }, [user, measurement]);
+
+    const mutation2 = useMutation({
+        mutationFn: generateFitnessPlan,
+        onSuccess: async (data) => {
+            await reportExtractFunc(data, "fitness");
+            console.dir(data)
+
+        },
+
+        onError: (err: unknown) => {
+            if (isAxiosError(err) && err.response) {
+                console.error(err.response.data);
+            }
+        }
+
+    })
     // request func fro sending photo to python api  
     const sendPhoto = useCallback(async (file: File) => {
         const formData = new FormData();
@@ -39,20 +104,15 @@ const Page = () => {
         });
 
         return res.data;
-    }, [user])
+    }, [user]);
 
-
-
-
-    const getAnalysis = useCallback(async () => {
-        const res = await api.get("api/fitness-plan/analysis");
-        return res.data;
-    }, []);
-    const mutation = useMutation({
+    const mutation1 = useMutation({
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
-            await reportExtractFunc(data, "fitness");
-            await queryClient.invalidateQueries({ queryKey: ["getAnalysis"] });
+            const measurement = await reportExtractFunc(data, "measurement");
+            for (let i = 0; i < 28; i++) {
+                await mutation2.mutateAsync({ dayNumber: i, measurement });
+            }
             setIsAnalyzed(true);
         },
         onError: (err: unknown) => {
@@ -62,26 +122,21 @@ const Page = () => {
         }
 
     })
-    // getting ai-analyzed  data
-    const { data, isLoading } = useQuery({
-        queryKey: ["getAnalysis"],
-        queryFn: getAnalysis,
-
-
-    })
+    //request func to python api for creating plan 
     if (isLoading) {
         return <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green mx-auto mt-20"></div>;
     }
 
-    if (!data?.advices && !isAnalyzed) {
+    if (!data?.advices || !isAnalyzed) {
         return (
             <UploadPhoto
-                isPending={mutation.isPending}
+                isAnalyzed={isAnalyzed}
+                setIsAnalyzed={setIsAnalyzed}
                 file={file}
                 fileName={fileName}
                 setFile={setFile}
                 setFileName={setFileName}
-                mutate={mutation.mutate}
+                mutation={mutation1}
             />
         );
     }

@@ -21,7 +21,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         //   creating jwt, saving it into a cookie 
         res.cookie("access-token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
             path: "/"
@@ -29,7 +29,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         // refresh token system
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
@@ -80,14 +80,14 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
         const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         res.cookie("access-token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
@@ -113,7 +113,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
                 const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET!, { expiresIn: "15m" });
                 res.cookie("access-token", accessToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV == "production",
+                    secure: process.env.NODE_ENV !== "production",
                     sameSite: "none",
                     maxAge: 15 * 60 * 1000,
                     path: "/"
@@ -137,13 +137,13 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
     try {
         res.clearCookie("refresh-token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             path: "/",
         })
         res.clearCookie("access-token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
+            secure: process.env.NODE_ENV !== "production",
             sameSite: "none",
             path: "/",
         })

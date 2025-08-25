@@ -27,7 +27,7 @@ const Page = () => {
     const mutation = useMutation({
         mutationFn: loginUser,
         onSuccess: (data) => {
-            if (data.user.weight !== undefined) {
+            if (data.user) {
                 router.push("/dashboard");
                 // fully-registered ->dahboard
             } else {

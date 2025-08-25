@@ -15,7 +15,7 @@ export interface IUser {
     shoulderAngle: number
 
   },
-  _id:string,
+  _id: string,
   imageUrl: string,
   longestStreak: number,
   targetWeight: number,
@@ -26,6 +26,7 @@ export interface IUser {
 
 export interface IDayPlan {
   day: string;
+  dayNumber: number;
   exercises: IExercise[];
   status: "Pending" | 'Completed' | "Missed",
   calories: number,
@@ -39,7 +40,7 @@ export interface IExercise {
   advices: string,
   calories: number,
   status: "completed" | "incompleted",
-  imageUrl:string,
+  imageUrl: string,
 }
 
 
