@@ -46,7 +46,7 @@ const Page = () => {
         });
 
         return res.data;
-    }, [user,measurement]);
+    }, [user, measurement]);
     const mutation = useMutation({
         mutationFn: generateNutritionPlan,
         onSuccess: async (data) => {

@@ -22,6 +22,8 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
 
     }
     const { data }: { data: Idata } = req.body;
+    console.log("heelo2");
+    console.log(data);
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
@@ -58,7 +60,7 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
         } else {
             const workoutDay = new Date();
             data.day.date = workoutDay;
-            const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId,"report.plan.week3Title":data.week3Title,"report.plan.week4Title":data.week4Title,"report.plan.week2Title":data.week2Title,"report.plan.week1Title":data.week1Title, "report.plan.days": [data], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
+            const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
             await fitnessPlan.save();
             res.status(201).json({ message: "Plan created!" });
             return;

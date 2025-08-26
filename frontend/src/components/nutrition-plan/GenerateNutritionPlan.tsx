@@ -1,11 +1,12 @@
 "use client"
-
+import { useRouter } from 'next/navigation';
 import { useAppSelector } from "@/hooks/reduxHooks"
 import { UseMutateFunction } from "@tanstack/react-query"
 import React from "react"
 // generates each day with iterations
 const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMutateFunction<any, unknown, number, unknown>, isPending: boolean }) => {
     const { workouts } = useAppSelector(state => state.workouts)
+    const router = useRouter();
 
     return (
         <div className="flex flex-col items-center ">
@@ -16,6 +17,7 @@ const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMut
                         for (let i = 0; i < workouts.items.length; i++) {
                             await mutateAsync(i + 1);
                         }
+                        router.refresh();
                     }
                 }} className={`button-green w-full max-w-[450px] disabled:bg-neutral-800 ${isPending ? "!bg-neutral-700 !cursor-auto" : ""}`}>{isPending ? "Processing" : "Generate Nutrition Plan"}</button>
             </div>

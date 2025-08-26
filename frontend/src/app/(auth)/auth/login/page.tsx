@@ -29,9 +29,9 @@ const Page = () => {
         onSuccess: (data) => {
             if (data.user) {
                 router.push("/dashboard");
-                // fully-registered ->dahboard
+                // fully-registered -> dashboard
             } else {
-                //othewise -> onboarding
+                //otherwise -> onboarding
                 router.push("/onboarding");
 
             }

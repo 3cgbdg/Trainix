@@ -19,6 +19,8 @@ export const getMeasurement = async (req: Request, res: Response): Promise<void>
 }
 export const createMeasurement = async (req: Request, res: Response): Promise<void> => {
     const body = req.body;
+    console.log(body);
+    console.log("gwweg1");
     try {
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: body.metrics, imageUrl: body.imageUrl });
         res.json({ message: "Successfully created!" });

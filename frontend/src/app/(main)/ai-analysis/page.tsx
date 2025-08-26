@@ -6,10 +6,11 @@ import { useAppSelector } from '@/hooks/reduxHooks';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 const Page = () => {
-    const queryClient = useQueryClient()
+    const router = useRouter();
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const { user } = useAppSelector(state => state.auth)
@@ -28,15 +29,7 @@ const Page = () => {
 
     })
 
-    //getting data for creating plan 
-    const getMeasurements = async () => {
-        const res = await api.get("/api/measurement/measurements");
-        return res.data;
-    }
-    const { data: measurement } = useQuery({
-        queryKey: ["measurement"],
-        queryFn: getMeasurements,
-    })
+
 
     // mutation - request for generation plan
     const generateFitnessPlan = useCallback(async ({ dayNumber, measurement }: { dayNumber: number, measurement: any }) => {
@@ -64,13 +57,13 @@ const Page = () => {
         });
 
         return res.data;
-    }, [user, measurement]);
+    }, [user]);
 
     const mutation2 = useMutation({
         mutationFn: generateFitnessPlan,
         onSuccess: async (data) => {
             await reportExtractFunc(data, "fitness");
-            console.dir(data)
+
 
         },
 
@@ -112,8 +105,11 @@ const Page = () => {
             const measurement = await reportExtractFunc(data, "measurement");
             for (let i = 0; i < 28; i++) {
                 await mutation2.mutateAsync({ dayNumber: i, measurement });
+
             }
+            router.refresh();
             setIsAnalyzed(true);
+
         },
         onError: (err: unknown) => {
             if (isAxiosError(err) && err.response) {
