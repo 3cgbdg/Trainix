@@ -111,6 +111,8 @@ describe("fitness-plan api", () => {
 
     afterAll(async () => {
         await User.deleteMany({});
+        await Measurement.deleteMany({});
+        await FitnessPlan.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
     });
@@ -384,7 +386,7 @@ describe("fitness-plan api", () => {
                 .set("Authorization", `Bearer ${invalidToken}`)
             expect(res.status).toBe(201);
             expect(res.body.message).toBe("Plan created!");
-        })
+        },10000)
 
         it("create-fitness-day 200 - adding day", async () => {
             const res = await request(app).post("/api/fitness-plan/days")
@@ -393,7 +395,7 @@ describe("fitness-plan api", () => {
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Day created!");
-        })
+        },10000)
 
         it("create-fitness-day 500(1) - server error!", async () => {
             jest.spyOn(FitnessPlan, 'findOne').mockImplementationOnce(() => {

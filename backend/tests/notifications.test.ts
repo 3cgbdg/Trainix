@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import User, { IUserDocument } from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
-import Notification, { INotification, INotificationDocument } from "../models/Notification";
+import Notification, {  INotificationDocument } from "../models/Notification";
 
 
 describe("notifications api", () => {
@@ -13,7 +13,7 @@ describe("notifications api", () => {
     let mongo: MongoMemoryServer;
     let accessToken: string;
     let user: IUserDocument;
-    let notification:INotificationDocument;
+    let notification: INotificationDocument;
     let invalidToken: string;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
@@ -37,10 +37,10 @@ describe("notifications api", () => {
             email: 'hello2@gmail.com',
             password: hashedPass2,
         });
-         notification = await Notification.create({
+        notification = await Notification.create({
             userId: user._id,
-              topic: "water",
-              info: "water 2000ml",
+            topic: "water",
+            info: "water 2000ml",
         });
         accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         invalidToken = jwt.sign({ userId: user2._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
@@ -48,6 +48,7 @@ describe("notifications api", () => {
 
     afterAll(async () => {
         await User.deleteMany({});
+        await Notification.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
     });
@@ -83,8 +84,8 @@ describe("notifications api", () => {
         });
     })
     //delete-notification route
-       describe("delete-notifications", () => {
-        
+    describe("delete-notifications", () => {
+
         it("delete-notifications 200", async () => {
             const res = await request(app).delete(`/api/notification/notifications/${notification._id}`)
                 .set("Cookie", `access-token=${accessToken}`)

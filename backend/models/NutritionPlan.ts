@@ -37,7 +37,7 @@ export interface IDayPlanNutrition {
   waterIntake: IwaterIntake,
 }
 
-interface INutritionPlan {
+export interface INutritionPlan {
   userId: mongoose.Types.ObjectId,
   days: IDayPlanNutrition[],
   createdAt: Date

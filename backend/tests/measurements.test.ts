@@ -53,6 +53,7 @@ describe("measurements api", () => {
 
     afterAll(async () => {
         await User.deleteMany({});
+        await Measurement.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
     });

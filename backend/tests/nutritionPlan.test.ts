@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import User, { IUserDocument } from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
-import Measurement from "../models/Measurement";
+
 import NutritionPlan from "../models/NutritionPlan";
 import MealImage from "../models/MealImage";
 
@@ -41,7 +41,7 @@ describe("nutrition-plan api", () => {
             password: hashedPass2,
         });
         //nutrition plan for a user 1
-      await NutritionPlan.create({
+        await NutritionPlan.create({
             userId: user1._id,
             days:
                 [
@@ -88,6 +88,7 @@ describe("nutrition-plan api", () => {
     })
 
     afterAll(async () => {
+        await NutritionPlan.deleteMany({});
         await User.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
@@ -222,7 +223,7 @@ describe("nutrition-plan api", () => {
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Status updated!");
-            
+
         })
 
         it("update-water-intake - server error!", async () => {
@@ -277,7 +278,7 @@ describe("nutrition-plan api", () => {
         it("create-nutrition-day 201 - creating new plan", async () => {
 
             const res = await request(app).post("/api/nutrition-plan/nutrition-plans/days")
-                .send({data:body})
+                .send({ data: body })
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
             expect(res.status).toBe(201);
@@ -287,7 +288,7 @@ describe("nutrition-plan api", () => {
         it("create-nutrition-day 200 - adding day", async () => {
 
             const res = await request(app).post("/api/nutrition-plan/nutrition-plans/days")
-                .send({data:body})
+                .send({ data: body })
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
@@ -299,7 +300,7 @@ describe("nutrition-plan api", () => {
                 throw new Error("DB error");
             });
             const res = await request(app).post("/api/nutrition-plan/nutrition-plans/days")
-                .send({data:body})
+                .send({ data: body })
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(500);
@@ -312,7 +313,7 @@ describe("nutrition-plan api", () => {
                 throw new Error("DB error");
             });
             const res = await request(app).post("/api/nutrition-plan/nutrition-plans/days")
-                .send({data:body})
+                .send({ data: body })
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(500);
@@ -320,7 +321,7 @@ describe("nutrition-plan api", () => {
             jest.restoreAllMocks();
         });
 
-       
+
     })
 
 })
