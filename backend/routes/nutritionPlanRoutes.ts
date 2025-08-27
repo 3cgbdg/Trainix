@@ -1,5 +1,4 @@
 import express from "express"
-import { authMiddleware } from "../middlewares/authMiddleware";
 import { createNutritionPlan, getNutritionDay, getWeekStatistics, updateMealStatus, updateWaterCurrent } from "../controllers/nutritionPlanController";
 
 const nutritionPlanRoute = express.Router();

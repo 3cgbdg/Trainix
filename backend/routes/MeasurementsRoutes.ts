@@ -1,5 +1,4 @@
 import express from "express"
-import { authMiddleware } from "../middlewares/authMiddleware";
 import { createMeasurement, getMeasurement } from "../controllers/measerementsController";
 
 const measurementsRoute = express.Router();

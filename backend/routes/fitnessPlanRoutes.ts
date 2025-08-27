@@ -1,5 +1,4 @@
 import express from "express"
-import { authMiddleware } from "../middlewares/authMiddleware";
 import { addFitnessDay, completeWorkout, deleteFitnessPlan, getAnalysis, getNumbers, getWorkout, getWorkouts } from "../controllers/fitnessPlanController";
 
 const fitnessPlanRoute = express.Router();

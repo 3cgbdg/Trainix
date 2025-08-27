@@ -10,7 +10,7 @@ export const getMeasurement = async (req: Request, res: Response): Promise<void>
             res.status(404).json({ message: "Not found!" });
             return;
         }
-        res.json(measurement);
+        res.status(200).json(measurement);
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });
@@ -19,11 +19,10 @@ export const getMeasurement = async (req: Request, res: Response): Promise<void>
 }
 export const createMeasurement = async (req: Request, res: Response): Promise<void> => {
     const body = req.body;
-    console.log(body);
-    console.log("gwweg1");
+
     try {
         await Measurement.create({ userId: (req as AuthRequest).userId, metrics: body.metrics, imageUrl: body.imageUrl });
-        res.json({ message: "Successfully created!" });
+        res.status(200).json({ message: "Successfully created!" });
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

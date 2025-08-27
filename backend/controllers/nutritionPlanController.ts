@@ -3,7 +3,6 @@ import { AuthRequest } from "../middlewares/authMiddleware";
 import NutritionPlan, { IDayPlanNutrition } from "../models/NutritionPlan";
 import { s3ImageUploadingMeal } from "../utils/images";
 import MealImage from "../models/MealImage";
-import ExerciseImage from "../models/ExerciseImage";
 
 // func for looping use - adding day to nutrition plan -- creating plan
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
@@ -22,7 +21,7 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
                     meal.imageUrl = image.imageUrl;
                 } else {
                     const url = await s3ImageUploadingMeal(meal);
-                    await ExerciseImage.findOneAndUpdate(
+                    await MealImage.findOneAndUpdate(
                         { name: meal.mealTitle },
                         { $setOnInsert: { imageUrl: url } },
                         { new: true, upsert: true }
@@ -124,7 +123,7 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
         nutritionPlan.markModified(`days.${dayNum}.meals.${index}`);
         nutritionPlan.markModified(`days.${dayNum}.dailyGoals`);
         await nutritionPlan.save();
-        res.status(200).json("Status updated!");
+        res.status(200).json({message:"Status updated!"});
         return;
     } catch {
         res.status(500).json({ message: "Server error!" });
@@ -149,7 +148,7 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
 
         nutritionPlan.markModified(`days.${dayNum}.waterIntake`);
         await nutritionPlan.save();
-        res.status(200).json("Status updated!");
+        res.status(200).json({message:"Status updated!"});
         return;
     } catch {
         res.status(500).json({ message: "Server error!" });
