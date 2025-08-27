@@ -41,7 +41,7 @@ describe("nutrition-plan api", () => {
             password: hashedPass2,
         });
         //nutrition plan for a user 1
-        const plan1 = await NutritionPlan.create({
+      await NutritionPlan.create({
             userId: user1._id,
             days:
                 [

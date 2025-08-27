@@ -19,7 +19,7 @@ export const deleteNotification = async (req: Request, res: Response): Promise<v
 export const getNotifications = async (req: Request, res: Response): Promise<void> => {
     try {
         const notifications =await Notification.find({userId:(req as AuthRequest).userId});
-        if(!notifications){
+        if(notifications.length==0){
             res.status(404).json({message:"Not found!"})
             return;
         }

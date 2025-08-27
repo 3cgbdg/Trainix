@@ -1,9 +1,9 @@
 import mongoose, { Document } from "mongoose";
 
 export interface IExercise {
-  title: string;
-  repeats: number | null;
-  time: number | null;
+  title: string,
+  repeats: number | null,
+  time: number | null,
   instruction: string,
   advices: string,
   calories: number,
@@ -11,9 +11,9 @@ export interface IExercise {
   imageUrl: string,
 }
 export interface IDayPlan {
-  dayNumber:number
-  day: string;
-  exercises: IExercise[];
+  dayNumber:number,
+  day: string,
+  exercises: IExercise[],
   status: "Pending" | 'Completed' | "Missed",
   calories: number,
   date: Date,

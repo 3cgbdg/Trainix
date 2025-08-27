@@ -22,8 +22,6 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
 
     }
     const { data }: { data: Idata } = req.body;
-    console.log("heelo2");
-    console.log(data);
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
@@ -68,7 +66,6 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
     }
     catch (err) {
         res.status(500).json({ message: "Server error!" });
-        console.error(err)
         return;
     }
 }
@@ -333,7 +330,7 @@ export const getWorkout = async (req: Request, res: Response): Promise<void> => 
 export const deleteFitnessPlan = async (req: Request, res: Response): Promise<void> => {
     try {
         await FitnessPlan.findOneAndDelete({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
-        res.json({ message: "Successfully deleted!" });
+        res.status(200).json({ message: "Successfully deleted!" });
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

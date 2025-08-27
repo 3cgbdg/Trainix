@@ -5,14 +5,15 @@ import mongoose from "mongoose";
 import User, { IUserDocument } from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
-import Measurement from "../models/Measurement";
+import Notification, { INotification, INotificationDocument } from "../models/Notification";
 
 
-describe("measurements api", () => {
+describe("notifications api", () => {
     // mongo in-memory server for not using real db 
     let mongo: MongoMemoryServer;
     let accessToken: string;
     let user: IUserDocument;
+    let notification:INotificationDocument;
     let invalidToken: string;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
@@ -36,16 +37,10 @@ describe("measurements api", () => {
             email: 'hello2@gmail.com',
             password: hashedPass2,
         });
-        await Measurement.create({
-            userId: user._id, metrics: {
-                height: 12,
-                weight: 123,
-                waistToHipRatio: 12,
-                shoulderToWaistRatio: 12,
-                bodyFatPercent: 12,
-                muscleMass: 12,
-                leanBodyMass: 12,
-            }, imageUrl: "dsadasdasd"
+         notification = await Notification.create({
+            userId: user._id,
+              topic: "water",
+              info: "water 2000ml",
         });
         accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         invalidToken = jwt.sign({ userId: user2._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
@@ -57,30 +52,29 @@ describe("measurements api", () => {
         await mongo.stop();
     });
 
-    //get-measurement route 
-    describe("get-measurement", () => {
-        it("get-measurement 404", async () => {
+    //get-notifications route 
+    describe("get-notifications", () => {
+        it("get-notifications 404", async () => {
 
-            const res = await request(app).get("/api/measurement/measurements")
+            const res = await request(app).get("/api/notification/notifications")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
             expect(res.status).toBe(404);
             expect(res.body.message).toBe("Not found!");
         })
-        it("get-measurement 200", async () => {
-
-            const res = await request(app).get("/api/measurement/measurements")
+        it("get-notifications 200", async () => {
+            const res = await request(app).get("/api/notification/notifications")
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty("_id");
+            expect(res.body[0]).toHaveProperty("_id");
         })
 
-        it("get-measurement - server error!", async () => {
-            jest.spyOn(Measurement, 'findOne').mockImplementationOnce(() => {
+        it("get-notifications - server error!", async () => {
+            jest.spyOn(Notification, 'find').mockImplementationOnce(() => {
                 throw new Error("DB error");
             });
-            const res = await request(app).get("/api/measurement/measurements")
+            const res = await request(app).get("/api/notification/notifications")
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(500);
@@ -88,36 +82,22 @@ describe("measurements api", () => {
             jest.restoreAllMocks();
         });
     })
-    //create-measurement route 
-    describe("create-measurement", () => {
-        const body = {
-            imageUrl: "sdadasdasd",
-            metrics: {
-                height: 12,
-                weight: 123,
-                waistToHipRatio: 12,
-                shoulderToWaistRatio: 12,
-                bodyFatPercent: 12,
-                muscleMass: 12,
-                leanBodyMass: 12,
-            }
-        }
-        it("create-measurement 200", async () => {
-
-            const res = await request(app).post("/api/measurement/measurements")
-                .send(body)
+    //delete-notification route
+       describe("delete-notifications", () => {
+        
+        it("delete-notifications 200", async () => {
+            const res = await request(app).delete(`/api/notification/notifications/${notification._id}`)
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
-            expect(res.body.message).toBe("Successfully created!");
+            expect(res.body.message).toBe("Deleted Successfully!");
         })
 
-        it("create-measurement - server error!", async () => {
-            jest.spyOn(Measurement, 'create').mockImplementationOnce(() => {
+        it("delete-notifications - server error!", async () => {
+            jest.spyOn(Notification, 'findByIdAndDelete').mockImplementationOnce(() => {
                 throw new Error("DB error");
             });
-            const res = await request(app).post("/api/measurement/measurements")
-                .send(body)
+            const res = await request(app).delete(`/api/notification/notifications/${notification._id}`)
                 .set("Cookie", `access-token=${accessToken}`)
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(500);
@@ -125,5 +105,4 @@ describe("measurements api", () => {
             jest.restoreAllMocks();
         });
     })
-
 })

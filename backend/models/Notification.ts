@@ -10,6 +10,7 @@ export interface INotification {
   createdAt: Date,
 }
 
+export interface INotificationDocument extends INotification, Document<mongoose.Types.ObjectId> { }
 
 const notificationSchema = new mongoose.Schema<INotification>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
