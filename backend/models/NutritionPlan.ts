@@ -21,7 +21,7 @@ export interface IMeal {
   mealCalories: number,
   mealProtein: number,
   mealCarbs: number,
-  mealFats: number
+  mealFats: number,
   status: "eaten" | "pending",
   foodIntake: "Snack" | "Lunch" | "Breakfast" | "Dinner",
 }
