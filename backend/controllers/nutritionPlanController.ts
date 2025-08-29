@@ -42,7 +42,7 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
         // otherwise creating plan with this item
         else {
             nutritionPlan = await NutritionPlan.create({ userId: (req as AuthRequest).userId, "days": [obj], createdAt: new Date() });
-            res.status(201).json({ message: "Nutrition plan created!" });
+            res.status(201).json({ message: "Nutrition plan created!",day:obj });
             return;
         }
     } catch (err) {

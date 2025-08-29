@@ -35,17 +35,17 @@ export const s3ImageUploadingMeal = async (data: IMeal): Promise<string> => {
 
     }
     else {
-        const response = await axios.get(urls[0], { responseType:"arraybuffer" });
+        const response = await axios.get(urls[0], { responseType: "arraybuffer" });
         const buffer = Buffer.from(response.data, 'binary');
         const title: string = data.mealTitle;
         const key = `${process.env.AWS_S3_BUCKET_NAME}/food-images/${title.toLowerCase().split(" ").join("_")}.jpg`
-       await  s3.send(new PutObjectCommand({
+        await s3.send(new PutObjectCommand({
             Body: buffer,
             Key: key,
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             ContentType: "image/jpeg"
         }))
-        
+
         url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
         return url;
     }
@@ -62,7 +62,7 @@ export const s3ImageUploadingExercise = async (data: IExercise): Promise<string>
         }
     })
     // getting urls of images from unsplash
-    const urls = await searchPhotos(data.title+" workout");
+    const urls = await searchPhotos(data.title + " workout");
 
     if (!urls) {
         url = "exercise-placeholder.jpg";
@@ -74,13 +74,13 @@ export const s3ImageUploadingExercise = async (data: IExercise): Promise<string>
         const buffer = Buffer.from(response.data, 'binary');
         const title: string = data.title;
         const key = `${process.env.AWS_S3_BUCKET_NAME}/exercise-images/${title.toLowerCase().split(" ").join("_")}.jpg`
-       await  s3.send(new PutObjectCommand({
+        await s3.send(new PutObjectCommand({
             Body: buffer,
             Key: key,
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             ContentType: "image/jpeg"
         }))
-        
+
         url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
         return url;
     }

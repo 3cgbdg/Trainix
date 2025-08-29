@@ -4,7 +4,7 @@ import { useAppSelector } from "@/hooks/reduxHooks"
 import { UseMutateFunction } from "@tanstack/react-query"
 import React from "react"
 // generates each day with iterations
-const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMutateFunction<any, unknown, number, unknown>, isPending: boolean }) => {
+const GenerateNutritionPlan = ({ mutate, isPending }: { mutate: UseMutateFunction<any, unknown, number, unknown>, isPending: boolean }) => {
     const { workouts } = useAppSelector(state => state.workouts)
     const router = useRouter();
 
@@ -13,11 +13,8 @@ const GenerateNutritionPlan = ({ mutateAsync, isPending }: { mutateAsync: UseMut
             <div className="max-w-[900px] w-full text-center mt-10">
                 <h1 className='page-title mb-10'>AI Nutrition Plan Generating</h1>
                 <button disabled={isPending ? true : false} onClick={async () => {
-                    if (workouts?.items) {
-                        for (let i = 0; i < workouts.items.length; i++) {
-                            await mutateAsync(i + 1);
-                        }
-                        router.refresh();
+                    if (workouts?.items) {                    
+                             mutate(1);
                     }
                 }} className={`button-green w-full max-w-[450px] disabled:bg-neutral-800 ${isPending ? "!bg-neutral-700 !cursor-auto" : ""}`}>{isPending ? "Processing" : "Generate Nutrition Plan"}</button>
             </div>

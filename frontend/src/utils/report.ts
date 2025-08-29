@@ -14,8 +14,8 @@ export const reportExtractFunc = async (data: AiDataType, method: "nutrition" | 
             match = data.AIreport.match(regex);
             const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
             if (method == "nutrition") {
-                await api.post(`/api/nutrition-plan/nutrition-plans/days`, { data: info });
-                return;
+                const res = await api.post(`/api/nutrition-plan/nutrition-plans/days`, { data: info });
+                return res.data;
             } else if (method == "fitness-container") {
                 await api.post(`/api/fitness-plan/days?method=container`, { data: info });
                 return;

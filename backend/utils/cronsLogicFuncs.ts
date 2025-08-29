@@ -1,11 +1,14 @@
 import Notification, { INotification } from "../models/Notification";
 import { io, userSocketMap } from "../socket";
-import NutritionPlan from "../models/NutritionPlan";
-import FitnessPlan from "../models/FitnessPlan";
+import NutritionPlan, { IMeal } from "../models/NutritionPlan";
+import FitnessPlan, { IExercise } from "../models/FitnessPlan";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { ObjectId } from "mongoose";
 import axios from "axios";
+import ExerciseImage from "../models/ExerciseImage";
+import { s3ImageUploadingExercise, s3ImageUploadingMeal } from "./images";
+import MealImage from "../models/MealImage";
 
 export const regularReminder = async () => {
     const today = new Date();
@@ -201,11 +204,12 @@ export const generateNewDayFitnessContent = async () => {
             const day = plan.report.plan.days.find(day => day.exercises !== undefined && day.date.getDate() == new Date().getDate());
             if (day) {
 
-
+                // getting user and measurements for sending proper metrics to ai to analyze
                 const [user, measurements] = await Promise.all([
                     User.findById(plan.userId),
                     Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                 ]);
+                // requesting ai generating day
                 const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
                     userInfo: {
                         height: user?.metrics.height,
@@ -229,16 +233,40 @@ export const generateNewDayFitnessContent = async () => {
                 }
                 );
                 const data = res.data;
+                // validating info
                 const regex = /```json\s([\s\S]+?)```/;
                 let match;
                 try {
+                    // adding to db
                     match = data.AIreport.match(regex);
                     const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
-                    await axios.post(`/api/fitness-plan/days`, { data: info });
-                }catch(err){
+                    await Promise.all(
+                        info.day.exercises!.map(async (exercise: IExercise) => {
+
+                            const image = await ExerciseImage.findOne({ name: exercise.title });
+                            if (image) {
+                                exercise.imageUrl = image.imageUrl;
+                            } else {
+                                const url = await s3ImageUploadingExercise(exercise);
+                                // if exists continue otherwise adding new doc
+                                await ExerciseImage.findOneAndUpdate(
+                                    { name: exercise.title },
+                                    { $setOnInsert: { imageUrl: url } },
+                                    { new: true, upsert: true }
+                                );
+                                exercise.imageUrl = url;
+                            }
+                        })
+
+                    )
+                    info.day.date = new Date(info.day.date);
+                    plan.report.plan.days[info.day.dayNumber - 1] = info.day;
+                    plan.markModified("report.plan.days");
+                    await plan.save();
+                } catch (err) {
                     console.error(err);
                 }
-          
+
 
             } else {
                 return;
@@ -250,59 +278,67 @@ export const generateNewDayFitnessContent = async () => {
 }
 
 // generating each day full info for workout of the day
-// export const generateNewDayNutritionContent = async () => {
-//     try {
-//         const plans = await FitnessPlan.find({});
-//         // TODO ADD BATCHES
-//         await Promise.all(plans.map(async (plan) => {
-//             const day = plan.report.plan.days.find(day => day.exercises !== undefined && day.date.getDate() == new Date().getDate());
-//             if (day) {
+export const generateNewDayNutritionContent = async () => {
+    try {
+        const plans = await NutritionPlan.find({});
+        // TODO ADD BATCHES
+        await Promise.all(plans.map(async (plan) => {
+            const dayNumber = plan.days[plan.days.length - 1].dayNumber;
+            // getting user and measurements for sending proper metrics to ai to analyze
+            const [user, measurements] = await Promise.all([
+                User.findById(plan.userId),
+                Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
+            ]);
+            // requesting ai generating day
+            const res = await axios.post(`http://127.0.0.1:8000/api/nutrition?dayNumber=${dayNumber + 1}`, {
 
+                height: user?.metrics.height,
+                weight: user?.metrics.weight,
+                targetWeight: user?.targetWeight,
+                primaryFitnessGoal: user?.primaryFitnessGoal,
+                fitnessLevel: user?.fitnessLevel,
+                gender: user?.gender,
+                waistToHipRatio: measurements?.metrics.waistToHipRatio,
+                shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
+                bodyFatPercent: measurements?.metrics.bodyFatPercent,
+                muscleMass: measurements?.metrics.muscleMass,
+                leanBodyMass: measurements?.metrics.leanBodyMass,
 
-//                 const [user, measurements] = await Promise.all([
-//                     User.findById(plan.userId),
-//                     Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
-//                 ]);
-//                 const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
-//                     userInfo: {
-//                         height: user?.metrics.height,
-//                         weight: user?.metrics.weight,
-//                         targetWeight: user?.targetWeight,
-//                         primaryFitnessGoal: user?.primaryFitnessGoal,
-//                         fitnessLevel: user?.fitnessLevel,
-//                         gender: user?.gender,
-//                         waistToHipRatio: measurements?.metrics.waistToHipRatio,
-//                         shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-//                         bodyFatPercent: measurements?.metrics.bodyFatPercent,
-//                         muscleMass: measurements?.metrics.muscleMass,
-//                         leanBodyMass: measurements?.metrics.leanBodyMass,
-//                     },
-//                     day: {
-//                         dayNumber: day.dayNumber,
-//                         day: day.day,
-//                         date: day.date
-//                     }
+            }
+            );
+            const data = res.data;
+            // validating info
+            const regex = /```json\s([\s\S]+?)```/;
+            let match;
+            try {
+                // adding to db
+                match = data.AIreport.match(regex);
+                const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                await Promise.all(
+                    info.meals.map(async (meal: IMeal) => {
+                        const image = await MealImage.findOne({ name: meal.mealTitle });
+                        if (image) {
+                            meal.imageUrl = image.imageUrl;
+                        } else {
+                            const url = await s3ImageUploadingMeal(meal);
+                            await MealImage.findOneAndUpdate(
+                                { name: meal.mealTitle },
+                                { $setOnInsert: { imageUrl: url } },
+                                { new: true, upsert: true }
+                            );
+                            meal.imageUrl = url;
+                        }
 
-//                 }
-//                 );
-//                 const data = res.data;
-//                 const regex = /```json\s([\s\S]+?)```/;
-//                 let match;
-//                 try {
-//                     match = data.AIreport.match(regex);
-//                     const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
-//                     await axios.post(`/api/fitness-plan/days`, { data: info });
-//                 }catch(err){
-//                     console.error(err);
-//                 }
-          
+                    }))
+                plan.days.push(info);
+                await plan.save();
+            } catch (err) {
+                console.error(err);
+            }
 
-//             } else {
-//                 return;
-//             }
-//         }))
-//     } catch (err) {
-//         console.error(err);
-//     }
-// }
+        }))
+    } catch (err) {
+        console.error(err);
+    }
+}
 

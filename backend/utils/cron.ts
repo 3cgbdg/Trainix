@@ -1,7 +1,7 @@
 
 import nodeCron from "node-cron";
 
-import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder ,generateNewDayNutritionContent} from "./cronsLogicFuncs";
+import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder, generateNewDayNutritionContent } from "./cronsLogicFuncs";
 
 
 export const initCron = () => {

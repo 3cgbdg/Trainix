@@ -2,7 +2,8 @@
 import { api } from '@/api/axiosInstance';
 import GenerateNutritionPlan from '@/components/nutrition-plan/GenerateNutritionPlan';
 import NutritionPlanPage from '@/components/nutrition-plan/NutritionPlanPage';
-import { useAppSelector } from '@/hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
+import { getNutritionDay } from '@/redux/nutritionDaySlice';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
@@ -11,6 +12,7 @@ import { useCallback } from 'react';
 const Page = () => {
     const { user } = useAppSelector(state => state.auth);
     const { nutritionDay } = useAppSelector(state => state.nutritionDay);
+    const dispatch = useAppDispatch();
     const getMeasurements = async () => {
         const res = await api.get("/api/measurement/measurements");
         return res.data;
@@ -50,8 +52,10 @@ const Page = () => {
     const mutation = useMutation({
         mutationFn: generateNutritionPlan,
         onSuccess: async (data) => {
-            await reportExtractFunc(data, "nutrition");
-
+            const newData = await reportExtractFunc(data, "nutrition");
+            dispatch(getNutritionDay(newData.day));
+            console.log(newData);
+            
         },
 
         onError: (err: unknown) => {
@@ -66,7 +70,7 @@ const Page = () => {
 
         <div className="">
             {!isLoading ?
-                (!nutritionDay && !mutation.isSuccess) ? <GenerateNutritionPlan mutateAsync={mutation.mutateAsync} isPending={mutation.isPending} />
+                (!nutritionDay && !mutation.isSuccess) ? <GenerateNutritionPlan mutate={mutation.mutate} isPending={mutation.isPending} />
                     :
                     <NutritionPlanPage day={nutritionDay!} />
 
