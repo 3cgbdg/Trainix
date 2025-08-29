@@ -27,9 +27,9 @@ export interface IUser {
 export interface IDayPlan {
   day: string;
   dayNumber: number;
-  exercises: IExercise[];
+  exercises?: IExercise[];
   status: "Pending" | 'Completed' | "Missed",
-  calories: number,
+  calories?: number,
   date: Date,
 }
 export interface IExercise {
@@ -43,7 +43,24 @@ export interface IExercise {
   imageUrl: string,
 }
 
+//MEASUREMENT INTERFACES
+interface IMetrics {
+  height: number,
+  weight: number,
+  waistToHipRatio: number,
+  shoulderToWaistRatio: number,
+  bodyFatPercent: number,
+  muscleMass: number,
+  leanBodyMass: number,
+}
 
+export interface IMeasurements {
+  userId: mongoose.Types.ObjectId,
+  metrics: IMetrics,
+  createdAt: Date
+  imageUrl: string,
+
+}
 
 //  NUTRITION PLAN INTERFACES 
 interface IdailyGoals {

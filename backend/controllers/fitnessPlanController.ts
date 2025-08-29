@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { AuthRequest } from "../middlewares/authMiddleware";
-import FitnessPlan, { IAdvices, IBriefAnalysis, IDayPlan } from "../models/FitnessPlan";
+import FitnessPlan, { IAdvices, IBriefAnalysis, IDayPlan, IExercise } from "../models/FitnessPlan";
 import Measurement from "../models/Measurement";
 import User from "../models/User";
 import ExerciseImage from "../models/ExerciseImage";
@@ -11,63 +11,62 @@ import Notification, { INotification } from "../models/Notification";
 
 // adding report-fitnessplan day  func with iterations
 export const addFitnessDay = async (req: Request, res: Response): Promise<void> => {
-    interface Idata {
-        advices?: IAdvices,
-        day: IDayPlan,
-        briefAnalysis?: IBriefAnalysis,
-        week1Title?: string,
-        week2Title?: string,
-        week3Title?: string,
-        week4Title?: string,
 
-    }
-    const { data }: { data: Idata } = req.body;
+    const { data, method } = req.body;
+    console.log(data, method)
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
-        await Promise.all(
-            data.day.exercises.map(async (exercise) => {
+        if (method !== "container") {
+            await Promise.all(
+                data.day.exercises!.map(async (exercise: IExercise) => {
 
-
-                const image = await ExerciseImage.findOne({ name: exercise.title });
-                if (image) {
-                    exercise.imageUrl = image.imageUrl;
-                } else {
-                    const url = await s3ImageUploadingExercise(exercise);
-                    // if exists continue otherwise adding new doc
-                    await ExerciseImage.findOneAndUpdate(
-                        { name: exercise.title },
-                        { $setOnInsert: { imageUrl: url } },
-                        { new: true, upsert: true }
-                    );
-                    exercise.imageUrl = url;
-                }
-            })
-        )
-        //adding real date for each day - ai doesn`t generate real dates
-
-        if (fitnessPlan) {
-            const workoutDay = new Date(fitnessPlan.createdAt);
-            workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
-            data.day.date = workoutDay;
-            fitnessPlan.report.plan.days.push(data.day);
-            fitnessPlan.markModified("report.plan.days");
-            await fitnessPlan.save();
-            res.status(200).json({ message: "Day created!" });
-
-        } else {
-            const workoutDay = new Date();
-            data.day.date = workoutDay;
-            const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
-            await fitnessPlan.save();
-            res.status(201).json({ message: "Plan created!" });
-            return;
+                    const image = await ExerciseImage.findOne({ name: exercise.title });
+                    if (image) {
+                        exercise.imageUrl = image.imageUrl;
+                    } else {
+                        const url = await s3ImageUploadingExercise(exercise);
+                        // if exists continue otherwise adding new doc
+                        await ExerciseImage.findOneAndUpdate(
+                            { name: exercise.title },
+                            { $setOnInsert: { imageUrl: url } },
+                            { new: true, upsert: true }
+                        );
+                        exercise.imageUrl = url;
+                    }
+                })
+                
+            )
         }
+//adding real date for each day - ai doesn`t generate real dates
+if (fitnessPlan) {
+    if (method == "container") {
+        const workoutDay = new Date(fitnessPlan.createdAt);
+        workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
+        data.day.date = workoutDay;
+        fitnessPlan.report.plan.days.push(data.day);
+    } else {
+        data.day.date = new Date(data.day.date);
+        fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
+    }
+    fitnessPlan.markModified("report.plan.days");
+    await fitnessPlan.save();
+
+    res.status(200).json({ message: "Day created!" });
+
+} else {
+    const workoutDay = new Date();
+    data.day.date = workoutDay;
+    const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
+    await fitnessPlan.save();
+    res.status(201).json({ message: "Plan created!" });
+    return;
+}
     }
     catch (err) {
-        res.status(500).json({ message: "Server error!" });
-        return;
-    }
+    res.status(500).json({ message: "Server error!" });
+    return;
+}
 }
 
 // completing workout-day func
@@ -88,14 +87,14 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
         }
         // setting similar status to db 
         const currentDay = plan?.report.plan.days[Number(day)];
-        for (let [i, exercise] of currentDay.exercises.entries()) {
+        for (let [i, exercise] of currentDay.exercises!.entries()) {
             if (completedItems[i]?.completed) {
                 exercise.status = "completed"
             }
 
         }
         // if every exercise`s status is completed than day status is Completed + streak+=1
-        if (currentDay.exercises.every(exercise => exercise.status === "completed")) {
+        if (currentDay.exercises!.every(exercise => exercise.status === "completed")) {
             currentDay.status = "Completed";
             plan.report.streak += 1;
             if (plan.report.streak > user.longestStreak) {
@@ -104,7 +103,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             // updating current metrics (weight + bodyFat with calories release)
             const measurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
             if (measurement) {
-                measurement.metrics.weight = +(measurement.metrics.weight - currentDay.calories / 7700).toFixed(2);
+                measurement.metrics.weight = +(measurement.metrics.weight - currentDay.calories! / 7700).toFixed(2);
                 const fatMass = Math.max(measurement.metrics.weight - measurement.metrics.leanBodyMass, 0);
                 if (!fatMass)
                     measurement.metrics.leanBodyMass = measurement.metrics.weight;
@@ -187,7 +186,7 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
 
         const firstDay = new Date(plan.createdAt);
         const day = Math.round((currentDay.getTime() - firstDay.getTime()) / (1000 * 3600 * 24));
-        const currentCalories = plan.report.plan.days[day].exercises.reduce((acc, cur) => {
+        const currentCalories = plan.report.plan.days[day].exercises!.reduce((acc, cur) => {
             return (cur.status == "completed" ? acc + cur.calories : acc);
         }, 0)
         res.status(200).json({

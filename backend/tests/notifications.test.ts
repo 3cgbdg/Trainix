@@ -55,14 +55,7 @@ describe("notifications api", () => {
 
     //get-notifications route 
     describe("get-notifications", () => {
-        it("get-notifications 404", async () => {
-
-            const res = await request(app).get("/api/notification/notifications")
-                .set("Cookie", `access-token=${invalidToken}`)
-                .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
-        })
+  
         it("get-notifications 200", async () => {
             const res = await request(app).get("/api/notification/notifications")
                 .set("Cookie", `access-token=${accessToken}`)

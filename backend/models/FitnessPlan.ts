@@ -13,9 +13,9 @@ export interface IExercise {
 export interface IDayPlan {
   dayNumber:number,
   day: string,
-  exercises: IExercise[],
+  exercises?: IExercise[],
   status: "Pending" | 'Completed' | "Missed",
-  calories: number,
+  calories?: number,
   date: Date,
 
 }

@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'trainix.s3.eu-north-1.amazonaws.com',
+        hostname: 'd1llcprgwazvgp.cloudfront.net',
         pathname: "/**",
       },
  

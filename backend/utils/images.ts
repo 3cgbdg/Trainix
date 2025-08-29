@@ -46,7 +46,7 @@ export const s3ImageUploadingMeal = async (data: IMeal): Promise<string> => {
             ContentType: "image/jpeg"
         }))
         
-        url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.REGION_NAME}.amazonaws.com/${key}`;
+        url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
         return url;
     }
 
@@ -81,7 +81,7 @@ export const s3ImageUploadingExercise = async (data: IExercise): Promise<string>
             ContentType: "image/jpeg"
         }))
         
-        url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.REGION_NAME}.amazonaws.com/${key}`;
+        url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
         return url;
     }
 

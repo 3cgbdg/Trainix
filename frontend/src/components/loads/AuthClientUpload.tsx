@@ -2,6 +2,7 @@
 import { api } from '@/api/axiosInstance';
 import { useAppDispatch } from '@/hooks/reduxHooks';
 import { getProfile } from '@/redux/authSlice';
+import { getMeasurement } from '@/redux/measurementSlice';
 import { getNutritionDay } from '@/redux/nutritionDaySlice';
 import { getWorkouts } from '@/redux/workoutsSlice';
 import { useRouter } from 'next/navigation';
@@ -26,7 +27,9 @@ const AuthClientUpload = () => {
             dispatch(getWorkouts(res2.data));
             const res3 = await api.get("api/nutrition-plan/nutrition-plans");
             dispatch(getNutritionDay(res3.data));
-            console.log(res3.data);
+            const res4 = await api.get("api/measurement/measurements");
+            dispatch(getMeasurement(res4.data));
+          
         }
 
         getUser();

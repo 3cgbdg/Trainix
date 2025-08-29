@@ -2,7 +2,9 @@
 import { api } from '@/api/axiosInstance';
 import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
-import { useAppSelector } from '@/hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
+import { getMeasurement } from '@/redux/measurementSlice';
+import { IMeasurements } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
@@ -15,7 +17,7 @@ const Page = () => {
     const [file, setFile] = useState<File | null>(null);
     const { user } = useAppSelector(state => state.auth)
     const [isAnalyzed, setIsAnalyzed] = useState<boolean>(true);
-
+    const dispatch = useAppDispatch();
 
     // getting ai-analyzed  data
     const getAnalysis = useCallback(async () => {
@@ -62,7 +64,7 @@ const Page = () => {
     const mutation2 = useMutation({
         mutationFn: generateFitnessPlan,
         onSuccess: async (data) => {
-            await reportExtractFunc(data, "fitness");
+            await reportExtractFunc(data, "fitness-container");
 
 
         },
@@ -103,6 +105,7 @@ const Page = () => {
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
             const measurement = await reportExtractFunc(data, "measurement");
+             dispatch(getMeasurement(measurement));
             for (let i = 0; i < 28; i++) {
                 await mutation2.mutateAsync({ dayNumber: i, measurement });
 
