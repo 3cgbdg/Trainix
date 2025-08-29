@@ -5,6 +5,7 @@ import FitnessPlan from "../models/FitnessPlan";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { ObjectId } from "mongoose";
+import axios from "axios";
 
 export const regularReminder = async () => {
     const today = new Date();
@@ -14,7 +15,7 @@ export const regularReminder = async () => {
 
         const plans = await NutritionPlan.find({
             "days.date": { $gte: startOfDay, $lte: endOfDay }
-        }).populate<{ userId: { inAppNotifications: boolean,_id:ObjectId } }>({path:"userId", select:"inAppNotifications _id"});
+        }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" });
         const notifications: INotification[] = [];
         // parallel promises
         await Promise.all(plans.map(async (item) => {
@@ -66,7 +67,7 @@ export const workoutReminder = async () => {
 
         const plans = await FitnessPlan.find({
             "report.plan.days.date": { $gte: startOfDay, $lte: endOfDay }
-        }).populate<{ userId: { inAppNotifications: boolean,_id:ObjectId } }>({path:"userId", select:"inAppNotifications _id"});
+        }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" });
         const notifications: INotification[] = [];
         // parallel promises
         await Promise.all(plans.map(async (item) => {
@@ -190,3 +191,118 @@ export const checkMissedDay = async () => {
     }
 
 }
+
+// generating each day full info for workout of the day
+export const generateNewDayFitnessContent = async () => {
+    try {
+        const plans = await FitnessPlan.find({});
+        // TODO ADD BATCHES
+        await Promise.all(plans.map(async (plan) => {
+            const day = plan.report.plan.days.find(day => day.exercises !== undefined && day.date.getDate() == new Date().getDate());
+            if (day) {
+
+
+                const [user, measurements] = await Promise.all([
+                    User.findById(plan.userId),
+                    Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
+                ]);
+                const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
+                    userInfo: {
+                        height: user?.metrics.height,
+                        weight: user?.metrics.weight,
+                        targetWeight: user?.targetWeight,
+                        primaryFitnessGoal: user?.primaryFitnessGoal,
+                        fitnessLevel: user?.fitnessLevel,
+                        gender: user?.gender,
+                        waistToHipRatio: measurements?.metrics.waistToHipRatio,
+                        shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
+                        bodyFatPercent: measurements?.metrics.bodyFatPercent,
+                        muscleMass: measurements?.metrics.muscleMass,
+                        leanBodyMass: measurements?.metrics.leanBodyMass,
+                    },
+                    day: {
+                        dayNumber: day.dayNumber,
+                        day: day.day,
+                        date: day.date
+                    }
+
+                }
+                );
+                const data = res.data;
+                const regex = /```json\s([\s\S]+?)```/;
+                let match;
+                try {
+                    match = data.AIreport.match(regex);
+                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                    await axios.post(`/api/fitness-plan/days`, { data: info });
+                }catch(err){
+                    console.error(err);
+                }
+          
+
+            } else {
+                return;
+            }
+        }))
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// generating each day full info for workout of the day
+// export const generateNewDayNutritionContent = async () => {
+//     try {
+//         const plans = await FitnessPlan.find({});
+//         // TODO ADD BATCHES
+//         await Promise.all(plans.map(async (plan) => {
+//             const day = plan.report.plan.days.find(day => day.exercises !== undefined && day.date.getDate() == new Date().getDate());
+//             if (day) {
+
+
+//                 const [user, measurements] = await Promise.all([
+//                     User.findById(plan.userId),
+//                     Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
+//                 ]);
+//                 const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
+//                     userInfo: {
+//                         height: user?.metrics.height,
+//                         weight: user?.metrics.weight,
+//                         targetWeight: user?.targetWeight,
+//                         primaryFitnessGoal: user?.primaryFitnessGoal,
+//                         fitnessLevel: user?.fitnessLevel,
+//                         gender: user?.gender,
+//                         waistToHipRatio: measurements?.metrics.waistToHipRatio,
+//                         shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
+//                         bodyFatPercent: measurements?.metrics.bodyFatPercent,
+//                         muscleMass: measurements?.metrics.muscleMass,
+//                         leanBodyMass: measurements?.metrics.leanBodyMass,
+//                     },
+//                     day: {
+//                         dayNumber: day.dayNumber,
+//                         day: day.day,
+//                         date: day.date
+//                     }
+
+//                 }
+//                 );
+//                 const data = res.data;
+//                 const regex = /```json\s([\s\S]+?)```/;
+//                 let match;
+//                 try {
+//                     match = data.AIreport.match(regex);
+//                     const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+//                     await axios.post(`/api/fitness-plan/days`, { data: info });
+//                 }catch(err){
+//                     console.error(err);
+//                 }
+          
+
+//             } else {
+//                 return;
+//             }
+//         }))
+//     } catch (err) {
+//         console.error(err);
+//     }
+// }
+

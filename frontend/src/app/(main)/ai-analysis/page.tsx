@@ -4,15 +4,13 @@ import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
-import { IMeasurements } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 const Page = () => {
-    const router = useRouter();
+    const [reset, setReset] = useState<boolean>(false);
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const { user } = useAppSelector(state => state.auth)
@@ -105,12 +103,12 @@ const Page = () => {
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
             const measurement = await reportExtractFunc(data, "measurement");
-             dispatch(getMeasurement(measurement));
+            dispatch(getMeasurement(measurement));
             for (let i = 0; i < 28; i++) {
                 await mutation2.mutateAsync({ dayNumber: i, measurement });
 
             }
-            router.refresh();
+
             setIsAnalyzed(true);
 
         },
@@ -126,9 +124,10 @@ const Page = () => {
         return <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green mx-auto mt-20"></div>;
     }
 
-    if (!data?.advices || !isAnalyzed) {
+    if (!data?.advices || !isAnalyzed || reset) {
         return (
             <UploadPhoto
+                setReset={setReset}
                 isAnalyzed={isAnalyzed}
                 setIsAnalyzed={setIsAnalyzed}
                 file={file}
@@ -140,6 +139,6 @@ const Page = () => {
         );
     }
 
-    return <AnalyzedResults data={data} />;
+    return <AnalyzedResults setReset={setReset} data={data} />;
 }
 export default Page;

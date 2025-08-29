@@ -1,10 +1,10 @@
 
 import nodeCron from "node-cron";
 
-import { checkMissedDay, createNewMeasurement, metricsReminder, regularReminder, workoutReminder } from "./cronsLogicFuncs";
+import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder ,generateNewDayNutritionContent} from "./cronsLogicFuncs";
 
 
-export const cronNotifs = () => {
+export const initCron = () => {
     // cron for socket notifications (waterIntake + nutrition plan ) --every 2 hours
     nodeCron.schedule("0 */3 * * *", regularReminder
     )
@@ -15,8 +15,11 @@ export const cronNotifs = () => {
     // checking every day for 14 days difference between measurement docs for creating a new one
     nodeCron.schedule("0 8 * * *", createNewMeasurement)
     //cron for every day checking missed workout days
-    nodeCron.schedule("0 0 * * * *", checkMissedDay)
-
+    nodeCron.schedule("0 0 * * *", checkMissedDay)
+    // generating each day full info for workout of the day
+    nodeCron.schedule("0 0 * * *", generateNewDayFitnessContent)
+    // generating each day full info for nutrition of the day
+    nodeCron.schedule("0 0 * * *", generateNewDayNutritionContent)
 }
 
 

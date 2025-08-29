@@ -71,7 +71,7 @@ describe("s3 funcs", () => {
             mockedAxios.get.mockResolvedValue({ data: Buffer.from('test') });
             const url = await s3ImageUploadingMeal(meal);
             expect(S3Client).toHaveBeenCalled();
-            expect(url).toContain('https://test-bucket.s3.test-region.amazonaws.com/');
+            expect(url).toContain('https://d1llcprgwazvgp.cloudfront.net');
             expect(url).toContain('pizza.jpg');
         });
     })

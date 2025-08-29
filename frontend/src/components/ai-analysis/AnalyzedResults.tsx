@@ -1,11 +1,10 @@
 "use client"
 import { api } from "@/api/axiosInstance";
-import { useMutation } from "@tanstack/react-query";
-import Image from "next/image"
 import { useRouter } from "next/navigation";
-import React, { useCallback } from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import BodyImages from "./BodyImages";
+import { useMutation } from "@tanstack/react-query";
 
 
 // interface for metrics needed ai to analyze and create proper plan
@@ -30,7 +29,7 @@ interface IReceivedAnalysis {
 
 
 
-const AnalyzedResults = ({ data }: { data: IReceivedAnalysis }) => {
+const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: Dispatch<SetStateAction<boolean>>}) => {
   const router = useRouter();
   const retakePhoto = useCallback(async () => {
     const res = await api.delete("/api/fitness-plan/plan");
@@ -39,7 +38,7 @@ const AnalyzedResults = ({ data }: { data: IReceivedAnalysis }) => {
   const retakePhotoMutation = useMutation({
     mutationFn: retakePhoto,
     onSuccess: () => {
-      router.refresh();
+      setReset(true);
     }
   })
   return (

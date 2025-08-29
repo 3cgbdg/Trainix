@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'd1llcprgwazvgp.cloudfront.net',
         pathname: "/**",
       },
- 
+      {
+        protocol: 'https',
+        hostname: 'trainix.s3.eu-north-1.amazonaws.com',
+        pathname: "/**",
+      },
     ],
 
   },

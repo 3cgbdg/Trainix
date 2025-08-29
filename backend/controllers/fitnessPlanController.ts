@@ -11,15 +11,16 @@ import Notification, { INotification } from "../models/Notification";
 
 // adding report-fitnessplan day  func with iterations
 export const addFitnessDay = async (req: Request, res: Response): Promise<void> => {
-
-    const { data, method } = req.body;
-    console.log(data, method)
+    const {method} = req.query;
+    const { data } = req.body;
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
         if (method !== "container") {
+            console.log("1");
             await Promise.all(
                 data.day.exercises!.map(async (exercise: IExercise) => {
+            console.log("2");
 
                     const image = await ExerciseImage.findOne({ name: exercise.title });
                     if (image) {
@@ -40,20 +41,25 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
         }
 //adding real date for each day - ai doesn`t generate real dates
 if (fitnessPlan) {
+            console.log("3");
+
     if (method == "container") {
+            console.log("4");
+
         const workoutDay = new Date(fitnessPlan.createdAt);
         workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
         data.day.date = workoutDay;
         fitnessPlan.report.plan.days.push(data.day);
     } else {
+
         data.day.date = new Date(data.day.date);
         fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
     }
     fitnessPlan.markModified("report.plan.days");
     await fitnessPlan.save();
 
-    res.status(200).json({ message: "Day created!" });
-
+    res.status(200).json({ message: "Day created!",day:data });
+    return;
 } else {
     const workoutDay = new Date();
     data.day.date = workoutDay;

@@ -20,12 +20,11 @@ export const reportExtractFunc = async (data: AiDataType, method: "nutrition" | 
                 await api.post(`/api/fitness-plan/days?method=container`, { data: info });
                 return;
             }else{
-                 await api.post(`/api/fitness-plan/days`, { data: info });
-                return info;
-
+                const res = await api.post(`/api/fitness-plan/days`, { data: info });
+                return res.data.day;
             }
         } else {
-            const info =typeof data.AIreport=="string" ? JSON.parse(data.AIreport) : JSON.parse(data.AIreport);
+            const info =typeof data.AIreport=="string" ? JSON.parse(data.AIreport) : data.AIreport;
             await api.post(`/api/measurement/measurements`, { metrics: info, imageUrl: data.imageUrl });
             return info;
 
