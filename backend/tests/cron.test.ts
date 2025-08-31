@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from "mongoose";
 import User, { IUserDocument } from "../models/User";
 import bcrypt from "bcrypt"
-import { checkMissedDay, createNewMeasurement, metricsReminder, regularReminder, workoutReminder } from '../utils/cronsLogicFuncs';
+import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder } from '../utils/cronsLogicFuncs';
 import Notification from '../models/Notification';
 import { configDotenv } from 'dotenv';
 // mocking socket module
@@ -72,8 +72,15 @@ describe("cron inner-logic funcs", () => {
                                     imageUrl: "fsf",
                                 }]
 
-                            }
+                            },
+                            {
+                                date: new Date().setDate(new Date().getDate() + 1),
+                                dayNumber: 2,
+                                status: "Pending",
+                                day: "second",
 
+
+                            }
                         ],
                 },
 
@@ -158,6 +165,7 @@ describe("cron inner-logic funcs", () => {
     afterEach(async () => {
         await Notification.deleteMany({});
     })
+    // reminder func for food and water intake
     it("regular-reminder", async () => {
         // spy socket
 
@@ -176,6 +184,7 @@ describe("cron inner-logic funcs", () => {
         jest.restoreAllMocks();
     })
 
+    // reminder func for workout doing
     it("workout-reminder", async () => {
         // spy socket
 
@@ -194,6 +203,7 @@ describe("cron inner-logic funcs", () => {
         jest.restoreAllMocks();
     })
 
+    // reminder func for metrics 
     it("metrics-reminder", async () => {
         // spy socket
 
@@ -208,19 +218,22 @@ describe("cron inner-logic funcs", () => {
         );
         const notifications = await Notification.find({});
         expect(notifications.length).toBe(1);
-
         jest.restoreAllMocks();
-    })
+    });
+
+    //  func for metrics every 2 weeks
     it("create-new-measurement", async () => {
         await createNewMeasurement();
         const measurements = await Measurement.find({});
         expect(measurements.length).toBe(1);
 
     })
+    //func for  making day status missed if missed it 
     it("check-missed-workout-day", async () => {
         const realDate = global.Date;
         // creating fake Date
-        const fakeToday = new Date("2025-08-29T12:00:00Z");
+        const fakeToday = new Date();
+        fakeToday.setDate(new Date().getDate() + 1);
         global.Date = class extends realDate {
             constructor(...args: unknown[]) {
                 if (args.length === 0) {
@@ -234,6 +247,27 @@ describe("cron inner-logic funcs", () => {
         await checkMissedDay();
         const plans = await FitnessPlan.find({});
         expect(plans[0].report.plan.days[0].status).toBe("Missed");
+        global.Date = realDate;
+    })
+    //func for generating fitness day every 00:00 
+    it("generating workout-day", async () => {
+        const realDate = global.Date;
+        // creating fake Date
+        const fakeToday = new Date();
+        fakeToday.setDate(new Date().getDate() + 1);
+        global.Date = class extends realDate {
+            constructor(...args: unknown[]) {
+                if (args.length === 0) {
+                    super(fakeToday);
+                } else {
+                    // @ts-ignore
+                    super(...args);
+                }
+            }
+        } as any;
+        const plans = await FitnessPlan.find({});
+        expect(plans[0].report.plan.days[1].exercises).toBeDefined();
+        await generateNewDayFitnessContent();
         global.Date = realDate;
     })
 

@@ -5,11 +5,12 @@ import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
 import { reportExtractFunc } from '@/utils/report';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
 import { useCallback, useState } from 'react';
 
 const Page = () => {
+    const queryClient = useQueryClient();
     const [reset, setReset] = useState<boolean>(false);
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState<File | null>(null);
@@ -108,7 +109,7 @@ const Page = () => {
                 await mutation2.mutateAsync({ dayNumber: i, measurement });
 
             }
-
+            queryClient.invalidateQueries({queryKey:['getAnalysis']});
             setIsAnalyzed(true);
 
         },

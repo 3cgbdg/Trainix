@@ -1,6 +1,5 @@
 "use client"
 import { api } from "@/api/axiosInstance";
-import { useRouter } from "next/navigation";
 import React, { Dispatch, SetStateAction, useCallback } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import BodyImages from "./BodyImages";
@@ -30,7 +29,6 @@ interface IReceivedAnalysis {
 
 
 const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: Dispatch<SetStateAction<boolean>>}) => {
-  const router = useRouter();
   const retakePhoto = useCallback(async () => {
     const res = await api.delete("/api/fitness-plan/plan");
     return res.data;

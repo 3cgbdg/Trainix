@@ -435,8 +435,8 @@ describe("fitness-plan api", () => {
 
             const res = await request(app).post("/api/fitness-plan/workouts/0/completed")
                 .send(body)
-                .set("Cookie", `access-token=${invalidToken}`)
-                .set("Authorization", `Bearer ${invalidToken}`)
+                .set("Cookie", `access-token=${accessToken}`)
+                .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Day is successfully compeleted!");
         })

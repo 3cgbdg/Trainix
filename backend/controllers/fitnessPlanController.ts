@@ -16,7 +16,7 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
-        if (method !== "container") {
+        if (data.day.exercises!==undefined) {
             await Promise.all(
                 data.day.exercises!.map(async (exercise: IExercise) => {
 
@@ -241,14 +241,14 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
         const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
         const lastBMI = measurements[1] ? measurements[1].metrics.weight / (Math.pow(measurements[1].metrics.height * 0.01, 2)) : 0;
         res.status(200).json({
-            weight: { data: measurements[0].metrics.weight, difference: !measurements[1] ? null : +weightDifference.toFixed(2) },
-            leanBodyMass: { data: measurements[0].metrics.leanBodyMass, difference: !measurements[1] ? null : measurements[0].metrics.leanBodyMass - measurements[1].metrics.leanBodyMass },
-            bodyFatPercent: { data: measurements[0].metrics.bodyFatPercent, difference: !measurements[1] ? null : measurements[0].metrics.bodyFatPercent - measurements[1].metrics.bodyFatPercent },
-            MuscleMass: { data: measurements[0].metrics.muscleMass, difference: !measurements[1] ? null : measurements[0].metrics.muscleMass - measurements[1].metrics.muscleMass },
-            bmi: { data: currentBMI.toFixed(1), difference: !measurements[1] ? null : +(currentBMI - lastBMI).toFixed(2) },
+            weight: { data: measurements[0].metrics.weight, difference: !measurements[1] ? 0 : +weightDifference.toFixed(2) },
+            leanBodyMass: { data: measurements[0].metrics.leanBodyMass, difference: !measurements[1] ? 0 : measurements[0].metrics.leanBodyMass - measurements[1].metrics.leanBodyMass },
+            bodyFatPercent: { data: measurements[0].metrics.bodyFatPercent, difference: !measurements[1] ? 0 : measurements[0].metrics.bodyFatPercent - measurements[1].metrics.bodyFatPercent },
+            MuscleMass: { data: measurements[0].metrics.muscleMass, difference: !measurements[1] ? 0 : measurements[0].metrics.muscleMass - measurements[1].metrics.muscleMass },
+            bmi: { data: currentBMI.toFixed(1), difference: !measurements[1] ? 0 : +(currentBMI - lastBMI).toFixed(2) },
             imageUrlCurrent: measurements[0].imageUrl,
             imageUrlLast: measurements[1]?.imageUrl ?? null,
-            waistToHipRatio: { data: measurements[0].metrics.waistToHipRatio, difference: !measurements[1] ? null : measurements[0].metrics.waistToHipRatio - measurements[1].metrics.waistToHipRatio },
+            waistToHipRatio: { data: measurements[0].metrics.waistToHipRatio, difference: !measurements[1] ? 0 : measurements[0].metrics.waistToHipRatio - measurements[1].metrics.waistToHipRatio },
             advices: currentPlan?.report.advices,
             chartData: chartData,
         });
