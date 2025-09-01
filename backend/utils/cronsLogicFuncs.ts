@@ -201,7 +201,7 @@ export const generateNewDayFitnessContent = async () => {
         const plans = await FitnessPlan.find({});
         // TODO ADD BATCHES
         await Promise.all(plans.map(async (plan) => {
-            const day = plan.report.plan.days.find(day => day.exercises !== undefined && day.date.getDate() == new Date().getDate());
+            const day = plan.report.plan.days.find(day =>new Date(day.date).getDate() == new Date().getDate());
             if (day) {
                 // getting user and measurements for sending proper metrics to ai to analyze
                 const [user, measurements] = await Promise.all([

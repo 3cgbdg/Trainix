@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import measurementReducer from "../../redux/measurementSlice"
-import authReducer from "../../redux/authSlice"
+import measurementReducer from "../../src/redux/measurementSlice"
+import authReducer from "../../src/redux/authSlice"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
 import { store } from "@/redux/store";
 import { reportExtractFunc } from "@/utils/report";
-import { QueryClient, QueryClientProvider,  } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, } from "@tanstack/react-query";
+// ai reports for  iterations
+
 const AiDay1: string = `{
     "briefAnalysis": {
     "targetWeight": number,
@@ -43,6 +45,25 @@ const AiDay1: string = `{
   ]
   }
   
+    }`;
+    const AiDay2: string = `{
+  "day": "Day 2",
+  "dayNumber": 2,
+  "calories": 2200,
+  "status": "Pending",
+  "date": "2025-09-01",
+  "exercises": [
+    {
+      "imageUrl": "https://example.com/pushups.png",
+      "status": "incompleted",
+      "calories": 120,
+      "title": "Push Ups",
+      "repeats": 20,
+      "time": null,
+      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
+      "advices": "Do it slowly for better control."
+    }
+  ]
     }`;
 const mockMutate1 = jest.fn();
 const mockMutateAsync1 = jest.fn();
@@ -107,26 +128,7 @@ const renderWithReduxState = (ui: React.ReactNode, preloadedState = {}) => {
 describe("testing ai-analysis", () => {
     // mocking func for parsing aiData
     const mockedReportExtractFunc = reportExtractFunc as jest.Mock;
-    // ai report for  iterations
-    const AiDay2: string = `{
-  "day": "Day 2",
-  "dayNumber": 2,
-  "calories": 2200,
-  "status": "Pending",
-  "date": "2025-09-01",
-  "exercises": [
-    {
-      "imageUrl": "https://example.com/pushups.png",
-      "status": "incompleted",
-      "calories": 120,
-      "title": "Push Ups",
-      "repeats": 20,
-      "time": null,
-      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
-      "advices": "Do it slowly for better control."
-    }
-  ]
-    }`;
+
     // body metrics
 
 
@@ -198,7 +200,7 @@ describe("testing ai-analysis", () => {
             onSuccess({ AIreport: AiDay1 });
         });
         mockMutateAsync2.mockResolvedValue({ AIreport: AiDay2 });
-        const btn =screen.getByLabelText("btn");
+        const btn = screen.getByLabelText("btn");
         // clicking button
         await waitFor(() => {
             expect(btn).toBeInTheDocument();
@@ -206,7 +208,7 @@ describe("testing ai-analysis", () => {
         await act(async () => {
             fireEvent.click(btn);
         })
-    
+
         expect(btn).toHaveTextContent("Processing");
         // creating generated measurement
         await waitFor(async () => {

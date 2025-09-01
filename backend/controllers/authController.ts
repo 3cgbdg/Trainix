@@ -21,7 +21,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         //   creating jwt, saving it into a cookie 
         res.cookie("access-token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 15 * 60 * 1000,
             path: "/"
@@ -29,7 +29,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         // refresh token system
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV == "production",
             sameSite: "none",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"

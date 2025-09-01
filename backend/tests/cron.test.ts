@@ -10,10 +10,25 @@ jest.mock('../socket', () => ({
     io: { to: jest.fn().mockReturnThis(), emit: jest.fn() },
     userSocketMap: new Map()
 }));
+jest.mock("../utils/images", () => {
+    const actual = jest.requireActual("../utils/images");
+    return ({
+        ...actual,
+        s3ImageUploadingExercise: jest.fn().mockResolvedValue("url")
+    })
+})
+// mocking axios
+import axios from "axios";
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 import { io, userSocketMap } from '../socket';
 import FitnessPlan from '../models/FitnessPlan';
 import Measurement from '../models/Measurement';
 import NutritionPlan from '../models/NutritionPlan';
+import ExerciseImage from '../models/ExerciseImage';
+import { s3ImageUploadingExercise } from '../utils/images';
+
+
 
 //loading dotenv for process.env
 configDotenv()
@@ -74,7 +89,7 @@ describe("cron inner-logic funcs", () => {
 
                             },
                             {
-                                date: new Date().setDate(new Date().getDate() + 1),
+                                date: new Date(Date.now() + 24 * 60 * 60 * 1000),
                                 dayNumber: 2,
                                 status: "Pending",
                                 day: "second",
@@ -251,6 +266,8 @@ describe("cron inner-logic funcs", () => {
     })
     //func for generating fitness day every 00:00 
     it("generating workout-day", async () => {
+        // spy on for Image 
+        jest.spyOn(ExerciseImage, "findOne").mockResolvedValue(null);
         const realDate = global.Date;
         // creating fake Date
         const fakeToday = new Date();
@@ -265,9 +282,34 @@ describe("cron inner-logic funcs", () => {
                 }
             }
         } as any;
+        mockedAxios.post.mockResolvedValue({
+            data: {
+                AIreport: `{"day":{
+  "day": "second",
+  "dayNumber": 2,
+  "calories": 2200,
+  "status": "Pending",
+  "date": "2025-09-01",
+  "exercises": [
+    {
+      "imageUrl": "https://example.com/pushups.png",
+      "status": "incompleted",
+      "calories": 120,
+      "title": "Push Ups",
+      "repeats": 20,
+      "time": null,
+      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
+      "advices": "Do it slowly for better control."
+    }
+  ]}
+    }`}
+        })
         const plans = await FitnessPlan.find({});
-        expect(plans[0].report.plan.days[1].exercises).toBeDefined();
         await generateNewDayFitnessContent();
+        // checking if new plan has been  added
+        expect(mockedAxios.post).toHaveBeenCalled()
+        const updatedPlan = await FitnessPlan.findById(plans[0]._id);
+        expect(updatedPlan!.report.plan.days[1].exercises).toBeDefined();
         global.Date = realDate;
     })
 

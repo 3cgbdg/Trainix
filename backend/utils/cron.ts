@@ -7,7 +7,7 @@ import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, met
 export const initCron = () => {
     // cron for socket notifications (waterIntake + nutrition plan ) --every 2 hours
     nodeCron.schedule("0 */3 * * *", regularReminder
-    )
+    ) 
     // cron every 14:00 for checking completing fitness day exercises
     nodeCron.schedule("00 14 * * *", workoutReminder)
     // cron for every 2 weeks (14 days) metrics reminder
