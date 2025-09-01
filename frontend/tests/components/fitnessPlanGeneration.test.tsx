@@ -7,8 +7,9 @@ import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
 import { store } from "@/redux/store";
 import { reportExtractFunc } from "@/utils/report";
 import { QueryClient, QueryClientProvider, } from "@tanstack/react-query";
-// ai reports for  iterations
 
+
+// ai reports for  iterations
 const AiDay1: string = `{
     "briefAnalysis": {
     "targetWeight": number,
@@ -46,7 +47,8 @@ const AiDay1: string = `{
   }
   
     }`;
-    const AiDay2: string = `{
+const AiDay2: string = `{
+    "day":{
   "day": "Day 2",
   "dayNumber": 2,
   "calories": 2200,
@@ -63,17 +65,26 @@ const AiDay1: string = `{
       "instruction": "Keep your back straight, lower chest to the floor, push back up.",
       "advices": "Do it slowly for better control."
     }
-  ]
+  ]}
     }`;
 const mockMutate1 = jest.fn();
 const mockMutateAsync1 = jest.fn();
-const mockMutate2 = jest.fn();
 const mockMutateAsync2 = jest.fn();
-
-
-
 const mockUseQuery = jest.fn();
-
+//mocking useDropzone
+jest.mock('react-dropzone');
+jest.mock('react-dropzone', () => ({
+    useDropzone: jest.fn().mockImplementation(({ onDrop }) => ({
+        getRootProps: jest.fn(() => ({})),
+        getInputProps: jest.fn(() => ({
+            onChange: (e: any) => {
+                const files = e.target.files;
+                if (files.length) onDrop(files);
+            }
+        })),
+        isDragActive: false,
+    }))
+}));
 
 mockUseQuery.mockReturnValue({
     data: { advices: null },
@@ -84,15 +95,22 @@ mockUseQuery.mockReturnValue({
 jest.mock("@tanstack/react-query", () => ({
     ...jest.requireActual("@tanstack/react-query"),
     useQuery: (...args: any) => mockUseQuery(...args),
-    useMutation: jest.fn().mockImplementation((options) => ({
-        mutate: (variables: any) => {
-            if (options.onSuccess) {
-                options.onSuccess({ AIreport: AiDay1 });
-            }
-        },
-        mutateAsync: mockMutateAsync1,
-        isLoading: false,
-    })),
+    useMutation: jest.fn((options) => {
+        if (options.mutationFn.name === "sendPhoto") {
+            return {
+                mutate: (variables: any) => mockMutate1(variables, options),
+                mutateAsync: mockMutateAsync1,
+                isLoading: false,
+            };
+        }
+
+
+        return {
+            mutate: jest.fn(),
+            mutateAsync: mockMutateAsync2,
+            isLoading: false,
+        };
+    })
 }));
 
 
@@ -188,28 +206,30 @@ describe("testing ai-analysis", () => {
             error: null,
         });
         mockedReportExtractFunc.mockResolvedValue(undefined);
-        // mocking post apis
-        const file = new File(["dummy content"], "photo.png", { type: "image/png" });
-        const input = screen.getByLabelText("input");
-        await act(async () => {
-            fireEvent.change(input, {
-                target: { files: [file] },
+
+
+        // mock first mutate
+        await waitFor(() => {
+            mockMutate1.mockImplementation((file, { onSuccess }) => {
+                onSuccess({ AIreport: AiDay1 });
             });
         })
-        mockMutate1.mockImplementation((file, { onSuccess }) => {
-            onSuccess({ AIreport: AiDay1 });
-        });
-        mockMutateAsync2.mockResolvedValue({ AIreport: AiDay2 });
-        const btn = screen.getByLabelText("btn");
+        mockMutateAsync2.mockResolvedValueOnce({ AIreport: AiDay1 }).mockResolvedValue({ AIreport: AiDay2 });
+
+        // mocking file dragging
+        const file = new File(["dummy content"], "photo.png", { type: "image/png" });
+
+
         // clicking button
         await waitFor(() => {
-            expect(btn).toBeInTheDocument();
+            expect(screen.getByLabelText("btn")).toBeInTheDocument();
         });
+        const btn = screen.getByLabelText("btn");
         await act(async () => {
             fireEvent.click(btn);
         })
-
         expect(btn).toHaveTextContent("Processing");
+
         // creating generated measurement
         await waitFor(async () => {
             expect(mockMutate1).toHaveBeenCalledTimes(1);

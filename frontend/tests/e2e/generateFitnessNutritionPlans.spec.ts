@@ -1,6 +1,6 @@
 import { test, expect, } from '@playwright/test';
 
-test('Login if not and add food to cart and go to order page', async ({ page }) => {
+test('E2E test for generating process both nutrition&fitness plans', async ({ page }) => {
     await page.goto('http://localhost:3000/dashboard');
     await page.waitForTimeout(5000);
     // logging in
