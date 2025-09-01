@@ -29,7 +29,7 @@ const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName,
                         {...getRootProps()}
                         className={` border-2 border-dashed ${!isAnalyzed ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full sm:min-h-[288px] min-h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
                     >
-                        <input aria-label='inputDrop' {...getInputProps()} />
+                        <input aria-label='input' {...getInputProps()} />
                         {isAnalyzed ? <> <div className="flex flex-col items-center justify-center">
                             <UploadIcon className='text-neutral-600 mb-4.5' size={64} />
                             <p className="text-neutral-600 font-medium">
@@ -53,7 +53,7 @@ const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName,
                         <span>Photo Guidelines:</span>  Ensure good lighting, full body visibility, and a neutral background for best analysis results. Supported formats: JPG, PNG. Max size: 10MB.
                     </p>
                 </div>
-                <button disabled={!isAnalyzed ? true : false} onClick={() => {
+                <button aria-label='btn' disabled={!isAnalyzed ? true : false} onClick={() => {
                     setIsAnalyzed(false);
                     setReset(false);
                     if (file) mutation.mutate(file);

@@ -6,8 +6,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
 import { store } from "@/redux/store";
 import { reportExtractFunc } from "@/utils/report";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
- const AiDay1: string = `{
+import { QueryClient, QueryClientProvider,  } from "@tanstack/react-query";
+const AiDay1: string = `{
     "briefAnalysis": {
     "targetWeight": number,
     "fitnessLevel": string,
@@ -49,33 +49,29 @@ const mockMutateAsync1 = jest.fn();
 const mockMutate2 = jest.fn();
 const mockMutateAsync2 = jest.fn();
 
+
+
 const mockUseQuery = jest.fn();
-mockUseQuery.mockImplementation(() => ({
+
+
+mockUseQuery.mockReturnValue({
     data: { advices: null },
     isLoading: false,
     error: null,
-}));
+});
+
 jest.mock("@tanstack/react-query", () => ({
     ...jest.requireActual("@tanstack/react-query"),
-    useQuery: mockUseQuery,
-    useMutation: jest
-        .fn()
-        .mockImplementationOnce((options) => ({
-            mutate: (variables:any) => {
-                mockMutate1(variables);
-                if (options.onSuccess) {
-                    options.onSuccess({ AIreport: AiDay1 });
-                }
-            },
-            mutateAsync: mockMutateAsync1,
-            isLoading: false,
-        }))
-        .mockImplementation(() => ({
-            mutate: mockMutate2,
-            mutateAsync: mockMutateAsync2,
-            isLoading: false
-        })),
-
+    useQuery: (...args: any) => mockUseQuery(...args),
+    useMutation: jest.fn().mockImplementation((options) => ({
+        mutate: (variables: any) => {
+            if (options.onSuccess) {
+                options.onSuccess({ AIreport: AiDay1 });
+            }
+        },
+        mutateAsync: mockMutateAsync1,
+        isLoading: false,
+    })),
 }));
 
 
@@ -135,7 +131,7 @@ describe("testing ai-analysis", () => {
 
 
     it("generating", async () => {
-        //mocking getanalysis
+        //mocking getAnalysis
         renderWithReduxState(<AiAnalysysPage />, {
             measurements: { measurements: null },
             auth: {
@@ -143,7 +139,7 @@ describe("testing ai-analysis", () => {
                     firstName: "dasd",
                     lastName: "dsadas",
                     email: "dsadas",
-                    dateOfBirth: Date,
+                    dateOfBirth: "dasdsadasd",
                     gender: "Male",
                     metrics: {
                         weight: 12,
@@ -167,50 +163,51 @@ describe("testing ai-analysis", () => {
         });
 
 
-        mockUseQuery
-            .mockImplementationOnce(() => ({
-                data: { data: { advices: null } }, 
-                isLoading: false,
-                error: null,
-            }))
-            .mockImplementationOnce(() => ({
-                data: {
-                    metrics: {
-                        height: 188,
-                        weight: 76,
-                        waistToHipRatio: 53,
-                        shoulderToWaistRatio: 23,
-                        bodyFatPercent: 12,
-                        muscleMass: 421,
-                        leanBodyMass: 123,
-                    },
-                    imageUrl: "url",
-                },
-                isLoading: false,
-                error: null,
-            }));
+        mockUseQuery.mockReturnValueOnce({
+            data: { advices: null },
+            isLoading: false,
+            error: null,
+        });
 
+        mockUseQuery.mockReturnValueOnce({
+            data: {
+                metrics: {
+                    height: 188,
+                    weight: 76,
+                    waistToHipRatio: 53,
+                    shoulderToWaistRatio: 23,
+                    bodyFatPercent: 12,
+                    muscleMass: 421,
+                    leanBodyMass: 123,
+                },
+                imageUrl: "url",
+            },
+            isLoading: false,
+            error: null,
+        });
         mockedReportExtractFunc.mockResolvedValue(undefined);
         // mocking post apis
         const file = new File(["dummy content"], "photo.png", { type: "image/png" });
         const input = screen.getByLabelText("input");
-        fireEvent.change(input, {
-            target: { files: [file] },
-        });
+        await act(async () => {
+            fireEvent.change(input, {
+                target: { files: [file] },
+            });
+        })
         mockMutate1.mockImplementation((file, { onSuccess }) => {
             onSuccess({ AIreport: AiDay1 });
         });
         mockMutateAsync2.mockResolvedValue({ AIreport: AiDay2 });
-
+        const btn =screen.getByLabelText("btn");
         // clicking button
         await waitFor(() => {
-            expect(screen.getByRole("button", { name: /Proceed to Analysis/i })).toBeInTheDocument();
+            expect(btn).toBeInTheDocument();
         });
-        const btn = screen.getByRole("button", { name: /Proceed to Analysis/i });
         await act(async () => {
             fireEvent.click(btn);
         })
-        expect(btn).toHaveTextContent(/Processing/i);
+    
+        expect(btn).toHaveTextContent("Processing");
         // creating generated measurement
         await waitFor(async () => {
             expect(mockMutate1).toHaveBeenCalledTimes(1);

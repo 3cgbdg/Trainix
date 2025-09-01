@@ -23,12 +23,13 @@ const AuthClientUpload = () => {
             } catch {
                 router.push("/auth/login");
             }
+            const res4 = await api.get("api/measurement/measurements");
+            dispatch(getMeasurement(res4.data));
             const res2 = await api.get(`/api/fitness-plan/workouts`);
             dispatch(getWorkouts(res2.data));
             const res3 = await api.get("api/nutrition-plan/nutrition-plans");
             dispatch(getNutritionDay(res3.data));
-            const res4 = await api.get("api/measurement/measurements");
-            dispatch(getMeasurement(res4.data));
+            
           
         }
 

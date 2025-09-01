@@ -1,7 +1,7 @@
 "use client"
 
 import { api } from "@/api/axiosInstance"
-import { useAppDispatch } from "@/hooks/reduxHooks"
+import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks"
 import { logOut } from "@/redux/authSlice"
 import { useMutation } from "@tanstack/react-query"
 import Image from "next/image"
@@ -64,6 +64,7 @@ const Header = () => {
             document.body.style.overflow = "auto";
         };
     }, [active]);
+    const { measurements } = useAppSelector(state => state.measurements)
     return (
         <div className="flex items-center justify-between bg-white py-[14px] px-2 md:px-6 relative">
             <div className="flex items-center gap-6">
@@ -74,7 +75,7 @@ const Header = () => {
                 {/* fixed menu  */}
                 <div className={`fixed w-full md:hidden transition-all h-full z-100 top-[70px] p-3 ${active ? "right-0" : "right-500"} bg-green  `}>
                     {links.map(item => (
-                        <Link onClick={() => setActive(false)} key={item.link} href={item.link} className={`p-2   flex items-center gap-2 section-title border-b-[2px]   `}>{item.icon} {item.title}</Link>
+                        <Link onClick={() => setActive(false)} key={item.link} href={item.link} className={`p-2 ${!measurements && !["Dashboard", "Profile", "AI Photo Analysis"].includes(item.title) && "pointer-events-none bg-neutral-300 text-neutral-500!"}   flex items-center gap-2 section-title border-b-[2px]   `}>{item.icon} {item.title}</Link>
                     ))}
                 </div>
                 <Link href={"/dashboard"} className="flex items-center group hover:text-[#468438FF] gap-1 w-fit hover: text-green">

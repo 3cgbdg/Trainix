@@ -62,7 +62,7 @@ const Page = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4 mb-4">
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="email">Email</label>
-                    <input   {...register("email", {
+                    <input    {...register("email", {
                         validate: {
                             // validating email format with regex
                             isValidEmailForm: (value) => {
@@ -82,7 +82,7 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="password">Password</label>
-                    <input {...register("password", {
+                    <input  {...register("password", {
                         validate: {
                             password: (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) || "Password must have at least one lowercase, one uppercase, one digit and minimum 8 characters",
                         }
@@ -94,7 +94,7 @@ const Page = () => {
                     )}
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2 cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
                 </div>
-                <button className="button-green">Login</button>
+                <button id="log-in-btn" className="button-green">Login</button>
             </form>
             <Link href={"/auth/signup"} className="w-full button-transparent hover:underline">Sign Up</Link>
 

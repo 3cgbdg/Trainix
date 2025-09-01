@@ -2,7 +2,7 @@
 import { api } from '@/api/axiosInstance';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+
 import { ArrowUp, Bike, Goal, MonitorOff, Scale } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link';
@@ -29,12 +29,14 @@ const page = () => {
         const res = await api.get(`/api/fitness-plan/reports/numbers`, { params: { date: new Date() } });
         return res.data;
     }, [])
-
+    const today = new Date().toISOString().split('T')[0];
     const { data, isLoading } = useQuery({
-        queryKey: ["numbers", new Date().toISOString().split('T')[0]],
+        queryKey: ["numbers", today],
         queryFn: getNumbers,
+        refetchOnWindowFocus: false,
+         retry: 0,
     })
-    console.log(data);
+
 
     return (
         <div className='flex flex-col gap-6'>
@@ -50,7 +52,7 @@ const page = () => {
 
                 </div>
                 : <div className=" _dashboard-banner py-1 px-8  min-h-60  flex items-center gap-2 justify-between  skeleton"></div>}
-            {!isLoading && <>
+            {!isLoading && (!workouts?.items ? <div className="flex justify-center"><Link href={"/ai-analysis"} aria-label='create-plan-btn' className='button-transparent inline-flex items-center justify-center w-80 h-20 text-2xl! leading-7! border-[2px] font-semibold!'>Create a fitness plan</Link></div> : <>
                 {/* metrics banners */}
                 <div className="flex flex-col gap-4 ">
                     <h2 className='section-title'>Your Key Metrics</h2>
@@ -137,11 +139,11 @@ const page = () => {
 
                                 <p className='text-neutral-600 text-left text-sm leading-5 mb-auto '>
                                     <span>{workouts?.items[workouts.todayWorkoutNumber].day}: </span>
-                                    {workouts?.items[workouts.todayWorkoutNumber].exercises.map((item, idx) => {
+                                    {workouts?.items[workouts.todayWorkoutNumber].exercises!.map((item, idx) => {
                                         const minutes = String(Math.floor(item.time! / 60)).padStart(2, "0");
                                         const seconds = String(item.time! % 60).padStart(2, "0");
                                         return (
-                                            <span key={idx}>{item.title} {item.time !== null ? minutes + ":" + seconds + " mins" : item.repeats + " repeats"}{workouts?.items[workouts.todayWorkoutNumber].exercises[idx + 1] ? "," : "."} </span>
+                                            <span key={idx}>{item.title} {item.time !== null ? minutes + ":" + seconds + " mins" : item.repeats + " repeats"}{workouts?.items[workouts.todayWorkoutNumber].exercises![idx + 1] ? "," : "."} </span>
                                         )
                                     })}
 
@@ -197,7 +199,7 @@ const page = () => {
 
                 </div>
 
-            </>}
+            </>)}
 
         </div >
     )

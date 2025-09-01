@@ -26,7 +26,8 @@ const Page = () => {
     const { data, isLoading } = useQuery({
         queryKey: ["getAnalysis"],
         queryFn: getAnalysis,
-
+        refetchOnWindowFocus: false,
+        retry: 0,
 
     })
 
@@ -109,7 +110,7 @@ const Page = () => {
                 await mutation2.mutateAsync({ dayNumber: i, measurement });
 
             }
-            queryClient.invalidateQueries({queryKey:['getAnalysis']});
+            queryClient.invalidateQueries({ queryKey: ['getAnalysis'] });
             setIsAnalyzed(true);
 
         },

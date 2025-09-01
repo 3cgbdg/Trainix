@@ -11,12 +11,12 @@ import Notification, { INotification } from "../models/Notification";
 
 // adding report-fitnessplan day  func with iterations
 export const addFitnessDay = async (req: Request, res: Response): Promise<void> => {
-    const {method} = req.query;
+    const { method } = req.query;
     const { data } = req.body;
     try {
         const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
-        if (data.day.exercises!==undefined) {
+        if (data.day.exercises !== undefined) {
             await Promise.all(
                 data.day.exercises!.map(async (exercise: IExercise) => {
 
@@ -34,41 +34,41 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
                         exercise.imageUrl = url;
                     }
                 })
-                
+
             )
         }
-//adding real date for each day - ai doesn`t generate real dates
-if (fitnessPlan) {
+        //adding real date for each day - ai doesn`t generate real dates
+        if (fitnessPlan) {
 
-    if (method == "container") {
+            if (method == "container") {
 
-        const workoutDay = new Date(fitnessPlan.createdAt);
-        workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
-        data.day.date = workoutDay;
-        fitnessPlan.report.plan.days.push(data.day);
-    } else {
+                const workoutDay = new Date(fitnessPlan.createdAt);
+                workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
+                data.day.date = workoutDay;
+                fitnessPlan.report.plan.days.push(data.day);
+            } else {
 
-        data.day.date = new Date(data.day.date);
-        fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
-    }
-    fitnessPlan.markModified("report.plan.days");
-    await fitnessPlan.save();
+                data.day.date = new Date(data.day.date);
+                fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
+            }
+            fitnessPlan.markModified("report.plan.days");
+            await fitnessPlan.save();
 
-    res.status(200).json({ message: "Day created!",day:data });
-    return;
-} else {
-    const workoutDay = new Date();
-    data.day.date = workoutDay;
-    const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
-    await fitnessPlan.save();
-    res.status(201).json({ message: "Plan created!" });
-    return;
-}
+            res.status(200).json({ message: "Day created!", day: data });
+            return;
+        } else {
+            const workoutDay = new Date();
+            data.day.date = workoutDay;
+            const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
+            await fitnessPlan.save();
+            res.status(201).json({ message: "Plan created!" });
+            return;
+        }
     }
     catch (err) {
-    res.status(500).json({ message: "Server error!" });
-    return;
-}
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
 }
 
 // completing workout-day func
@@ -141,9 +141,13 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
 export const getNumbers = async (req: Request, res: Response): Promise<void> => {
     try {
         const { date, progress } = req.query; //progress-filter,date-for current day numbers
-        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12).sort({ createdAt: 1 });
-        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
-        const user = await User.findById((req as AuthRequest).userId);
+        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId })
+            .sort({ createdAt: -1 })
+            .limit(12)
+            .lean();
+        measurements.reverse();
+        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).lean();
+        const user = await User.findById((req as AuthRequest).userId).lean();
 
         if (!plan || typeof date !== "string") {
             res.status(404).json({ message: "Not found!" });
@@ -161,10 +165,12 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
 
         // for getting only one  measurement per month 
         let unavailableMonth: string[] = [];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
         for (let item of measurements) {
             // for 6 month
             if (weightsData.length > 6) break;
-            const month = item.createdAt.toLocaleDateString("en-US", { month: "short" });
+            const month = months[item.createdAt.getMonth()];
             if (!unavailableMonth.includes(month)) {
 
                 weightsData.push({ month: month, weight: item.metrics.weight });
@@ -183,14 +189,13 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
             }
             else continue;
         }
-
         const currentDay = new Date(date);
-
         const firstDay = new Date(plan.createdAt);
         const day = Math.round((currentDay.getTime() - firstDay.getTime()) / (1000 * 3600 * 24));
         const currentCalories = plan.report.plan.days[day].exercises!.reduce((acc, cur) => {
             return (cur.status == "completed" ? acc + cur.calories : acc);
         }, 0)
+
         res.status(200).json({
             weight: measurements[measurements.length - 1].metrics.weight,
             lastWeight: measurements[measurements.length - 2] ? measurements[measurements.length - 2].metrics.weight : null,
@@ -235,10 +240,15 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
 
             }
         }
-        const weightDifference = measurements[1] ? measurements[0].metrics.weight - measurements[1].metrics.weight : 0;
 
-        const currentBMI = measurements[0].metrics.weight / (Math.pow(measurements[0].metrics.height * 0.01, 2));
+
         const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        if (!currentPlan?.report.advices) {
+            res.status(400).json({ message: "No measurements yet!" });
+            return;
+        }
+        const weightDifference = measurements[1] ? measurements[0].metrics.weight - measurements[1].metrics.weight : 0;
+        const currentBMI = measurements[0].metrics.weight / (Math.pow(measurements[0].metrics.height * 0.01, 2));
         const lastBMI = measurements[1] ? measurements[1].metrics.weight / (Math.pow(measurements[1].metrics.height * 0.01, 2)) : 0;
         res.status(200).json({
             weight: { data: measurements[0].metrics.weight, difference: !measurements[1] ? 0 : +weightDifference.toFixed(2) },
