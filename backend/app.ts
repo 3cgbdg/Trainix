@@ -6,9 +6,9 @@ import dotenv from "dotenv";
 import authRoute from "./routes/authRoutes"
 import fitnessPlanRoute from "./routes/fitnessPlanRoutes";
 import nutritionPlanRoute from "./routes/nutritionPlanRoutes";
-import measurementsRoute from "./routes/measurementsRoutes";
 import notificationRoute from "./routes/notificationRoutes";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import measurementsRoute from "./routes/measurementsRoutes";
 // dotenv config
 dotenv.config();
 export const app = express();

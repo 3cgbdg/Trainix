@@ -10,7 +10,8 @@ RUN npm install
 
 COPY . . 
  
-RUN ls -R /app
+RUN ls -la routes/
+RUN cat routes/measurementsRoutes.ts || echo "File not found"
 
 RUN chown -R User:myGroup /app
 
