@@ -41,7 +41,7 @@ const Page = () => {
             </div>
 
             <div className="flex flex-col gap-3 text-center mb-[30px]">
-                <h1 className="text-green font-outfit leading-10 text-4xl font-bold ">Welcome to Trainix! Let's Personalize Your Journey</h1>
+                <h1 className="text-green font-outfit leading-10 text-4xl font-bold ">Welcome to Trainix! Let&apos;s Personalize Your Journey</h1>
                 <p className=" text-neutral-600 ">To give you the most accurate and effective fitness plans, we need a few details about your current stats and goals. This information helps our AI tailor everything just for you.</p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-6 ">

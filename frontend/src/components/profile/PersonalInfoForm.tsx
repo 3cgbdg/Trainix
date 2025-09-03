@@ -27,7 +27,7 @@ const PersonalInfoForm = ({ user, setEditing, editing }: { user: IUser, editing:
     const payload: Partial<formType> = {};
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== "") {
-        // @ts-ignore
+        // @ts-expect-error
         payload[key] = value;
       }
     });

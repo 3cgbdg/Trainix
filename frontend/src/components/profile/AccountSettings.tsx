@@ -57,7 +57,7 @@ const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: 
   useEffect(() => {
     if (inAppNotifsEnabled === null) return;
     const updateNotifications = async () => {
-      const payload: any = {};
+      const payload: Partial<formType> = {};
       if (inAppNotifsEnabled !== user.inAppNotifications) {
         payload.inAppNotifications = inAppNotifsEnabled;
       }

@@ -4,6 +4,7 @@ import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
+import { IMeasurements, IMetrics } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { isAxiosError } from 'axios';
@@ -34,7 +35,7 @@ const Page = () => {
 
 
     // mutation - request for generation plan
-    const generateFitnessPlan = useCallback(async ({ dayNumber, measurement }: { dayNumber: number, measurement: any }) => {
+    const generateFitnessPlan = useCallback(async ({ dayNumber, measurement }: { dayNumber: number, measurement: IMetrics }) => {
         if (!user) {
             return null;
         }

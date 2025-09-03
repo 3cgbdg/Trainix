@@ -4,7 +4,7 @@ import { useAppSelector } from "@/hooks/reduxHooks"
 import { UseMutateFunction } from "@tanstack/react-query"
 import React from "react"
 // generates each day with iterations
-const GenerateNutritionPlan = ({ mutate, isPending }: { mutate: UseMutateFunction<any, unknown, number, unknown>, isPending: boolean }) => {
+const GenerateNutritionPlan = ({ mutate, isPending }: { mutate: UseMutateFunction<unknown, unknown, number, unknown>, isPending: boolean }) => {
     const { workouts } = useAppSelector(state => state.workouts)
     const router = useRouter();
 

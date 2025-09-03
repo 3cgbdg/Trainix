@@ -21,11 +21,11 @@ const Page = () => {
                                 <Bolt size={32} color="white" />
                                 <div className="flex flex-col gap-0.5 ">
                                     <h2 className='banner-title'>Full Body Strength</h2>
-                                    <p className='text-lg leading-7 text-[#19191FFF]'>Week - "{workouts.currentWeekTitle}"</p>
+                                    <p className='text-lg leading-7 text-[#19191FFF]'>Week - &quot;{workouts.currentWeekTitle}&quot;</p>
                                 </div>
                             </div>
-                            <p className="text-lg leading-7 text-custom-black">Your AI-powered plan is ready to guide you through this week's routines. Stay consistent for optimal results!</p>
-                            <Link className="button-green max-w-[182px] w-full" href={`/workout/${workouts.todayWorkoutNumber + 1}`}>Start Today's Workout</Link>
+                            <p className="text-lg leading-7 text-custom-black">Your AI-powered plan is ready to guide you through this week&apos;s routines. Stay consistent for optimal results!</p>
+                            <Link className="button-green max-w-[182px] w-full" href={`/workout/${workouts.todayWorkoutNumber + 1}`}>Start Today&apos;s Workout</Link>
                         </div>
                     </div>
 

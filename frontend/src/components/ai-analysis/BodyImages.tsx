@@ -29,5 +29,5 @@ const BodyImages = React.memo(({ current, last }: BodyImagesProps) => {
 
         </div>)
 });
-
+BodyImages.displayName = "BodyImages";
 export default BodyImages;

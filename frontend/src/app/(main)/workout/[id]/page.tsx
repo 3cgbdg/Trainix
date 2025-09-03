@@ -115,7 +115,7 @@ const Page = () => {
             if (workout.status == "Completed") {
                 router.push(`/workout/${id}/sucess`);
             }
-            for (let [i, exercise] of workout.exercises.entries()) {
+            for (const [i, exercise] of workout.exercises.entries()) {
                 if (exercise.status == "incompleted") {
                     // creating new html image for cashing image
                     const img: HTMLImageElement = new window.Image();

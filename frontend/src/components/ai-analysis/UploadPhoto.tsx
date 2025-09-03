@@ -4,7 +4,7 @@ import { UploadIcon } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName, setFile, file, mutation }: { mutation: UseMutationResult<any, unknown, File, unknown>,setReset:Dispatch<SetStateAction<boolean>>, isAnalyzed: boolean, setFileName: Dispatch<SetStateAction<string>>, setIsAnalyzed: Dispatch<SetStateAction<boolean>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
+const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName, setFile, file, mutation }: { mutation: UseMutationResult<unknown, unknown, File, unknown>,setReset:Dispatch<SetStateAction<boolean>>, isAnalyzed: boolean, setFileName: Dispatch<SetStateAction<string>>, setIsAnalyzed: Dispatch<SetStateAction<boolean>>, fileName: string, setFile: Dispatch<SetStateAction<File | null>>, file: File | null }) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
             setFileName(acceptedFiles[0].name);

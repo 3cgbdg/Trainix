@@ -43,7 +43,7 @@ export interface IExercise {
 }
 
 //MEASUREMENT INTERFACES
-interface IMetrics {
+export interface IMetrics {
   height: number,
   weight: number,
   waistToHipRatio: number,

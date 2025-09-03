@@ -44,7 +44,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
             <div className="_border p-6 rounded-[10px]  bg-[#F5FAF5FF] col-span-2">
                 <div className="flex flex-col gap-12.5">
                     <div className="flex flex-col gap-2">
-                        <h2 className="text-xl leading-7 font-semibold text-black font-outfit">Today's Nutrition Goals</h2>
+                        <h2 className="text-xl leading-7 font-semibold text-black font-outfit">Today&apos;s Nutrition Goals</h2>
                         <p className="text-black text-sm">Stay on track with your personalized diet plan.</p>
                     </div>
                     <div className="grid md:grid-cols-4 gap-6">
@@ -135,7 +135,7 @@ const NutritionPlanPage = ({ day }: { day: INutritionDayPlan }) => {
                             <div className="w-full h-2 overflow-hidden bg-[#EBF5E9FF] _border rounded-sm">
                                 <div style={{ "width": `${day.waterIntake.current / day.waterIntake.target * 100}%` }} className={` h-full bg-green transition-all`}></div>
                             </div>
-                            <div className="text-sm text-neutral-600">You've consumed {day.waterIntake.current} ml out of {day.waterIntake.target} ml today.</div>
+                            <div className="text-sm text-neutral-600">You&apos;ve consumed {day.waterIntake.current} ml out of {day.waterIntake.target} ml today.</div>
                         </div>
                     </div>
                     <div className="_border pt-6 px-4 pb-4 rounded-[10px]">

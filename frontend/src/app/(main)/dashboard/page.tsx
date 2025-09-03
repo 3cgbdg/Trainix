@@ -20,7 +20,7 @@ import {
 } from "recharts";
 
 
-const page = () => {
+const Page = () => {
     const { user } = useAppSelector(state => state.auth);
     const { nutritionDay } = useAppSelector(state => state.nutritionDay);
     const { workouts } = useAppSelector(state => state.workouts);
@@ -137,7 +137,7 @@ const page = () => {
                     <div className="grid sm:p-0 justify-center sm:grid-cols-2 xl:grid-cols-3 gap-6">
                         <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  flex flex-col justify-between gap-1 bg-white">
                             <div className="flex flex-col mb-6 gap-1.5">
-                                <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Today's Workout Plan</h3>
+                                <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Today&apos;s Workout Plan</h3>
 
                                 <p className='text-neutral-600 text-left text-sm leading-5 mb-auto '>
                                     <span>{workouts?.items[workouts.todayWorkoutNumber].day}: </span>
@@ -161,7 +161,7 @@ const page = () => {
                         <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  flex flex-col justify-between gap-1 bg-white">
                             <div className="flex flex-col  gap-1.5">
                                 <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Your Nutrition Summary</h3>
-                                <p className='text-neutral-600 text-sm leading-5  '>{nutritionDay && `Remaining: ${nutritionDay?.dailyGoals.calories.target! - nutritionDay?.dailyGoals.calories.current!} kcal.`} Focus on protein and vegetables.</p>
+                                <p className='text-neutral-600 text-sm leading-5  '>{nutritionDay && `Remaining: ${nutritionDay?.dailyGoals.calories.target - nutritionDay?.dailyGoals.calories.current} kcal.`} Focus on protein and vegetables.</p>
                             </div>
                             <div className="flex flex-col">
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">
@@ -207,4 +207,4 @@ const page = () => {
     )
 }
 
-export default page;
+export default Page;
