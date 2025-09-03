@@ -24,7 +24,7 @@ const page = () => {
     const { user } = useAppSelector(state => state.auth);
     const { nutritionDay } = useAppSelector(state => state.nutritionDay);
     const { workouts } = useAppSelector(state => state.workouts);
-
+    console.log(workouts)
     const getNumbers = useCallback(async () => {
         const res = await api.get(`/api/fitness-plan/reports/numbers`, { params: { date: new Date() } });
         return res.data;
@@ -34,7 +34,7 @@ const page = () => {
         queryKey: ["numbers", today],
         queryFn: getNumbers,
         refetchOnWindowFocus: false,
-         retry: 0,
+        retry: 0,
     })
 
 
@@ -65,7 +65,9 @@ const page = () => {
                             </div>
                             <div className="text-3xl leading-9 font-bold text-neutral-900 mb-1.5">{data.weight} kg</div>
                             <span className={`text-sm leading-5 text-neutral-900 flex items-center gap-1 ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "text-red!" : "text-green!" : data.lastWeight < data.weight ? "text-green!" : "text-red!"}`}>
-                                <ArrowUp size={20} className={` ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "rotate-180" : "" : data.lastWeight < data.weight ? "" : "rotate-180"}`} />
+                                {data.lastWeight &&
+                                    <ArrowUp size={20} className={` ${user?.primaryFitnessGoal !== "Gain muscle" ? data.lastWeight < data.weight ? "rotate-180" : "" : data.lastWeight < data.weight ? "" : "rotate-180"}`} />
+                                }
                                 {data.lastWeight && `From ${data.lastWeight} kg (last week)`}
                             </span>
                         </div>
@@ -159,7 +161,7 @@ const page = () => {
                         <div className="_border rounded-[10px] max-w-[400px] md:max-w-full  p-6 pt-[25px]  flex flex-col justify-between gap-1 bg-white">
                             <div className="flex flex-col  gap-1.5">
                                 <h3 className='text-xl leading-7 font-semibold  text-neutral-900'>Your Nutrition Summary</h3>
-                                <p className='text-neutral-600 text-sm leading-5  '>Remaining: {nutritionDay?.dailyGoals.calories.target! - nutritionDay?.dailyGoals.calories.current!} kcal. Focus on protein and vegetables.</p>
+                                <p className='text-neutral-600 text-sm leading-5  '>{nutritionDay && `Remaining: ${nutritionDay?.dailyGoals.calories.target! - nutritionDay?.dailyGoals.calories.current!} kcal.`} Focus on protein and vegetables.</p>
                             </div>
                             <div className="flex flex-col">
                                 <div className="rounded-lg overflow-hidden aspect-video relative ">

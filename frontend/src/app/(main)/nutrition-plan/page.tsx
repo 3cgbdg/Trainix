@@ -42,7 +42,7 @@ const Page = () => {
             // days: ,
         }
 
-        const res = await axios.post(`http://127.0.0.1:8000/api/nutrition?dayNumber=${dayNumber}`, userInfo, {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber}`, userInfo, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" }
         });
@@ -55,7 +55,7 @@ const Page = () => {
             const newData = await reportExtractFunc(data, "nutrition");
             dispatch(getNutritionDay(newData.day));
             console.log(newData);
-            
+
         },
 
         onError: (err: unknown) => {
