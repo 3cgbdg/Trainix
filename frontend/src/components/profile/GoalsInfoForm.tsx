@@ -76,11 +76,11 @@ const GoalsInfoForm = ({ user, setEditing, editing }: { user: IUser, editing: st
         </div>
       </form>
       <div className="max-w-70 w-full  flex justify-end flex-wrap  gap-5">
-          <button onClick={handleSave} disabled={editing !== "personal"} className="button-transparent max-w-[130px] w-full btn p-2 disabled:bg-gray-500!  disabled:pointer-events-none  flex items-center gap-2">
+          <button onClick={handleSave} disabled={editing !== "goals"} className="button-transparent max-w-[130px] w-full btn p-2 disabled:bg-gray-500!  disabled:pointer-events-none  flex items-center gap-2">
             <Check size={16} />
             Save
           </button>
-          <button onClick={() => { setEditing("personal") }} disabled={editing === "personal"} className="button-transparent max-w-[130px] w-full btn p-2 disabled:bg-gray-500!  disabled:pointer-events-none flex items-center gap-2">
+          <button onClick={() => { setEditing("goals") }} disabled={editing === "goals"} className="button-transparent max-w-[130px] w-full btn p-2 disabled:bg-gray-500!  disabled:pointer-events-none flex items-center gap-2">
             <SquarePen size={16} />
             Edit Details
           </button>
