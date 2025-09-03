@@ -19,7 +19,8 @@ mongoose.connect(process.env.MONGO_URI!).then(() => console.log("MongoDB connect
     });
 //cron notifications + other logic
 initCron();
-server.listen(process.env.PORT, () => {
+const PORT = process.env.PORT || 5200;
+server.listen(PORT, () => {
     console.log(`server working on port ${process.env.PORT}`);
 })
 
