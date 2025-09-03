@@ -44,7 +44,7 @@ const Page = () => {
 
     const generate = useMutation({
         mutationFn: async () => {
-            const res = await api.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
+            const res = await api.post(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/fitnessPlan/day`, {
                 userInfo: {
                     height: user?.metrics.height,
                     weight: user?.metrics.weight,
