@@ -21,7 +21,7 @@ const GetReady = ({ id, workout, workouts, exercise, setStart }: { id: string, w
                         <div className="bg-green p-4 rounded-lg text-center">
                             <p className="text-sm">Exercises Completed</p>
                             <p className="text-xl font-semibold">
-                                {workout?.exercises.filter((ex) => ex.status === "completed").length} / {workout?.exercises.length}
+                                {workout?.exercises?.filter((ex) => ex.status === "completed").length} / {workout?.exercises?.length}
                             </p>
                         </div>
                         <div className="bg-green p-4 rounded-lg text-center">
@@ -33,7 +33,7 @@ const GetReady = ({ id, workout, workouts, exercise, setStart }: { id: string, w
 
                     <h2 className="text-xl font-semibold mb-2">Exercises</h2>
                     <ul className="flex flex-col gap-2">
-                        {workout?.exercises.map((ex, idx) => (
+                        {workout?.exercises?.map((ex, idx) => (
                             <li
                                 key={idx}
                                 className={`flex justify-between item-center  p-3 rounded-lg gap-3 border ${ex.status === "completed" ? "bg-green-50 border-green" : "bg-gray-50 border-gray-200"
