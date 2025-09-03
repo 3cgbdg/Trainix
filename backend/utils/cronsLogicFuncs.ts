@@ -201,7 +201,7 @@ export const generateNewDayFitnessContent = async () => {
         const plans = await FitnessPlan.find({});
         // TODO ADD BATCHES
         await Promise.all(plans.map(async (plan) => {
-            const day = plan.report.plan.days.find(day =>new Date(day.date).getDate() == new Date().getDate());
+            const day = plan.report.plan.days.find(day => new Date(day.date).getDate() == new Date().getDate());
             if (day) {
                 // getting user and measurements for sending proper metrics to ai to analyze
                 const [user, measurements] = await Promise.all([
@@ -209,7 +209,7 @@ export const generateNewDayFitnessContent = async () => {
                     Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                 ]);
                 // requesting ai generating day
-                const res = await axios.post(`http://127.0.0.1:8000/api/fitnessPlan/day`, {
+                const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan/day`, {
                     userInfo: {
                         height: user?.metrics.height,
                         weight: user?.metrics.weight,
@@ -289,7 +289,7 @@ export const generateNewDayNutritionContent = async () => {
                 Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
             ]);
             // requesting ai generating day
-            const res = await axios.post(`http://127.0.0.1:8000/api/nutrition?dayNumber=${dayNumber + 1}`, {
+            const res = await axios.post(`${process.env.PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber + 1}`, {
 
                 height: user?.metrics.height,
                 weight: user?.metrics.weight,
