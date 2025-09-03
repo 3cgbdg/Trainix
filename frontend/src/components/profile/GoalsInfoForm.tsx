@@ -23,7 +23,7 @@ const GoalsInfoForm = ({ user, setEditing, editing }: { user: IUser, editing: st
     const payload: Partial<formType> = {};
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        // @ts-expect-error
+        // @ts-expect-error TS cannot infer key type
         payload[key] = value;
       }
     });
