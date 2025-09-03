@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-RUN addgroup myGroup && adduser --ingroup myGroup User
+RUN addgroup -S myGroup && adduser -S -G myGroup User
 
 COPY  package*.json ./
 
