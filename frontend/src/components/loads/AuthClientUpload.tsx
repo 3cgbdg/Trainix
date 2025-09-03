@@ -15,7 +15,9 @@ const AuthClientUpload = () => {
     const router = useRouter();
     useEffect(() => {
         const getUser = async () => {
-            if(pathname.endsWith("app/dashboard"))
+            if (pathname === "/") {
+                router.push("/dashboard");
+            }
             try {
                 const res1 = await api.get(`/api/auth/profile`);
 
@@ -31,8 +33,8 @@ const AuthClientUpload = () => {
             dispatch(getWorkouts(res2.data));
             const res3 = await api.get("api/nutrition-plan/nutrition-plans");
             dispatch(getNutritionDay(res3.data));
-            
-          
+
+
         }
 
         getUser();

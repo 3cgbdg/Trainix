@@ -3,6 +3,8 @@ import { Borel, Inter, Outfit } from "next/font/google";
 import "@/styles/globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
+import CheckEmptyPath from "@/components/loads/CheckEmptyPath";
+
 
 
 
@@ -39,6 +41,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <ReduxProvider>
+            <CheckEmptyPath/>
           <div className="">
             {children}
           </div>
