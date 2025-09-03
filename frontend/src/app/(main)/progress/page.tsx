@@ -2,7 +2,7 @@
 import { api } from '@/api/axiosInstance';
 import { useAppSelector } from '@/hooks/reduxHooks';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUp, Bike, Footprints, Goal, MonitorOff, Percent, Scale } from 'lucide-react'
+import { ArrowUp, Bike, Footprints, Percent, Scale } from 'lucide-react'
 import Image from 'next/image'
 
 import { useCallback, useEffect, useState } from 'react';

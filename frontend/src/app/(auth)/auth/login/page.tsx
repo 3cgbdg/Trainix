@@ -1,7 +1,6 @@
 "use client"
 import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
-import axios from "axios";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image"
 import Link from "next/link";
@@ -27,7 +26,7 @@ const Page = () => {
     const mutation = useMutation({
         mutationFn: loginUser,
         onSuccess: (data) => {
-            if (data.user) {
+            if (data.user.metrics) {
                 router.push("/dashboard");
                 // fully-registered -> dashboard
             } else {

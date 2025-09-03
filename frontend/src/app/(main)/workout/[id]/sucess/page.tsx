@@ -1,5 +1,4 @@
 "use client"
-
 import { useAppSelector } from "@/hooks/reduxHooks";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
