@@ -147,9 +147,9 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                                         workout?.exercises[idx + 1].repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{workout?.exercises[idx + 1].repeats} repeats</span>
 
                                             :
-                                            workout.exercises[idx + 1].time ?
+                                              workout.exercises[idx + 1].time ?
                                                 <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} />
-                                                    {(Math.floor(workout.exercises[idx + 1].time! / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time! % 60).toString().padStart(2, '0')}</span> :""}
+                                                    {(Math.floor(workout.exercises[idx + 1].time / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time % 60).toString().padStart(2, '0')}</span> :""}
 
 
                                 </div></>}
