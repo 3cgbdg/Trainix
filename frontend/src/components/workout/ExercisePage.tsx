@@ -19,7 +19,7 @@ interface IProps {
 
 const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgressPercent, progressPercent, setIsResting, setFinished, setCompletedItems }: IProps) => {
     const [isPaused, setIsPaused] = useState<boolean>(false);
-
+    const [nextExercise, setNextExercise] = useState<IExercise | null>(workout?.exercises![idx + 1] ? workout?.exercises![idx + 1] : null)
 
     // func for checking of is undefined next item of exercises by idx 
     const goToNextExercise = useCallback(() => {
@@ -35,6 +35,7 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                 const img: HTMLImageElement = new window.Image();
                 img.src = workout.exercises![nextIdx].imageUrl;
                 setExercise(workout.exercises![nextIdx]);
+                setNextExercise(workout?.exercises![nextIdx + 1] ? workout?.exercises![nextIdx + 1] : null);
                 setProgressPercent(((nextIdx) / workout.exercises!.length) * 100);
                 setIsResting(true);
 
@@ -135,21 +136,22 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                     </div>
                     <div className="flex flex-col gap-12 w-full">
                         <div className="_border rounded-2xl p-4 pt-4.5 flex items-center gap-7 bg-white">
-                            {!workout?.exercises![idx + 1] ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> : <>
+                            {!nextExercise ? <div className="flex items-center text-lg leading-7 font-semibold text-neutral-900">🏁 Finishing</div> :
+                             <>
                                 <div className="relative w-20 h-20 overflow-hidden rounded-[10px]">
-                                    <Image className=" object-cover " fill src={workout.exercises[idx + 1].imageUrl} alt="exercise image" />
+                                    <Image className=" object-cover " fill src={nextExercise.imageUrl} alt="exercise image" />
                                 </div>
                                 <div className="">
                                     <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
-                                    <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>
+                                    <h4 className="text-lg leading-7 font-semibold text-neutral-900">{nextExercise.title}</h4>
                                     {
 
-                                        workout?.exercises[idx + 1].repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{workout?.exercises[idx + 1].repeats} repeats</span>
+                                        nextExercise.repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{nextExercise.repeats} repeats</span>
 
                                             :
-                                              workout.exercises[idx + 1].time ?
+                                            nextExercise.time ?
                                                 <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} />
-                                                    {(Math.floor(workout.exercises[idx + 1].time / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time % 60).toString().padStart(2, '0')}</span> :""}
+                                                    {(Math.floor(nextExercise.time / 60)).toString().padStart(2, '0')}:{(nextExercise.time % 60).toString().padStart(2, '0')}</span> : ""}
 
 
                                 </div></>}
