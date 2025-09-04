@@ -5,19 +5,17 @@ import { getProfile } from '@/redux/authSlice';
 import { getMeasurement } from '@/redux/measurementSlice';
 import { getNutritionDay } from '@/redux/nutritionDaySlice';
 import { getWorkouts } from '@/redux/workoutsSlice';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 // fetching data component every reload
 const AuthClientUpload = () => {
     const dispatch = useAppDispatch();
-    const pathname = usePathname();
+
     const router = useRouter();
     useEffect(() => {
         const getUser = async () => {
-            if (pathname === "/") {
-                router.push("/dashboard");
-            }
+           
             try {
                 const res1 = await api.get(`/api/auth/profile`);
 

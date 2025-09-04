@@ -6,8 +6,6 @@ import React from "react"
 // generates each day with iterations
 const GenerateNutritionPlan = ({ mutate, isPending }: { mutate: UseMutateFunction<unknown, unknown, number, unknown>, isPending: boolean }) => {
     const { workouts } = useAppSelector(state => state.workouts)
-    const router = useRouter();
-
     return (
         <div className="flex flex-col items-center ">
             <div className="max-w-[600px] _border p-6 rounded-[10px]  w-full text-center mt-20">

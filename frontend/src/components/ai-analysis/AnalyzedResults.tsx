@@ -29,16 +29,8 @@ interface IReceivedAnalysis {
 
 
 const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: Dispatch<SetStateAction<boolean>>}) => {
-  const retakePhoto = useCallback(async () => {
-    const res = await api.delete("/api/fitness-plan/plan");
-    return res.data;
-  }, []);
-  const retakePhotoMutation = useMutation({
-    mutationFn: retakePhoto,
-    onSuccess: () => {
-      setReset(true);
-    }
-  })
+
+
   return (
     <div className="flex flex-col gap-10">
       <h1 className="page-title">AI Photo Analysis: Analyzing Results</h1>
@@ -80,7 +72,7 @@ const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: D
             <h3 className="text-lg leading-7 font-medium text-neutral-600">Waist-to-Hip Ratio</h3>
             <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
               <span className="text-4xl leading-10 font-bold text-black">{data.waistToHipRatio.data}</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.waistToHipRatio.difference && data.waistToHipRatio.difference > 0 ? "text-red" : "text-green"} `}>{data.waistToHipRatio.difference !== null && data.waistToHipRatio.difference >= 0 ? "+" + data.waistToHipRatio.difference : data.waistToHipRatio.difference}</span>
+              <span className={`tex-sm leading-5 font-semibold ${data.waistToHipRatio.difference && data.waistToHipRatio.difference > 0 ? "text-red" : "text-green"} `}>{data.waistToHipRatio.difference !== null && data.waistToHipRatio.difference >= 0 ? "+" + data.waistToHipRatio.difference.toFixed(2) : data.waistToHipRatio.difference}</span>
             </div>
           </div>
           <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
@@ -149,7 +141,7 @@ const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: D
         </div>
         {/* retake photo by deleting the previous plan */}
         <div className="flex items-center justify-end gap-4 max-w-[272px] ml-auto w-full">
-          <button onClick={() => retakePhotoMutation.mutate()} className="button-transparent !bg-white">Retake Photo</button>
+          <button onClick={() =>  setReset(true)} className="button-transparent !bg-white">Retake Photo</button>
         </div>
       </div>
     </div>
