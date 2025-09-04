@@ -75,7 +75,7 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                         console.log("called");
                         goToNextExercise();
                         setCompletedItems((prev) => [...prev, { completed: true }]);
-                    }}  isPaused={isPaused} workoutTime={exercise.time} />}
+                    }} isPaused={isPaused} workoutTime={exercise.time} />}
                     <div className="flex flex-col gap-5 items-center">
                         <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
 
@@ -142,9 +142,14 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                                 <div className="">
                                     <span className="text-sm leading-5 text-neutral-600">Next exercise:</span>
                                     <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>
-                                    {workout?.exercises[idx + 1].repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{workout?.exercises[idx + 1].repeats} repeats</span>
+                                    {
 
-                                        : <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} /> {(Math.floor(workout?.exercises[idx + 1].time! / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time! % 60).toString().padStart(2, '0')}</span>}
+                                        workout?.exercises[idx + 1].repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{workout?.exercises[idx + 1].repeats} repeats</span>
+
+                                            :
+                                            workout.exercises[idx + 1].time ?
+                                                <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} />
+                                                    {(Math.floor(workout.exercises[idx + 1].time! / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time! % 60).toString().padStart(2, '0')}</span> :""}
 
 
                                 </div></>}
