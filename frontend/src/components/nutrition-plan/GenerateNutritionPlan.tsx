@@ -16,7 +16,7 @@ const GenerateNutritionPlan = ({ mutate, isPending }: { mutate: UseMutateFunctio
 
                 </div>
                 {isPending &&
-                    <div className=' mb-8 flex items-center flex-col gap-6  h-full'> <h2 className='section-title text-green!'>Approx. time 30 min</h2> <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto   "></div></div>}
+                    <div className=' mb-8 flex items-center flex-col gap-6  h-full'> <h2 className='section-title text-green!'>Approx. time 30 sec</h2> <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto   "></div></div>}
                 <button aria-label='btn' disabled={isPending ? true : false} onClick={async () => {
                     if (workouts?.items) {
                         mutate(1);

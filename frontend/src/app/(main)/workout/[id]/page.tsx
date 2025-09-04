@@ -74,6 +74,7 @@ const Page = () => {
         onSuccess: async (data) => {
             const newData = await reportExtractFunc(data, "fitness-day");
             setWorkout(newData.day);
+            dispatch(updateWorkouts({ day: newData.day, streak: data.streak }))
             setIsGenerating(false);
 
         }

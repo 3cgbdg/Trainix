@@ -27,15 +27,15 @@ const workoutsSlice = createSlice({
         getWorkouts: (state, action: PayloadAction<IWorkouts>) => {
             state.workouts = action.payload
         },
-        updateWorkouts: (state, action: PayloadAction<{ day: IDayPlan, streak: number }>) => {
+        updateWorkouts: (state, action: PayloadAction<{ day: IDayPlan, streak?: number }>) => {
             if (!state.workouts) return;
 
             const index = state.workouts.items.findIndex(item => item.date === action.payload.day.date);
             if (index !== -1) {
                 state.workouts.items[index] = action.payload.day;
             }
-
-            state.workouts.streak = action.payload.streak;
+            if (action.payload.streak)
+                state.workouts.streak = action.payload.streak;
         },
     }
 })
