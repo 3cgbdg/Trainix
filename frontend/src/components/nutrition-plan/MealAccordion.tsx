@@ -33,7 +33,7 @@ const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber:
             </div>
             <span className="text-sm text-neutral-600 "><b>Time:</b> {meal.time}</span>
             <div className="rounded-md overflow-hidden mt-4 mb-4 _border">
-                <Image className="max-h-[250px] object-cover object-center w-full" height={300} width={516} src={meal.imageUrl == "food-placeholder.jpg" ? "/food-placeholder.jpg" : meal.imageUrl} alt="food picture" />
+                <Image  priority={[0, 1].includes(idx)} className="max-h-[250px] object-cover object-center w-full" height={300} width={516} src={meal.imageUrl == "food-placeholder.jpg" ? "/food-placeholder.jpg" : meal.imageUrl} alt="food picture" />
             </div>
             <div className="flex items-center justify-between">
                 <p className="text-sm text-neutral-900 ">{meal.description}</p>

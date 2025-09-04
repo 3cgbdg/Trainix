@@ -4,6 +4,7 @@ import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
+import { getWorkouts } from '@/redux/workoutsSlice';
 import { IMetrics } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -112,6 +113,8 @@ const Page = () => {
 
             }
             queryClient.invalidateQueries({ queryKey: ['getAnalysis'] });
+            const res2 = await api.get(`/api/fitness-plan/workouts`);
+            dispatch(getWorkouts(res2.data));
             setIsAnalyzed(true);
 
         },

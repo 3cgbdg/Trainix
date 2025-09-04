@@ -20,7 +20,7 @@ interface IProps {
 const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgressPercent, progressPercent, setIsResting, setFinished, setCompletedItems }: IProps) => {
     const [isPaused, setIsPaused] = useState<boolean>(false);
 
-    
+
     // func for checking of is undefined next item of exercises by idx 
     const goToNextExercise = useCallback(() => {
         if (!workout) return;
@@ -41,7 +41,6 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
 
             } else {
                 setFinished(true);
-
             }
 
 
@@ -72,11 +71,16 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                 </div>
 
                 <div className="_border rounded-2xl  flex flex-col items-center justify-between font-outfit border-none px-5.5 md:py-8 p-5.5   bg-[#e5fcea]   ">
-                    {exercise.time && <Timer goToNextExercise={goToNextExercise} setCompletedItems={setCompletedItems} isPaused={isPaused} workoutTime={exercise.time} />}
+                    {exercise.time && <Timer onFinish={() => {
+                        console.log("called");
+                        goToNextExercise();
+                        setCompletedItems((prev) => [...prev, { completed: true }]);
+                    }}  isPaused={isPaused} workoutTime={exercise.time} />}
                     <div className="flex flex-col gap-5 items-center">
                         <h2 className="font-outfit  text-4xl leading-10 font-bold text-black">{exercise?.title}</h2>
 
-                        <Image className="aspect-square rounded-[10px]" src={exercise.imageUrl} width={250} height={250} alt="exercise image" />
+                        <Image className="aspect-square rounded-[10px]" placeholder="blur"
+                            blurDataURL="https://placehold.co/250x250/png" src={exercise.imageUrl} width={250} priority height={250} alt="exercise image" />
 
                         {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
                             : <span className="text-xl leading-7 text-black flex gap-1 items-center">
@@ -140,7 +144,7 @@ const ExercisePage = ({ workout, exercise, setIdx, idx, setExercise, setProgress
                                     <h4 className="text-lg leading-7 font-semibold text-neutral-900">{workout?.exercises[idx + 1].title}</h4>
                                     {workout?.exercises[idx + 1].repeats !== null ? <span className="text-sm leading-5 text-neutral-600">{workout?.exercises[idx + 1].repeats} repeats</span>
 
-                                        : <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} /> 01:30</span>}
+                                        : <span className="text-sm leading-5 text-neutral-600 flex gap-1 items-center"><Clock size={12} /> {(Math.floor(workout?.exercises[idx + 1].time! / 60)).toString().padStart(2, '0')}:{(workout?.exercises[idx + 1].time! % 60).toString().padStart(2, '0')}</span>}
 
 
                                 </div></>}

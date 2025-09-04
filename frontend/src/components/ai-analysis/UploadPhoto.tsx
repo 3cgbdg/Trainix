@@ -27,8 +27,9 @@ const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName,
 
                     <div
                         {...getRootProps()}
-                        className={` border-2 border-dashed ${!isAnalyzed ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px] w-full sm:min-h-[288px] min-h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
+                        className={` border-2 border-dashed ${!isAnalyzed ? "skeleton" : ""}  border-neutral-600 outline-0 rounded-[10px] max-w-[800px]  w-full sm:min-h-[288px] h-[200px] px-10 sm:py-[50px] py-5 mb-[25px] text-center cursor-pointer transition hover:border-green`}
                     >
+                        
                         <input aria-label='input' {...getInputProps()} />
                         {isAnalyzed ? <> <div className="flex flex-col items-center justify-center">
                             <UploadIcon className='text-neutral-600 mb-4.5' size={64} />
@@ -45,7 +46,7 @@ const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName,
                             {fileName && (
                                 <p className={`mt-4 text-sm text-green-500`}>Selected: {fileName}</p>
                             )}
-                        </div></> : <div className="h-full flex items-center"><div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto  "></div></div>}
+                        </div></> : <div className=' flex items-center flex-col gap-6  h-full'> <h2 className='section-title text-green!'>Approx. time 1:30 min</h2> <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto   "></div></div>}
 
                     </div>
 
@@ -53,11 +54,11 @@ const UploadPhoto = ({ isAnalyzed,setIsAnalyzed, setFileName,setReset, fileName,
                         <span>Photo Guidelines:</span>  Ensure good lighting, full body visibility, and a neutral background for best analysis results. Supported formats: JPG, PNG. Max size: 10MB.
                     </p>
                 </div>
-                <button aria-label='btn' disabled={!isAnalyzed ? true : false} onClick={() => {
+                <button aria-label='btn' disabled={!isAnalyzed || !file ? true : false} onClick={() => {
                     setIsAnalyzed(false);
                     setReset(false);
                     if (file) mutation.mutate(file);
-                }} className={`button-green w-full disabled:bg-neutral-800 ${!isAnalyzed ? "!bg-neutral-700 !cursor-auto" : ""}`}>{!isAnalyzed ? "Processing" : "Proceed to Analysis"}</button>
+                }} className={`button-green w-full disabled:bg-neutral-800 ${!isAnalyzed || !file ? "!bg-neutral-700 !cursor-auto" : ""}`}>{!isAnalyzed ? "Processing" : "Proceed to Analysis"}</button>
             </div>
         </div >
     )

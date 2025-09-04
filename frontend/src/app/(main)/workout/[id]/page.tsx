@@ -27,11 +27,13 @@ const Page = () => {
     const dispatch = useAppDispatch();
     const { measurements } = useAppSelector(state => state.measurements);
     const { user } = useAppSelector(state => state.auth);
+
     // post async fync for completed exercises
     const completeWorkout = useCallback(async () => {
         const res = await api.post(`/api/fitness-plan/workouts/${Number(id) - 1}/completed`, completedItems);
         return res.data
     }, [id, completedItems]);
+    
     // post mutation for completing workout api
     const mutation = useMutation({
         mutationFn: completeWorkout,
@@ -71,9 +73,9 @@ const Page = () => {
         },
         onSuccess: async (data) => {
             const newData = await reportExtractFunc(data, "fitness-day");
-            setWorkout(newData);
-            console.log(newData,"hello");
+            setWorkout(newData.day);
             setIsGenerating(false);
+
         }
     })
 
@@ -106,7 +108,7 @@ const Page = () => {
             }
 
         }
-    }, [workouts]);
+    }, [workouts,id]);
 
     // getting current exercise
     useEffect(() => {
@@ -143,7 +145,7 @@ const Page = () => {
 
 
     return (
-        <div>{workouts && !isGenerating ?
+        <div>{workouts && workout && !isGenerating ?
             !start ?
                 // getting ready section to start doing exercises
                 <GetReady workout={workout} workouts={workouts} setStart={setStart} id={String(id)} exercise={exercise} />

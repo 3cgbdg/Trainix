@@ -39,7 +39,7 @@ const AuthClientUpload = () => {
 
         getUser();
 
-    }, [router]);
+    }, []);
     return null;
 }
 

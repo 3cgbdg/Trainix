@@ -16,7 +16,7 @@ export default async function RootLayout({
       <Header />
       <div className="flex items-start grow-1 bg-neutral-100">
         <Sidebar />
-        <div className="p-8 w-full">
+        <div className="  sm:py-6 py-2 px-3 md:p-8 w-full">
           {children}
         </div>
       </div>

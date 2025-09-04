@@ -61,13 +61,14 @@ const Notification = () => {
         <>
             {notifications &&
                 notifications.map((item, idx) => {
-                    return <div key={idx} className={`mt-${idx * 1} ml-${idx * 1} _border flex flex-col bg-white gap-4 rounded-[10px] fixed z-10 top-10 right-20 w-[380px] p-3`}>
+                    return <div key={idx} className={`mt-${idx * 1}  _border flex flex-col bg-white gap-4 rounded-[10px] fixed z-10 top-8 right-8 w-[320px] p-3`}>
                         <p className='text-lg leading-7 font-semibold'>{item.info}  <span className='text-xl'>{item.topic == "water" ? "💧" : item.topic == "sport" ? "💪" : item.topic == "measurement" ? "📏" : "🍇"}</span></p>
-                        <div className="flex justify-end items-center gap-4"> {item.topic == "measurement" &&
-                            <button onClick={async () => { await deleteItem(item._id); router.push("/profile") }} className='button-green w-fit ml-auto'>
-                                Go to profile
-                            </button>
-                        }
+                        <div className="flex justify-end items-center gap-4">
+                            {item.topic == "measurement" &&
+                                <button onClick={async () => { await deleteItem(item._id); router.push("/profile") }} className='button-green w-fit ml-auto'>
+                                    Go to profile
+                                </button>
+                            }
                             <button onClick={async () => { await deleteItem(item._id) }} className='button-green w-fit '>
                                 OK
                             </button>

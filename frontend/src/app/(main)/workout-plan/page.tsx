@@ -32,7 +32,7 @@ const Page = () => {
 
                     <div className="flex flex-col gap-4 ">
                         <h2 className='section-title'>Weekly Schedule</h2>
-                        <div className="grid sm:p-0 p-5 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <div className="grid sm:p-0 p-5 sm:grid-cols-3 grid-cols-1 lg:grid-cols-4 gap-6">
                             {
                                 workouts.items.map((item: IDayPlan, idx: number) => (
                                     <div key={idx} className=" p-4 pt-5.5 bg-white rounded-md _border flex flex-col  ">
@@ -45,14 +45,16 @@ const Page = () => {
 
                                         </div>
                                         <div className="flex flex-col justify-between grow-1 gap-2">
-                                        <div className="flex flex-col gap-2 ">
-                                            <span className="text-sm leading-5">{workouts.dates[idx].monthAndDate}</span>
-                                            <span className="font-medium text-neutral-900">{item.day}</span>
-                                            <span></span>
-                                        </div>
-                                        <div className="flex justify-end ">
-                                            <div onClick={() => router.push(`/workout/${idx + 1}`)} className=" button-transparent max-w-[110px]  w-full">View Details</div>
-                                        </div>
+                                            <div className="flex flex-col gap-2 ">
+                                                <span className="text-sm leading-5">{workouts.dates[idx].monthAndDate}</span>
+                                                <span className="font-medium text-neutral-900">{item.day}</span>
+                                                <span></span>
+                                            </div>
+                                            {item.status !== "Completed" &&
+                                                <div className="flex justify-end ">
+                                                    <div onClick={() => router.push(`/workout/${idx + 1}`)} className=" button-transparent max-w-[110px]  w-full">View Details</div>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 ))}
