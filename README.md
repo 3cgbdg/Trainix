@@ -75,7 +75,7 @@ cd ../backend && npm install
 
 ### 2. Environment Variables
 
-- Copy `.env.example` to `.env` in both `client/` and `server/`
+- Copy `.env.example` to `.env` in both `frontend/` and `backend/`
 - Fill in your MongoDB URI, AWS keys, OpenAI API, JWT secret
 
 ### 3. Run Development Servers
