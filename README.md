@@ -28,9 +28,8 @@ It uses AI to analyze photos, generates individual workout and nutrition plans, 
 - Body measurements and progress history
 - Notifications and advice
 - User authentication (JWT)
-- Admin panel (role-based model)
-- Photo storage on AWS S3
-- OpenAI integration for personalized tips
+- Photo storage on AWS S3 with CDN CloudFront
+- OpenAI integration with python api using 
 
 ---
 
