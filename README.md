@@ -8,7 +8,7 @@ It uses AI to analyze photos, generates individual workout and nutrition plans, 
 ## 🚀 Live Demo
 
 > ⚡️ Free Render server — cold start up to 3 minutes  
-[👉 View Demo](https://trainix-demo-url.vercel.app/)
+[👉 View Demo](https://trainix-beta.vercel.app/)
 
 ---
 
