@@ -16,7 +16,6 @@ const AuthClientUpload = () => {
     const router = useRouter();
     useEffect(() => {
         const getUser = async () => {
-
             try {
                 const res1 = await api.get(`/api/auth/profile`);
                 dispatch(getProfile(res1.data.user));
@@ -29,7 +28,6 @@ const AuthClientUpload = () => {
                 withCredentials: true,
                 headers: { "Content-Type": "application/json" }
             });
-
             const res4 = await api.get("api/measurement/measurements");
             dispatch(getMeasurement(res4.data));
             const res2 = await api.get(`/api/fitness-plan/workouts`);

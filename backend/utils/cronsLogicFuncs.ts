@@ -195,6 +195,20 @@ export const checkMissedDay = async () => {
 
 }
 
+export const checkingStatusOfPlan = async () => {
+    console.log("hello")
+    const fitnessPlans = await FitnessPlan.find({});
+    for (let plan of fitnessPlans) {
+        const amountOfDays = plan.report.plan.days.length;
+        if (new Date(plan.report.plan.days[amountOfDays - 1].date).getTime() < new Date().getTime()) {
+            await FitnessPlan.deleteOne({ _id: plan._id });
+        }
+    }
+
+}
+
+
+
 // generating each day full info for workout of the day
 export const generateNewDayFitnessContent = async () => {
     try {
