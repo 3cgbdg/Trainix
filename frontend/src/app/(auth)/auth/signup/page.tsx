@@ -46,7 +46,7 @@ const Page = () => {
             </div>
             <div className="flex items-center mb-4 gap-1 text-green">
                 <div className="">
-                    <Image width={48} height={48} src="/logo.svg" alt="logo" />
+                    <Image width={48} height={48} src="/logo.png" alt="logo" />
                 </div>
                 <span className={` relative top-3 font-borel text-[38px] leading-none  font-bold `}>Trainix</span>
             </div>

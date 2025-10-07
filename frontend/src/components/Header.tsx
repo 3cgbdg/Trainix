@@ -80,7 +80,7 @@ const Header = () => {
                 </div>
                 <Link href={"/dashboard"} className="flex items-center group hover:text-[#468438FF] gap-1 w-fit hover: text-green">
 
-                    <Image className="stroke-black transition-transform group-hover:rotate-90" width={32} height={32} src="/logo.svg" alt="logo" />
+                    <Image className="stroke-black transition-transform " width={32} height={32} src="/logo.png" alt="logo" />
 
                     <span className={` transiiton-colors relative top-2 font-borel text-2xl leading-none font-bold `}>Trainix</span>
                 </Link>

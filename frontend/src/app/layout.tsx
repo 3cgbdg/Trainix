@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "Trainix",
   description: "Trainix - best ai fitness web app",
   icons: {
-    icon: "/logo.svg"
+    icon: "/logo.png"
   }
 };
 export default function RootLayout({
