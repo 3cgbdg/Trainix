@@ -24,7 +24,7 @@ export const regularReminder = async () => {
                 "days.date": { $gte: startOfDay, $lte: endOfDay }
             }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
             if (plans.length == 0) break;
-            lastId = plans[plans.length - 1];
+            lastId = plans[plans.length - 1]._id;
             const notifications: INotification[] = [];
             // parallel promises
             await Promise.all(plans.map(async (item) => {
@@ -83,7 +83,7 @@ export const workoutReminder = async () => {
                 "report.plan.days.date": { $gte: startOfDay, $lte: endOfDay }
             }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
             if (plans.length == 0) break;
-            lastId = plans[plans.length - 1];
+            lastId = plans[plans.length - 1]._id;
             const notifications: INotification[] = [];
             // parallel promises
             await Promise.all(plans.map(async (item) => {
@@ -130,7 +130,7 @@ export const metricsReminder = async () => {
             if (lastId) query._id = { $gt: lastId };
             const users = await User.find(query).limit(batchSize);
             if (users.length == 0) break;
-            lastId = users[users.length - 1];
+            lastId = users[users.length - 1]._id;
             const notifications: INotification[] = [];
 
             for (const user of users) {
@@ -169,7 +169,7 @@ export const createNewMeasurement = async () => {
             if (lastId) query._id = { $gt: lastId }
             const users = await User.find({});
             if (users.length == 0) break;
-            lastId = users[users.length - 1];
+            lastId = users[users.length - 1]._id;
             for (const user of users) {
                 // create new measurement every 2 weeks 
                 const lastMeasurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
@@ -211,7 +211,7 @@ export const checkMissedDay = async () => {
         if (lastId) query._id = { $gt: lastId }
         const fitnessPlans = await FitnessPlan.find({});
         if (fitnessPlans.length == 0) break;
-        lastId = fitnessPlans[fitnessPlans.length - 1];
+        lastId = fitnessPlans[fitnessPlans.length - 1]._id;
         for (let plan of fitnessPlans) {
             let changed = false;
             for (let day of plan.report.plan.days) {
@@ -243,7 +243,7 @@ export const checkingStatusOfPlan = async () => {
         if (lastId) query._id = { $gt: lastId }
         const fitnessPlans = await FitnessPlan.find({});
         if (fitnessPlans.length == 0) break;
-        lastId = fitnessPlans[fitnessPlans.length - 1];
+        lastId = fitnessPlans[fitnessPlans.length - 1]._id;
         for (let plan of fitnessPlans) {
             const amountOfDays = plan.report.plan.days.length;
             if (new Date(plan.report.plan.days[amountOfDays - 1].date).getTime() < new Date().getTime()) {
@@ -268,7 +268,7 @@ export const generateNewDayFitnessContent = async () => {
         if (lastId) query._id = { $gt: lastId }
         const plans = await FitnessPlan.find({});
           if (plans.length == 0) break;
-        lastId = plans[plans.length - 1];
+        lastId = plans[plans.length - 1]._id;
         // TODO ADD BATCHES
         await Promise.all(plans.map(async (plan) => {
             const day = plan.report.plan.days.find(day => new Date(day.date).getDate() == new Date().getDate());
@@ -357,7 +357,7 @@ export const generateNewDayNutritionContent = async () => {
             if (lastId) query._id = { $gt: lastId };
             const plans = await NutritionPlan.find(query).limit(batchSize);
             if (plans.length == 0) break;
-            lastId = plans[plans.length - 1];
+            lastId = plans[plans.length - 1]._id;
             await Promise.all(plans.map(async (plan) => {
                 const dayNumber = plan.days[plan.days.length - 1].dayNumber;
                 // getting user and measurements for sending proper metrics to ai to analyze
