@@ -43,33 +43,33 @@ enum ExerciseStatusType {
 }
 
 model User {
-  id                 String       @id @default(uuid())
+  id                 String                  @id @default(uuid())
   firstName          String
   lastName           String
   password           String
-  email              String       @unique
-  inAppNotifications Boolean      @default(true)
+  email              String                  @unique
+  inAppNotifications Boolean                 @default(true)
   dateOfBirth        DateTime
   gender             GenderType
-  longestStreak      Int          @default(0)
-  metrics            Metrics?     @relation("user_metrics")
-  targetWeight       Int
-  fitnessPlan        FitnessPlan? @relation("user_fitness_plan")
+  longestStreak      Int                     @default(0)
+  metrics            Metrics?                @relation("user_metrics")
+  targetWeight       Int?
+  fitnessPlan        FitnessPlan?            @relation("user_fitness_plan")
+  fitnessLevel       FitnessLevelType?
+  primaryFitnessGoal PrimaryFitnessGoalType?
 }
 
 model Metrics {
-  id                     String                 @id @default(uuid())
-  user                   User                   @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
-  userId                 String                 @unique
+  id                     String  @id @default(uuid())
+  user                   User    @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String  @unique
   height                 Int
   weight                 Int
-  shoulderToWaistRatio   Decimal                @db.Decimal(4, 2)
-  waistToHipRatio        Decimal                @db.Decimal(4, 2)
-  percentOfLegsLength    Decimal                @db.Decimal(4, 2)
+  shoulderToWaistRatio   Decimal @db.Decimal(4, 2)
+  waistToHipRatio        Decimal @db.Decimal(4, 2)
+  percentOfLegsLength    Decimal @db.Decimal(4, 2)
   shoulderAsymmetricLine Int
   shoulderAngle          Int
-  fitnessLevel           FitnessLevelType
-  primaryFitnessGoal     PrimaryFitnessGoalType
 }
 
 ///// Fitness plan block
