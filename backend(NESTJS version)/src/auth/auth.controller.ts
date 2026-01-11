@@ -24,4 +24,6 @@ export class AuthController {
   @Delete('logout')
   async logOut() { }
 
+
+
 }

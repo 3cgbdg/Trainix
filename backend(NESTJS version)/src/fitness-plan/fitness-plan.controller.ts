@@ -2,43 +2,45 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { FitnessPlanService } from './fitness-plan.service';
 import { CreateFitnessPlanDto } from './dto/create-fitness-plan.dto';
 import { UpdateFitnessPlanDto } from './dto/update-fitness-plan.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@UseGuards()
+@UseGuards(AuthGuard("jwt"))
 @Controller('fitness-plan')
 export class FitnessPlanController {
   constructor(private readonly fitnessPlanService: FitnessPlanService) { }
 
   @Post("days")
-   async addFitnessDay() {
+  async addFitnessDay(req: Request) {
+    return this.fitnessPlanService.addFitnessDay()
   }
 
   @Get("reports/numbers")
-   async getNumbers() {
+  async getNumbers() {
   }
 
   @Get("workouts")
-   async getWorkouts() {
+  async getWorkouts() {
   }
 
 
 
   @Get('analysis')
-   async getAnalysis() {
+  async getAnalysis() {
   }
 
 
   @Delete('plan')
-   async deleteFitnessPlan() {
+  async deleteFitnessPlan() {
   }
 
 
   @Post("workouts/:day/completed")
-  async completeWorkout(){
+  async completeWorkout() {
 
   }
 
   @Get('workouts/:day')
-  async getWorkout(){
+  async getWorkout() {
 
   }
 }

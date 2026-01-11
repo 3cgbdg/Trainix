@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GenderType {
+  MALE
+  FEMALE
+}
+
+enum FitnessLevelType {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum PrimaryFitnessGoalType {
+  LOSE_WEIGHT
+  GAIN_MUSCLE
+  STAY_FIT
+  IMPROVE_ENDURANCE
+}
+
+enum DayStatusType {
+  PENDING
+  COMPLETED
+  MISSED
+}
+
+enum ExerciseStatusType {
+  COMPLETED
+  PENDING
+}
+
+model User {
+  id                 String       @id @default(uuid())
+  firstName          String
+  lastName           String
+  password           String
+  email              String       @unique
+  inAppNotifications Boolean      @default(true)
+  dateOfBirth        DateTime
+  gender             GenderType
+  longestStreak      Int          @default(0)
+  metrics            Metrics?     @relation("user_metrics")
+  targetWeight       Int
+  fitnessPlan        FitnessPlan? @relation("user_fitness_plan")
+}
+
+model Metrics {
+  id                     String                 @id @default(uuid())
+  user                   User                   @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String                 @unique
+  height                 Int
+  weight                 Int
+  shoulderToWaistRatio   Decimal                @db.Decimal(4, 2)
+  waistToHipRatio        Decimal                @db.Decimal(4, 2)
+  percentOfLegsLength    Decimal                @db.Decimal(4, 2)
+  shoulderAsymmetricLine Int
+  shoulderAngle          Int
+  fitnessLevel           FitnessLevelType
+  primaryFitnessGoal     PrimaryFitnessGoalType
+}
+
+///// Fitness plan block
+
+model FitnessPlan {
+  id            String              @id @default(uuid())
+  user          User                @relation("user_fitness_plan", fields: [userId], references: [id], onDelete: Cascade)
+  userId        String              @unique
+  streak        Int                 @default(0)
+  briefAnalysis BriefAnalysis?      @relation("fitness_plan_brief_analysis")
+  advice        Advice?             @relation("fitness_plan_advice")
+  content       FitnessPlanContent? @relation("fitness_plan_content")
+  createdAt     DateTime            @default(now())
+}
+
+model BriefAnalysis {
+  id                 String                 @id @default(uuid())
+  targetWeight       Int
+  fitnessLevel       FitnessLevelType
+  primaryFitnessGoal PrimaryFitnessGoalType
+  fitnessPlan        FitnessPlan            @relation("fitness_plan_brief_analysis", fields: [fitnessPlanId], references: [id], onDelete: Cascade)
+  fitnessPlanId      String                 @unique
+}
+
+model Advice {
+  id            String      @id @default(uuid())
+  nutrition     String
+  hydration     String
+  recovery      String
+  progress      String
+  fitnessPlan   FitnessPlan @relation("fitness_plan_advice", fields: [fitnessPlanId], references: [id], onDelete: Cascade)
+  fitnessPlanId String      @unique
+}
+
+model FitnessPlanContent {
+  id            String      @id @default(uuid())
+  week1Title    String
+  week2Title    String
+  week3Title    String
+  week4Title    String
+  days          Day[]       @relation("fitness_plan_content_days")
+  fitnessPlan   FitnessPlan @relation("fitness_plan_content", fields: [fitnessPlanId], references: [id], onDelete: Cascade)
+  fitnessPlanId String      @unique
+}
+
+model Day {
+  id                   String             @id @default(uuid())
+  dayNumber            Int
+  dayTitle             String
+  exercises            Exercise[]         @relation("day_exercises")
+  status               DayStatusType
+  calories             Int
+  date                 DateTime
+  fitnessPlanContent   FitnessPlanContent @relation("fitness_plan_content_days", fields: [fitnessPlanContentId], references: [id], onDelete: Cascade)
+  fitnessPlanContentId String
+}
+
+model Exercise {
+  id          String             @id @default(uuid())
+  title       String
+  repeats     Int?
+  time        Int?
+  instruction String
+  advices     String
+  calories    Int
+  status      ExerciseStatusType
+  imageUrl    String
+  day         Day                @relation("day_exercises", fields: [dayId], references: [id], onDelete: Cascade)
+  dayId       String
+}
+
+/////
