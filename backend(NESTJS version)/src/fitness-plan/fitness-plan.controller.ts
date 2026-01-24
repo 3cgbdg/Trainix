@@ -1,46 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
-import { FitnessPlanService } from './fitness-plan.service';
-import { CreateFitnessPlanDto } from './dto/create-fitness-plan.dto';
-import { UpdateFitnessPlanDto } from './dto/update-fitness-plan.dto';
-import { AuthGuard } from '@nestjs/passport';
+// import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+// import { FitnessPlanService } from './fitness-plan.service';
 
-@UseGuards(AuthGuard("jwt"))
-@Controller('fitness-plan')
-export class FitnessPlanController {
-  constructor(private readonly fitnessPlanService: FitnessPlanService) { }
+// import { AuthGuard } from '@nestjs/passport';
 
-  @Post("days")
-  async addFitnessDay(req: Request) {
-    return this.fitnessPlanService.addFitnessDay()
-  }
+// @UseGuards(AuthGuard("jwt"))
+// @Controller('fitness-plan')
+// export class FitnessPlanController {
+//   constructor(private readonly fitnessPlanService: FitnessPlanService) { }
 
-  @Get("reports/numbers")
-  async getNumbers() {
-  }
+//   @Post("days")
+//   async addFitnessDay(req: Request) {
+//     return this.fitnessPlanService.addFitnessDay()
+//   }
 
-  @Get("workouts")
-  async getWorkouts() {
-  }
+//   @Get("reports/numbers")
+//   async getNumbers() {
+//   }
 
+//   @Get("workouts")
+//   async getWorkouts() {
+//   }
 
 
-  @Get('analysis')
-  async getAnalysis() {
-  }
+
+//   @Get('analysis')
+//   async getAnalysis() {
+//   }
 
 
-  @Delete('plan')
-  async deleteFitnessPlan() {
-  }
+//   @Delete('plan')
+//   async deleteFitnessPlan() {
+//   }
 
 
-  @Post("workouts/:day/completed")
-  async completeWorkout() {
+//   @Post("workouts/:day/completed")
+//   async completeWorkout() {
 
-  }
+//   }
 
-  @Get('workouts/:day')
-  async getWorkout() {
+//   @Get('workouts/:day')
+//   async getWorkout() {
 
-  }
-}
+//   }
+// }
+
+// TODO later!!!

@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import cookieParser from "cookie-parser"
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './common/http-exception.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService)

@@ -1,12 +1,13 @@
-import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { PrismaService } from "prisma/prisma.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(private readonly configService: ConfigService) {
+    constructor(private readonly configService: ConfigService, private readonly prisma: PrismaService) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
                 (req: Request) => req.cookies?.["access_token"],
@@ -16,12 +17,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload: any): Promise<unknown> {
-        // later postgres db implementation
-        const user = payload.id;
-        if (!user) {
-            throw new ForbiddenException("Failed to find a user")
-        }
+    async validate(payload: any) {
+        const user = await this.prisma.user.findUnique({ where: { id: payload.userId }, select: { id: true } });
+        if (!user)
+            throw new NotFoundException();
         return user;
     }
 
