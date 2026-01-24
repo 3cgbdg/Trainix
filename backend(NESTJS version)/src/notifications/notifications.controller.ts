@@ -1,10 +1,12 @@
-import { Controller, Get, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import type { Request } from 'express';
 import { IReturnMessage, ReturnDataType } from 'src/types/common';
 import { Notification } from 'generated/prisma/browser';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('notifications')
+@UseGuards(AuthGuard("jwt"))
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) { }
   @Delete(":id")

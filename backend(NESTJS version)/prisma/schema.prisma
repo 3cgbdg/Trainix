@@ -65,19 +65,21 @@ model User {
   fitnessLevel       FitnessLevelType?
   primaryFitnessGoal PrimaryFitnessGoalType?
   notifications      Notification[]          @relation("user_notifications")
+  measurements       Measurement[]           @relation("user_measurements")
 }
 
 model Metrics {
-  id                     String  @id @default(uuid())
-  user                   User    @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
-  userId                 String  @unique
+  id                     String        @id @default(uuid())
+  userId                 String        @unique
   height                 Int
   weight                 Int
-  shoulderToWaistRatio   Decimal @db.Decimal(4, 2)
-  waistToHipRatio        Decimal @db.Decimal(4, 2)
-  percentOfLegsLength    Decimal @db.Decimal(4, 2)
+  shoulderToWaistRatio   Decimal       @db.Decimal(4, 2)
+  waistToHipRatio        Decimal       @db.Decimal(4, 2)
+  percentOfLegsLength    Decimal       @db.Decimal(4, 2)
   shoulderAsymmetricLine Int
   shoulderAngle          Int
+  user                   User          @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
+  measurements           Measurement[] @relation("measurements_metrics")
 }
 
 model Notification {
@@ -87,6 +89,29 @@ model Notification {
   createdAt DateTime              @default(now())
   userId    String
   user      User                  @relation("user_notifications", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Measurement {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  imageUrl  String
+  metrics   Metrics  @relation("measurements_metrics", fields: [metricsId], references: [id], onDelete: Cascade)
+  metricsId String
+  user      User     @relation("user_measurements", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model ExerciseImage {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  url       String
+  exercises Exercise[] @relation("exercise_image")
+}
+
+model MealImage {
+  id   String @id @default(uuid())
+  name String @unique
+  url  String
 }
 
 ///// Fitness plan block
@@ -153,9 +178,11 @@ model Exercise {
   advices     String
   calories    Int
   status      ExerciseStatusType
-  imageUrl    String
-  day         Day                @relation("day_exercises", fields: [dayId], references: [id], onDelete: Cascade)
-  dayId       String
+
+  exerciseImage   ExerciseImage @relation("exercise_image", fields: [exerciseImageId], references: [id])
+  exerciseImageId String
+  day             Day           @relation("day_exercises", fields: [dayId], references: [id], onDelete: Cascade)
+  dayId           String
 }
 
 /////

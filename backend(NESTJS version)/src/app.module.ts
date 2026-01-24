@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MeasurementsModule } from './measurements/measurements.module';
 
 @Module({
   imports: [AuthModule,
@@ -22,7 +23,8 @@ import { NotificationsModule } from './notifications/notifications.module';
         signOptions: { expiresIn: "15m" }
       })
     }),
-    NotificationsModule
+    NotificationsModule,
+    MeasurementsModule
 
   ],
   controllers: [],
