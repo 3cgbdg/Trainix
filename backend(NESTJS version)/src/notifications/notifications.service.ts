@@ -1,26 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Notification } from 'generated/prisma/browser';
+import { PrismaService } from 'prisma/prisma.service';
+import { IReturnMessage, ReturnDataType } from 'src/types/common';
 
 @Injectable()
 export class NotificationsService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
+
+  constructor(private readonly prisma: PrismaService) { };
+
+  async deleteNotification(id: string): Promise<IReturnMessage> {
+    const notification = await this.prisma.notification.findUnique({ where: { id } });
+    if (!notification) throw new NotFoundException('Notification not found');
+
+    await this.prisma.notification.delete({ where: { id } });
+    return { message: 'Deleted Successfully!' };
+
   }
 
-  findAll() {
-    return `This action returns all notifications`;
+  async getNotifications(myId: string): Promise<ReturnDataType<Notification[]>> {
+    const notifications = await this.prisma.notification.findMany({ where: { userId: myId } });
+    return ({ data: notifications });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
-  }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
-  }
 }

@@ -42,6 +42,13 @@ enum ExerciseStatusType {
   PENDING
 }
 
+enum NotificationTopicType {
+  WATER
+  SPORT
+  NUTRITION
+  MEASUREMENT
+}
+
 model User {
   id                 String                  @id @default(uuid())
   firstName          String
@@ -57,6 +64,7 @@ model User {
   fitnessPlan        FitnessPlan?            @relation("user_fitness_plan")
   fitnessLevel       FitnessLevelType?
   primaryFitnessGoal PrimaryFitnessGoalType?
+  notifications      Notification[]          @relation("user_notifications")
 }
 
 model Metrics {
@@ -70,6 +78,15 @@ model Metrics {
   percentOfLegsLength    Decimal @db.Decimal(4, 2)
   shoulderAsymmetricLine Int
   shoulderAngle          Int
+}
+
+model Notification {
+  id        String                @id @default(uuid())
+  topic     NotificationTopicType
+  info      String
+  createdAt DateTime              @default(now())
+  userId    String
+  user      User                  @relation("user_notifications", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 ///// Fitness plan block

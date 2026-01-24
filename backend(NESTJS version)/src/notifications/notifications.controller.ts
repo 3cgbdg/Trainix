@@ -1,34 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Req } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import type { Request } from 'express';
+import { IReturnMessage, ReturnDataType } from 'src/types/common';
+import { Notification } from 'generated/prisma/browser';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
-
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  constructor(private readonly notificationsService: NotificationsService) { }
+  @Delete(":id")
+  async deleteNotification(@Param("id") id: string): Promise<IReturnMessage> {
+    return this.notificationsService.deleteNotification(id);
   }
-
-  @Get()
-  findAll() {
-    return this.notificationsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationsService.update(+id, updateNotificationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationsService.remove(+id);
+  @Get("")
+  async getNotifications(@Req() req : Request): Promise<ReturnDataType<Notification[]>> {
+    return this.notificationsService.getNotifications((req as any).user.id);
   }
 }
