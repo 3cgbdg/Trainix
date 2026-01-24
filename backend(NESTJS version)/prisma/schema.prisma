@@ -49,6 +49,18 @@ enum NotificationTopicType {
   MEASUREMENT
 }
 
+enum MealStatusType {
+  EATEN
+  PENDING
+}
+
+enum FoodIntakeType {
+  SNACK
+  LUNCH
+  BREAKFAST
+  DINNER
+}
+
 model User {
   id                 String                  @id @default(uuid())
   firstName          String
@@ -62,6 +74,7 @@ model User {
   metrics            Metrics?                @relation("user_metrics")
   targetWeight       Int?
   fitnessPlan        FitnessPlan?            @relation("user_fitness_plan")
+  nutritionPlan      NutritionPlan?          @relation("user_nutrition_plan")
   fitnessLevel       FitnessLevelType?
   primaryFitnessGoal PrimaryFitnessGoalType?
   notifications      Notification[]          @relation("user_notifications")
@@ -87,8 +100,10 @@ model Notification {
   topic     NotificationTopicType
   info      String
   createdAt DateTime              @default(now())
-  userId    String
-  user      User                  @relation("user_notifications", fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime?
+
+  userId String
+  user   User   @relation("user_notifications", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Measurement {
@@ -99,19 +114,6 @@ model Measurement {
   metricsId String
   user      User     @relation("user_measurements", fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-}
-
-model ExerciseImage {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  url       String
-  exercises Exercise[] @relation("exercise_image")
-}
-
-model MealImage {
-  id   String @id @default(uuid())
-  name String @unique
-  url  String
 }
 
 ///// Fitness plan block
@@ -147,17 +149,17 @@ model Advice {
 }
 
 model FitnessPlanContent {
-  id            String      @id @default(uuid())
+  id            String       @id @default(uuid())
   week1Title    String
   week2Title    String
   week3Title    String
   week4Title    String
-  days          Day[]       @relation("fitness_plan_content_days")
-  fitnessPlan   FitnessPlan @relation("fitness_plan_content", fields: [fitnessPlanId], references: [id], onDelete: Cascade)
-  fitnessPlanId String      @unique
+  days          FitnessDay[] @relation("fitness_plan_content_days")
+  fitnessPlan   FitnessPlan  @relation("fitness_plan_content", fields: [fitnessPlanId], references: [id], onDelete: Cascade)
+  fitnessPlanId String       @unique
 }
 
-model Day {
+model FitnessDay {
   id                   String             @id @default(uuid())
   dayNumber            Int
   dayTitle             String
@@ -167,6 +169,13 @@ model Day {
   date                 DateTime
   fitnessPlanContent   FitnessPlanContent @relation("fitness_plan_content_days", fields: [fitnessPlanContentId], references: [id], onDelete: Cascade)
   fitnessPlanContentId String
+}
+
+model ExerciseImage {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  url       String
+  exercises Exercise[] @relation("exercise_image")
 }
 
 model Exercise {
@@ -181,8 +190,87 @@ model Exercise {
 
   exerciseImage   ExerciseImage @relation("exercise_image", fields: [exerciseImageId], references: [id])
   exerciseImageId String
-  day             Day           @relation("day_exercises", fields: [dayId], references: [id], onDelete: Cascade)
+  day             FitnessDay    @relation("day_exercises", fields: [dayId], references: [id], onDelete: Cascade)
   dayId           String
+}
+
+/////
+
+///// Nutrition plan block
+
+model MealImage {
+  id    String @id @default(uuid())
+  name  String @unique
+  url   String
+  meals Meal[] @relation("meal_image")
+}
+
+model NutritionPlan {
+  id        String         @id @default(uuid())
+  user      User           @relation("user_nutrition_plan", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String         @unique
+  createdAt DateTime
+  days      NutritionDay[] @relation("nutrition_days")
+}
+
+model NutritionDay {
+  id              String        @id @default(uuid())
+  date            DateTime
+  dayNumber       Int           @db.SmallInt
+  meals           Meal[]        @relation("day_meals")
+  waterCurrent    Int           @db.SmallInt
+  waterTarget     Int           @db.SmallInt
+  dailyGoals      DailyGoals?   @relation("day_goals")
+  waterIntake     WaterIntake?  @relation("day_water_intake")
+  nutritionPlan   NutritionPlan @relation("nutrition_days", fields: [nutritionPlanId], references: [id])
+  nutritionPlanId String
+}
+
+model DailyGoals {
+  id              String       @id @default(uuid())
+  caloriesCurrent Int
+  caloriesTarget  Int
+  proteinCurrent  Int
+  proteinTarget   Int
+  carbsCurrent    Int
+  carbsTarget     Int
+  fatsCurrent     Int
+  fatsTarget      Int
+  day             NutritionDay @relation("day_goals", fields: [dayId], references: [id], onDelete: Cascade)
+  dayId           String       @unique
+}
+
+model WaterIntake {
+  id      String       @id @default(uuid())
+  current Int          @db.SmallInt
+  target  Int          @db.SmallInt
+  day     NutritionDay @relation("day_water_intake", fields: [dayId], references: [id], onDelete: Cascade)
+  dayId   String       @unique
+}
+
+model Meal {
+  id             String         @id @default(uuid())
+  title          String
+  cookingTime    String
+  description    String
+  ingredients    Ingredient[]   @relation("meals_ingredients")
+  preparation    String
+  mealCalories   Int            @db.SmallInt
+  mealProtein    Int            @db.SmallInt
+  mealCarbs      Int            @db.SmallInt
+  mealFats       Int            @db.SmallInt
+  status         MealStatusType
+  foodIntake     FoodIntakeType
+  nutritionDay   NutritionDay   @relation("day_meals", fields: [nutritionDayId], references: [id])
+  nutritionDayId String
+  mealImage      MealImage      @relation("meal_image", fields: [mealImageId], references: [id])
+  mealImageId    String
+}
+
+model Ingredient {
+  id    String @id @default(uuid())
+  name  String
+  meals Meal[] @relation("meals_ingredients")
 }
 
 /////

@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MeasurementsModule } from './measurements/measurements.module';
+import { NutritionPlanModule } from './nutrition-plan/nutrition-plan.module';
 
 @Module({
   imports: [AuthModule,
@@ -24,7 +25,8 @@ import { MeasurementsModule } from './measurements/measurements.module';
       })
     }),
     NotificationsModule,
-    MeasurementsModule
+    MeasurementsModule,
+    NutritionPlanModule
 
   ],
   controllers: [],
