@@ -224,6 +224,7 @@ model NutritionDay {
   waterIntake     WaterIntake?  @relation("day_water_intake")
   nutritionPlan   NutritionPlan @relation("nutrition_days", fields: [nutritionPlanId], references: [id])
   nutritionPlanId String
+  @@unique([nutritionPlanId, dayNumber])
 }
 
 model DailyGoals {
