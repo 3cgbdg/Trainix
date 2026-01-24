@@ -1,4 +1,4 @@
-import { Body, Controller, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ProfilesService } from "./profiles.service";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
@@ -11,14 +11,15 @@ import { IReturnMessage } from "src/types/common";
 export class ProfilesController {
     constructor(private readonly profileService: ProfilesService) { }
 
+    @Get(":id")
     async getProfile(@Req() req: Request): Promise<UserProfile | null> {
         return this.profileService.getProfile((req as any).user.id);
     }
-
+    @Delete(":id")
     async deleteProfile(@Req() req: Request): Promise<IReturnMessage | null> {
         return this.profileService.deleteProfile((req as any).user.id);
     }
-
+    @Patch(":id")
     async updateProfile(@Req() req: Request, @Body() dto: UpdateProfileDto): Promise<IReturnMessage | null> {
         return this.profileService.updateProfile((req as any).user.id, dto);
     }

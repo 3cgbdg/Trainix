@@ -4,6 +4,7 @@ import { FitnessPlanModule } from './fitness-plan/fitness-plan.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'prisma/prisma.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [AuthModule,
@@ -20,7 +21,8 @@ import { PrismaModule } from 'prisma/prisma.module';
         secret: configService.get<string>("JWT_SECRET"),
         signOptions: { expiresIn: "15m" }
       })
-    })
+    }),
+    NotificationsModule
 
   ],
   controllers: [],
