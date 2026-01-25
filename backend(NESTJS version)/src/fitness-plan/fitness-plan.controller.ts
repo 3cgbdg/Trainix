@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Delete, UseGuards, Req, Query, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, UseGuards, Req, Query, Param, Body } from '@nestjs/common';
 import { FitnessPlanService } from './fitness-plan.service';
+import { CreateFitnessPlanDto } from './dto/create-fitness-plan.dto';
 
 import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
@@ -13,8 +14,8 @@ export class FitnessPlanController {
     constructor(private readonly fitnessPlanService: FitnessPlanService) { }
 
     @Post("days")
-    async addFitnessDay(@Req() req: Request) {
-        // return this.fitnessPlanService.addFitnessDay((req as any).user.id)
+    async addFitnessDay(@Body() createFitnessPlanDto: CreateFitnessPlanDto, @Req() req: Request) {
+        return this.fitnessPlanService.addFitnessDay(createFitnessPlanDto, (req as any).user.id)
     }
 
     @Get("reports/numbers")
@@ -43,9 +44,8 @@ export class FitnessPlanController {
 
 
     @Post("workouts/:day/completed")
-    async completeWorkout(@Req() req: Request) {
-        // return this.fitnessPlanService.compl((req as any).user.id)
-
+    async completeWorkout(@Req() req: Request, @Param("day") day: string, @Body() completedItems: { completed: boolean }[]) {
+        return this.fitnessPlanService.completeWorkout(day, (req as any).user.id, completedItems)
     }
 
     @Get('workouts/:day')

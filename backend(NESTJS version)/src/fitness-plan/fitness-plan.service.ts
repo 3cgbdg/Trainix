@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFitnessPlanDto } from './dto/create-fitness-plan.dto';
-import { UpdateFitnessPlanDto } from './dto/update-fitness-plan.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import { ImagesService } from 'src/utils/images/images.service';
 import { IReturnMessage, ReturnDataType } from 'src/types/common';
@@ -14,62 +13,100 @@ export class FitnessPlanService {
 
     constructor(private readonly prisma: PrismaService, private readonly imagesService: ImagesService, private readonly notificationsGateway: NotificationsGateway) { }
 
-    // async addFitnessDay(method: string, dto, myId: string) {
+    async addFitnessDay(dto: CreateFitnessPlanDto, myId: string): Promise<IReturnMessage> {
+        const dayDate = dto.day.date ? new Date(dto.day.date) : new Date();
 
-    //     const fitnessPlan = await this.prisma.fitnessPlan.findUnique({ where: { userId: myId } });
+        // Handle exercise images (upload to S3 if not exists)
+        await Promise.all(
+            dto.day.exercises.map(async (exercise) => {
+                const image = await this.prisma.exerciseImage.findUnique({ where: { name: exercise.title } });
+                if (!image) {
+                    const url = await this.imagesService.s3ImageUploadingExercise(exercise as any); // Assuming imagesService is similar
+                    await this.prisma.exerciseImage.create({
+                        data: {
+                            name: exercise.title,
+                            url
+                        }
+                    });
+                    exercise.imageUrl = url;
+                } else {
+                    exercise.imageUrl = image.url;
+                }
+            })
+        );
 
-    //     // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
-    //     if (data.day.exercises !== undefined) {
-    //         await Promise.all(
-    //             data.day.exercises!.map(async (exercise: IExercise) => {
+        // Upsert FitnessPlan
+        const fitnessPlan = await this.prisma.fitnessPlan.upsert({
+            where: { userId: myId },
+            update: {},
+            create: {
+                userId: myId,
+                createdAt: new Date(),
+                briefAnalysis: {
+                    create: dto.briefAnalysis
+                },
+                advice: {
+                    create: dto.advices
+                }
+            },
+        });
 
-    //                 const image = await ExerciseImage.findOne({ name: exercise.title });
-    //                 if (image) {
-    //                     exercise.imageUrl = image.imageUrl;
-    //                 } else {
-    //                     const url = await this.imagesService.s3ImageUploadingExercise(exercise);
-    //                     // if exists continue otherwise adding new doc
-    //                     await ExerciseImage.findOneAndUpdate(
-    //                         { name: exercise.title },
-    //                         { $setOnInsert: { imageUrl: url } },
-    //                         { new: true, upsert: true }
-    //                     );
-    //                     exercise.imageUrl = url;
-    //                 }
-    //             })
+        // Upsert FitnessPlanContent
+        const content = await this.prisma.fitnessPlanContent.upsert({
+            where: { fitnessPlanId: fitnessPlan.id },
+            update: {
+                week1Title: dto.week1Title,
+                week2Title: dto.week2Title,
+                week3Title: dto.week3Title,
+                week4Title: dto.week4Title,
+            },
+            create: {
+                fitnessPlanId: fitnessPlan.id,
+                week1Title: dto.week1Title,
+                week2Title: dto.week2Title,
+                week3Title: dto.week3Title,
+                week4Title: dto.week4Title,
+            }
+        });
 
-    //         )
-    //     }
-    //     //adding real date for each day - ai doesn`t generate real dates
-    //     if (fitnessPlan) {
+        const { exercises, ...dayData } = dto.day;
 
-    //         if (method == "container") {
+        // Prepare exercises data
+        const exercisesData = await Promise.all(exercises.map(async (exercise) => {
+            const exerciseImageRecord = await this.prisma.exerciseImage.findUnique({ where: { name: exercise.title } });
+            if (!exerciseImageRecord) {
+                throw new BadRequestException(`Image for exercise ${exercise.title} not found and failed to upload`);
+            }
+            const { imageUrl, ...e } = exercise;
+            return {
+                ...e,
+                status: e.status || "PENDING",
+                exerciseImage: {
+                    connect: { id: exerciseImageRecord.id }
+                }
+            };
+        }));
 
-    //             const workoutDay = new Date(fitnessPlan.createdAt);
-    //             workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
-    //             data.day.date = workoutDay;
-    //             fitnessPlan.report.plan.days.push(data.day);
-    //         } else {
+        // add FitnessDay
+        await this.prisma.fitnessDay.create({
+            data: {
+                fitnessPlanContentId: content.id,
+                dayNumber: dayData.dayNumber,
+                dayTitle: dayData.dayTitle,
+                calories: dayData.calories,
+                status: dayData.status ?? 'PENDING',
+                date: dayDate,
+                exercises: {
+                    create: exercisesData
+                }
+            }
 
-    //             data.day.date = new Date(data.day.date);
-    //             fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
-    //         }
-    //         fitnessPlan.markModified("report.plan.days");
-    //         await fitnessPlan.save();
+        });
 
-    //         res.status(200).json({ message: "Day created!", day: data });
-    //         return;
-    //     } else {
-    //         const workoutDay = new Date();
-    //         data.day.date = workoutDay;
-    //         const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
-    //         await fitnessPlan.save();
-    //         res.status(201).json({ message: "Plan created!" });
-    //         return;
-    //     }
+        return { message: "Successfully added/updated day!" };
+    }
 
 
-    // }
 
     async deleteFitnessPlan(myId: string): Promise<IReturnMessage> {
         await this.prisma.fitnessPlan.delete({ where: { userId: myId } });
