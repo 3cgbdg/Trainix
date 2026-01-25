@@ -3,12 +3,14 @@ import { PrismaService } from "prisma/prisma.service";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import * as bcrypt from 'bcryptjs'
 import { Prisma } from "generated/prisma/browser";
+import { IReturnMessage } from "src/types/common";
+import { UserProfile } from "src/types/profiles";
 
 
 @Injectable()
 export class ProfilesService {
     constructor(private readonly prisma: PrismaService) { }
-    async getProfile(myId: string) {
+    async getProfile(myId: string): Promise<UserProfile> {
         const profile = await this.prisma.user.findUnique({
             where: { id: myId },
             omit: { password: true },
@@ -22,13 +24,13 @@ export class ProfilesService {
         return profile
     }
 
-    async deleteProfile(myId: string) {
+    async deleteProfile(myId: string): Promise<IReturnMessage> {
         await this.prisma.user.delete({ where: { id: myId } });
         return ({ message: "Successfully deleted!" });
 
     }
 
-    async updateProfile(myId: string, dto: UpdateProfileDto) {
+    async updateProfile(myId: string, dto: UpdateProfileDto): Promise<IReturnMessage> {
         const profile = await this.prisma.user.findUnique({ where: { id: myId }, include: { metrics: true } });
 
         if (!profile) {
