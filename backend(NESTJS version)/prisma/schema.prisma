@@ -84,13 +84,16 @@ model User {
 model Metrics {
   id                     String        @id @default(uuid())
   userId                 String        @unique
-  height                 Int
-  weight                 Int
+  height                 Decimal       @db.Decimal(5, 2)
+  weight                 Decimal       @db.Decimal(5, 2)
   shoulderToWaistRatio   Decimal       @db.Decimal(4, 2)
   waistToHipRatio        Decimal       @db.Decimal(4, 2)
-  percentOfLegsLength    Decimal       @db.Decimal(4, 2)
-  shoulderAsymmetricLine Int
-  shoulderAngle          Int
+  percentOfLegsLength    Decimal       @db.Decimal(5, 2)
+  shoulderAsymmetricLine Decimal       @db.Decimal(5, 2)
+  shoulderAngle          Decimal       @db.Decimal(5, 2)
+  bodyFatPercent         Decimal       @db.Decimal(5, 2)
+  muscleMass             Decimal       @db.Decimal(5, 2)
+  leanBodyMass           Decimal       @db.Decimal(5, 2)
   user                   User          @relation("user_metrics", fields: [userId], references: [id], onDelete: Cascade)
   measurements           Measurement[] @relation("measurements_metrics")
 }
@@ -209,7 +212,7 @@ model NutritionPlan {
   id        String         @id @default(uuid())
   user      User           @relation("user_nutrition_plan", fields: [userId], references: [id], onDelete: Cascade)
   userId    String         @unique
-  createdAt DateTime        @default(now())
+  createdAt DateTime       @default(now())
   days      NutritionDay[] @relation("nutrition_days")
 }
 
@@ -224,6 +227,7 @@ model NutritionDay {
   waterIntake     WaterIntake?  @relation("day_water_intake")
   nutritionPlan   NutritionPlan @relation("nutrition_days", fields: [nutritionPlanId], references: [id])
   nutritionPlanId String
+
   @@unique([nutritionPlanId, dayNumber])
 }
 
