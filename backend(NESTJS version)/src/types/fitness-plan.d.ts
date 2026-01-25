@@ -1,5 +1,5 @@
 import { Decimal } from "@prisma/client/runtime/index-browser";
-import { Advice, FitnessDay } from "generated/prisma/browser";
+import { Advice, FitnessDay, Prisma } from "generated/prisma/browser";
 
 export interface IReturnWorkoutDays {
     items: FitnessDay[],
@@ -26,8 +26,8 @@ export interface IReturnAnalysis {
 
 export interface IReturnNumbers {
     weight: Decimal
-    lastWeight: Decimal  |null
-    bodyFat:Decimal
+    lastWeight: Decimal | null
+    bodyFat: Decimal
     bmi: number
     streak: number,
     longestStreak: number | undefined,
@@ -37,4 +37,12 @@ export interface IReturnNumbers {
     fatsData: { date: Date, bodyFat: Decimal }[] | null;
     bmiData: { date: Date, bmi: number }[] | null;
     day: number,
+}
+
+
+export interface IReturnCompleteWorkout {
+    day: Prisma.FitnessDayGetPayload<{
+        include: { exercises: true }
+    }>,
+    streak: number
 }

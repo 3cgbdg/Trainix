@@ -5,70 +5,71 @@ import { PrismaService } from 'prisma/prisma.service';
 import { ImagesService } from 'src/utils/images/images.service';
 import { IReturnMessage, ReturnDataType } from 'src/types/common';
 import { FitnessDay } from 'generated/prisma/browser';
-import { IReturnAnalysis, IReturnNumbers, IReturnWorkoutDays } from 'src/types/fitness-plan';
+import { IReturnAnalysis, IReturnCompleteWorkout, IReturnNumbers, IReturnWorkoutDays } from 'src/types/fitness-plan';
 import { Decimal } from '@prisma/client/runtime/index-browser';
+import { NotificationsGateway } from 'src/webSockets/notifications.gateway';
 
 @Injectable()
 export class FitnessPlanService {
 
-    constructor(private readonly prisma: PrismaService, private readonly imagesService: ImagesService) { }
+    constructor(private readonly prisma: PrismaService, private readonly imagesService: ImagesService, private readonly notificationsGateway: NotificationsGateway) { }
 
-    async addFitnessDay(method: string, dto, myId: string) {
+    // async addFitnessDay(method: string, dto, myId: string) {
 
-        const fitnessPlan = await this.prisma.fitnessPlan.findUnique({ where: { userId: myId } });
+    //     const fitnessPlan = await this.prisma.fitnessPlan.findUnique({ where: { userId: myId } });
 
-        // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
-        if (data.day.exercises !== undefined) {
-            await Promise.all(
-                data.day.exercises!.map(async (exercise: IExercise) => {
+    //     // parallel adding data - adding image to each of the exercises from unsplash api and saving into a s3 ->saving s3-image-url into a mongodb
+    //     if (data.day.exercises !== undefined) {
+    //         await Promise.all(
+    //             data.day.exercises!.map(async (exercise: IExercise) => {
 
-                    const image = await ExerciseImage.findOne({ name: exercise.title });
-                    if (image) {
-                        exercise.imageUrl = image.imageUrl;
-                    } else {
-                        const url = await this.imagesService.s3ImageUploadingExercise(exercise);
-                        // if exists continue otherwise adding new doc
-                        await ExerciseImage.findOneAndUpdate(
-                            { name: exercise.title },
-                            { $setOnInsert: { imageUrl: url } },
-                            { new: true, upsert: true }
-                        );
-                        exercise.imageUrl = url;
-                    }
-                })
+    //                 const image = await ExerciseImage.findOne({ name: exercise.title });
+    //                 if (image) {
+    //                     exercise.imageUrl = image.imageUrl;
+    //                 } else {
+    //                     const url = await this.imagesService.s3ImageUploadingExercise(exercise);
+    //                     // if exists continue otherwise adding new doc
+    //                     await ExerciseImage.findOneAndUpdate(
+    //                         { name: exercise.title },
+    //                         { $setOnInsert: { imageUrl: url } },
+    //                         { new: true, upsert: true }
+    //                     );
+    //                     exercise.imageUrl = url;
+    //                 }
+    //             })
 
-            )
-        }
-        //adding real date for each day - ai doesn`t generate real dates
-        if (fitnessPlan) {
+    //         )
+    //     }
+    //     //adding real date for each day - ai doesn`t generate real dates
+    //     if (fitnessPlan) {
 
-            if (method == "container") {
+    //         if (method == "container") {
 
-                const workoutDay = new Date(fitnessPlan.createdAt);
-                workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
-                data.day.date = workoutDay;
-                fitnessPlan.report.plan.days.push(data.day);
-            } else {
+    //             const workoutDay = new Date(fitnessPlan.createdAt);
+    //             workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
+    //             data.day.date = workoutDay;
+    //             fitnessPlan.report.plan.days.push(data.day);
+    //         } else {
 
-                data.day.date = new Date(data.day.date);
-                fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
-            }
-            fitnessPlan.markModified("report.plan.days");
-            await fitnessPlan.save();
+    //             data.day.date = new Date(data.day.date);
+    //             fitnessPlan.report.plan.days[data.day.dayNumber - 1] = data.day;
+    //         }
+    //         fitnessPlan.markModified("report.plan.days");
+    //         await fitnessPlan.save();
 
-            res.status(200).json({ message: "Day created!", day: data });
-            return;
-        } else {
-            const workoutDay = new Date();
-            data.day.date = workoutDay;
-            const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
-            await fitnessPlan.save();
-            res.status(201).json({ message: "Plan created!" });
-            return;
-        }
+    //         res.status(200).json({ message: "Day created!", day: data });
+    //         return;
+    //     } else {
+    //         const workoutDay = new Date();
+    //         data.day.date = workoutDay;
+    //         const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
+    //         await fitnessPlan.save();
+    //         res.status(201).json({ message: "Plan created!" });
+    //         return;
+    //     }
 
 
-    }
+    // }
 
     async deleteFitnessPlan(myId: string): Promise<IReturnMessage> {
         await this.prisma.fitnessPlan.delete({ where: { userId: myId } });
@@ -246,7 +247,7 @@ export class FitnessPlanService {
 
 
     // completing workout-day func
-    async completeWorkout(day: string, myId: string, completedItems: { completed: boolean }[]): Promise<> {
+    async completeWorkout(day: string, myId: string, completedItems: { completed: boolean }[]): Promise<ReturnDataType<IReturnCompleteWorkout>> {
         const fitnessPlan = await this.prisma.fitnessPlan.findFirst({ where: { userId: myId }, include: { content: { include: { days: { where: { dayNumber: Number(day) }, include: { exercises: true } } } } } });
         const user = await this.prisma.user.findUnique({ where: { id: myId } });
 
@@ -276,27 +277,30 @@ export class FitnessPlanService {
 
 
             if (measurement) {
-                measurement.metrics.weight = measurement.metrics.weight - currentDay.calories! / 7700;
-                const fatMass = Math.max(measurement.metrics.weight - measurement.metrics.leanBodyMass, 0);
-                if (!fatMass)
+                const newWeight = Number(measurement.metrics.weight) - currentDay.calories! / 7700;
+                const fatMass = Math.max(Number(measurement.metrics.weight) - Number(measurement.metrics.leanBodyMass), 0);
+                if (!fatMass) {
                     measurement.metrics.leanBodyMass = measurement.metrics.weight;
-                measurement.metrics.bodyFatPercent = (fatMass / measurement.metrics.weight) * 100;
-                measurement.markModified(`metrics`);
-                await measurement.save();
-            }
-            const socketId = userSocketMap.get(String(user._id));
-            let notification: INotification | null;
-            notification = await this.prisma.notification.findFirst({ where: { userId: myId, topic: "MEASUREMENT" } });
-            if (!notification) {
-                const notification = this.prisma.notification.create({ data: { userId: myId, info: `Reminder:  Want to update your metrics ?`, topic: "MEASUREMENT" } });
-                if (socketId)
-                    io.to(socketId).emit("getNotifications", { data: notification })
+                    await this.prisma.metrics.update({
+                        where: { id: measurement.metricsId }, data: {
+                            leanBodyMass: newWeight
+                        }
+                    });
+                } else {
+                    const newBodyFatPercent = (fatMass / newWeight) * 100;
+                    await this.prisma.metrics.update({
+                        where: { id: measurement.metricsId }, data: {
+                            bodyFatPercent: newBodyFatPercent
+                        }
+                    });
+                }
+                await this.notificationsGateway.notifyUserAfterWorkout(myId);
             }
 
 
         }
 
-        return ({ message: "Day is successfully compeleted!", day: currentDay, streak: fitnessPlan.streak });
+        return ({ message: "Day is successfully compeleted!", data: { day: currentDay, streak: fitnessPlan.streak } });
 
 
     }

@@ -1,47 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, UseGuards, Req, Query, Param } from '@nestjs/common';
 import { FitnessPlanService } from './fitness-plan.service';
 
 import { AuthGuard } from '@nestjs/passport';
+import type { Request } from 'express';
+import { IReturnMessage, ReturnDataType } from 'src/types/common';
+import { IReturnAnalysis, IReturnNumbers, IReturnWorkoutDays } from 'src/types/fitness-plan';
+import { FitnessDay } from 'generated/prisma/browser';
 
 @UseGuards(AuthGuard("jwt"))
 @Controller('fitness-plan')
 export class FitnessPlanController {
-  constructor(private readonly fitnessPlanService: FitnessPlanService) { }
+    constructor(private readonly fitnessPlanService: FitnessPlanService) { }
 
-  @Post("days")
-  async addFitnessDay(req: Request) {
-    return this.fitnessPlanService.addFitnessDay()
-  }
+    @Post("days")
+    async addFitnessDay(@Req() req: Request) {
+        // return this.fitnessPlanService.addFitnessDay((req as any).user.id)
+    }
 
-  @Get("reports/numbers")
-  async getNumbers() {
-  }
+    @Get("reports/numbers")
+    async getNumbers(@Query() query: { date: string, progress: string }, @Req() req: Request): Promise<ReturnDataType<IReturnNumbers>> {
+        return this.fitnessPlanService.getNumbers(query.date, query.progress, (req as any).user.id)
+    }
 
-  @Get("workouts")
-  async getWorkouts() {
-  }
-
-
-
-  @Get('analysis')
-  async getAnalysis() {
-  }
+    @Get("workouts")
+    async getWorkouts(@Req() req: Request): Promise<ReturnDataType<IReturnWorkoutDays>> {
+        return this.fitnessPlanService.getWorkouts((req as any).user.id)
+    }
 
 
-  @Delete('plan')
-  async deleteFitnessPlan() {
-  }
+
+    @Get('analysis')
+    async getAnalysis(@Req() req: Request): Promise<ReturnDataType<IReturnAnalysis>> {
+        return this.fitnessPlanService.getAnalysis((req as any).user.id)
+
+    }
 
 
-  @Post("workouts/:day/completed")
-  async completeWorkout() {
+    @Delete('plan')
+    async deleteFitnessPlan(@Req() req: Request): Promise<IReturnMessage> {
+        return this.fitnessPlanService.deleteFitnessPlan((req as any).user.id)
+    }
 
-  }
 
-  @Get('workouts/:day')
-  async getWorkout() {
+    @Post("workouts/:day/completed")
+    async completeWorkout(@Req() req: Request) {
+        // return this.fitnessPlanService.compl((req as any).user.id)
 
-  }
+    }
+
+    @Get('workouts/:day')
+    async getWorkout(@Req() req: Request, @Param("day") day: string): Promise<ReturnDataType<FitnessDay>> {
+        return this.fitnessPlanService.getWorkout(day, (req as any).user.id)
+
+    }
 }
 
-TODO later!!!
+
