@@ -209,7 +209,7 @@ model NutritionPlan {
   id        String         @id @default(uuid())
   user      User           @relation("user_nutrition_plan", fields: [userId], references: [id], onDelete: Cascade)
   userId    String         @unique
-  createdAt DateTime
+  createdAt DateTime        @default(now())
   days      NutritionDay[] @relation("nutrition_days")
 }
 
@@ -270,7 +270,7 @@ model Meal {
 
 model Ingredient {
   id    String @id @default(uuid())
-  name  String
+  name  String @unique
   meals Meal[] @relation("meals_ingredients")
 }
 

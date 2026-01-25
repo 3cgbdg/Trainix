@@ -1,55 +1,122 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNutritionPlanDto } from './dto/create-nutrition-plan.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import {  ReturnNutritionDayType, ReturnNutritionStatisticsType } from 'src/types/nutrition-plan';
+import { ReturnNutritionDayType, ReturnNutritionStatisticsType } from 'src/types/nutrition-plan';
 import { IReturnMessage } from 'src/types/common';
+import { ImagesService } from 'src/utils/images/images.service';
 @Injectable()
 export class NutritionPlanService {
-  constructor(private readonly prisma: PrismaService) { };
+  constructor(private readonly prisma: PrismaService, private readonly imagesService: ImagesService) { };
 
-  async createNutritionPlan(dto: CreateNutritionPlanDto, myId: string) {
-    const dayDate = new Date();
-    const date = dayDate.setDate(dayDate.getDate() + dto.day.dayNumber - 1);
-    console.log(dayDate);
+  async create(dto: CreateNutritionPlanDto, myId: string): Promise<IReturnMessage> {
+    const dayDate = dto.day.date ? new Date(dto.day.date) : new Date();
 
-    // if plan exists then we pushing new day otherwise creating new plan including the day in it 
-    let nutritionPlan = await this.prisma.nutritionPlan.findUnique({ where: { userId: myId } });
-
-    // parallel for optimized using in adding images to each meal
     await Promise.all(
       dto.day.meals.map(async (meal) => {
         const image = await this.prisma.mealImage.findUnique({ where: { name: meal.mealTitle } });
         if (!image) {
-
-
-          const url = await s3ImageUploadingMeal(meal);
-
-          await this.prisma.mealImage.create(
-            {
-              data: {
-                name: meal.mealTitle,
-                url
-              }
-            },
-          );
+          const url = await this.imagesService.s3ImageUploadingMeal(meal);
+          await this.prisma.mealImage.create({
+            data: {
+              name: meal.mealTitle,
+              url
+            }
+          });
           meal.imageUrl = url;
+        } else {
+          meal.imageUrl = image.url;
         }
+      })
+    );
 
-      }))
+    const nutritionPlan = await this.prisma.nutritionPlan.upsert({
+      where: { userId: myId },
+      update: {},
+      create: {
+        userId: myId,
+        createdAt: new Date(),
+      },
+    });
 
-    // if plan exists just pushing
-    if (nutritionPlan) {
-      nutritionPlan.days.push(obj);
-      await nutritionPlan.save();
-      res.status(200).json({ message: "Successfully added day!" });
-      return;
-    }
-    // otherwise creating plan with this item
-    else {
-      nutritionPlan = await NutritionPlan.create({ userId: (req as AuthRequest).userId, "days": [obj], createdAt: new Date() });
-      res.status(201).json({ message: "Nutrition plan created!", day: obj });
-      return;
-    }
+    const { meals, dailyGoals, ...dayData } = dto.day;
+
+    const mealsData = await Promise.all(meals.map(async (meal) => {
+      const mealImageRecord = await this.prisma.mealImage.findUnique({ where: { name: meal.mealTitle } });
+      if (!mealImageRecord) {
+        throw new BadRequestException(`Image for meal ${meal.mealTitle} not found and failed to upload`);
+      }
+      const { mealTitle, ingredients, imageUrl, ...m } = meal;
+      return {
+        ...m,
+        title: mealTitle,
+        mealImage: {
+          connect: { id: mealImageRecord.id }
+        },
+        ingredients: {
+          connectOrCreate: (ingredients?.map(name => ({
+            where: { name },
+            create: { name }
+          })) || []) as any
+        }
+      };
+    }));
+
+    const dailyGoalsData = dailyGoals ? {
+      caloriesTarget: dailyGoals.caloriesTarget,
+      proteinTarget: dailyGoals.proteinTarget,
+      carbsTarget: dailyGoals.carbsTarget,
+      fatsTarget: dailyGoals.fatsTarget,
+      caloriesCurrent: dailyGoals.caloriesCurrent ?? 0,
+      proteinCurrent: dailyGoals.proteinCurrent ?? 0,
+      carbsCurrent: dailyGoals.carbsCurrent ?? 0,
+      fatsCurrent: dailyGoals.fatsCurrent ?? 0,
+    } : undefined;
+
+    await this.prisma.nutritionDay.upsert({
+      where: {
+        nutritionPlanId_dayNumber: {
+          nutritionPlanId: nutritionPlan.id,
+          dayNumber: dayData.dayNumber
+        }
+      },
+      update: {
+        ...dayData,
+        date: dayDate,
+        waterCurrent: dayData.waterCurrent ?? 0,
+        waterTarget: dayData.waterTarget ?? 0,
+        dailyGoals: dailyGoalsData ? {
+          upsert: {
+            create: dailyGoalsData,
+            update: dailyGoalsData
+          }
+        } : undefined,
+        meals: {
+          deleteMany: {},
+          create: mealsData
+        }
+      },
+      create: {
+        ...dayData,
+        date: dayDate,
+        waterCurrent: dayData.waterCurrent ?? 0,
+        waterTarget: dayData.waterTarget ?? 0,
+        nutritionPlanId: nutritionPlan.id,
+        dailyGoals: dailyGoalsData ? {
+          create: dailyGoalsData
+        } : undefined,
+        meals: {
+          create: mealsData
+        },
+        waterIntake: {
+          create: {
+            current: dayData.waterCurrent ?? 0,
+            target: dayData.waterTarget ?? 0
+          }
+        }
+      }
+    });
+
+    return { message: "Successfully added/updated day!" };
   }
 
   async getNutritionDay(myId: string): Promise<ReturnNutritionDayType> {
@@ -65,7 +132,7 @@ export class NutritionPlanService {
         MS_PER_DAY) + 1
     );
 
-    const nutritionDay = await this.prisma.nutritionDay.findUnique({ where: {nutritionPlanId_dayNumber:{ nutritionPlanId: nutritionPlan.id, dayNumber }}, include: { meals: { include: { ingredients: true, mealImage: true } }, dailyGoals: true, waterIntake: true } })
+    const nutritionDay = await this.prisma.nutritionDay.findUnique({ where: { nutritionPlanId_dayNumber: { nutritionPlanId: nutritionPlan.id, dayNumber } }, include: { meals: { include: { ingredients: true, mealImage: true } }, dailyGoals: true, waterIntake: true } })
 
     if (!nutritionDay) {
       throw new NotFoundException("Nutrition Day was not found")
@@ -89,7 +156,7 @@ export class NutritionPlanService {
     }
 
     // adding numbers to current waterIntake
-    await this.prisma.nutritionDay.update({ where: { nutritionPlanId_dayNumber:{dayNumber: dayNum, nutritionPlanId: nutritionPlan.id} }, data: { waterCurrent: { increment: amount } } })
+    await this.prisma.nutritionDay.update({ where: { nutritionPlanId_dayNumber: { dayNumber: dayNum, nutritionPlanId: nutritionPlan.id } }, data: { waterCurrent: { increment: amount } } })
 
 
 
@@ -106,7 +173,7 @@ export class NutritionPlanService {
       throw new NotFoundException("Nutrition Plan was not found")
     }
 
-    const days = await this.prisma.nutritionDay.findMany({ where: {nutritionPlanId: nutritionPlan.id }, include: { dailyGoals: true }, orderBy: { dayNumber: "asc" }, take: 7, skip: 7 * (weekNumber - 1) });
+    const days = await this.prisma.nutritionDay.findMany({ where: { nutritionPlanId: nutritionPlan.id }, include: { dailyGoals: true }, orderBy: { dayNumber: "asc" }, take: 7, skip: 7 * (weekNumber - 1) });
 
     if (days.length == 0) {
       throw new NotFoundException("Days were not found");
@@ -157,7 +224,7 @@ export class NutritionPlanService {
           }
         }
         ,
-        meals: { update: { where: {id:mealId}, data: { status: "EATEN" } } }
+        meals: { update: { where: { id: mealId }, data: { status: "EATEN" } } }
       }
     })
 
