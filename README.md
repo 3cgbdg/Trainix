@@ -113,4 +113,4 @@ This project is licensed under the [GNU GPL v3](LICENSE).
 
 ## 💡 Credits
 
-Made with ❤️ by [gaykun1](https://github.com/gaykun1)
+Made with ❤️ by [3cgbdg](https://github.com/3cgbdg)
