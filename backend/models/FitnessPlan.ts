@@ -66,4 +66,7 @@ const fitnessPlanSchema = new mongoose.Schema<IFitnessPlan>({
 
 })
 
+// every lookup filters by userId, most sort by createdAt descending
+fitnessPlanSchema.index({ userId: 1, createdAt: -1 });
+
 export default mongoose.model<IFitnessPlan>("FitnessPlan", fitnessPlanSchema);

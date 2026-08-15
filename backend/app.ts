@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import compression from "compression";
 import dotenv from "dotenv";
 // route import
 import authRoute from "./routes/authRoutes"
@@ -12,6 +13,7 @@ import measurementsRoute from "./routes/measurementsRoutes";
 // dotenv config
 dotenv.config();
 export const app = express();
+app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({

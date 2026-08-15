@@ -21,8 +21,9 @@ export const regularReminder = async () => {
             const query: any = {}
             if (lastId) query._id = { $gt: lastId }
             const plans = await NutritionPlan.find({
+                ...query,
                 "days.date": { $gte: startOfDay, $lte: endOfDay }
-            }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
+            }).sort({ _id: 1 }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             const notifications: INotification[] = [];
@@ -80,8 +81,9 @@ export const workoutReminder = async () => {
             const query: any = {}
             if (lastId) query._id = { $gt: lastId }
             const plans = await FitnessPlan.find({
+                ...query,
                 "report.plan.days.date": { $gte: startOfDay, $lte: endOfDay }
-            }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
+            }).sort({ _id: 1 }).populate<{ userId: { inAppNotifications: boolean, _id: ObjectId } }>({ path: "userId", select: "inAppNotifications _id" }).limit(batchSize);
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             const notifications: INotification[] = [];
@@ -128,7 +130,7 @@ export const metricsReminder = async () => {
         while (true) {
             const query: any = {};
             if (lastId) query._id = { $gt: lastId };
-            const users = await User.find(query).limit(batchSize);
+            const users = await User.find(query).sort({ _id: 1 }).limit(batchSize);
             if (users.length == 0) break;
             lastId = users[users.length - 1]._id;
             const notifications: INotification[] = [];
@@ -167,11 +169,11 @@ export const createNewMeasurement = async () => {
         while (true) {
             const query: any = {}
             if (lastId) query._id = { $gt: lastId }
-            const users = await User.find({});
+            const users = await User.find(query).sort({ _id: 1 }).limit(batchSize);
             if (users.length == 0) break;
             lastId = users[users.length - 1]._id;
             for (const user of users) {
-                // create new measurement every 2 weeks 
+                // create new measurement every 2 weeks
                 const lastMeasurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
 
                 if (lastMeasurement) {
@@ -209,7 +211,7 @@ export const checkMissedDay = async () => {
     while (true) {
         const query: any = {}
         if (lastId) query._id = { $gt: lastId }
-        const fitnessPlans = await FitnessPlan.find({});
+        const fitnessPlans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
         if (fitnessPlans.length == 0) break;
         lastId = fitnessPlans[fitnessPlans.length - 1]._id;
         for (let plan of fitnessPlans) {
@@ -227,8 +229,6 @@ export const checkMissedDay = async () => {
                 plan.markModified("report");
                 await plan.save();
             }
-            plan.markModified(`report`);
-            await plan.save();
         }
     }
 
@@ -241,7 +241,7 @@ export const checkingStatusOfPlan = async () => {
     while (true) {
         const query: any = {}
         if (lastId) query._id = { $gt: lastId }
-        const fitnessPlans = await FitnessPlan.find({});
+        const fitnessPlans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
         if (fitnessPlans.length == 0) break;
         lastId = fitnessPlans[fitnessPlans.length - 1]._id;
         for (let plan of fitnessPlans) {
@@ -260,87 +260,87 @@ export const checkingStatusOfPlan = async () => {
 export const generateNewDayFitnessContent = async () => {
     try {
         const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let lastId = null;
-    const batchSize = 1000;
-    while (true) {
-        const query: any = {}
-        if (lastId) query._id = { $gt: lastId }
-        const plans = await FitnessPlan.find({});
-          if (plans.length == 0) break;
-        lastId = plans[plans.length - 1]._id;
-        // TODO ADD BATCHES
-        await Promise.all(plans.map(async (plan) => {
-            const day = plan.report.plan.days.find(day => new Date(day.date).getDate() == new Date().getDate());
-            if (day) {
-                // getting user and measurements for sending proper metrics to ai to analyze
-                const [user, measurements] = await Promise.all([
-                    User.findById(plan.userId),
-                    Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
-                ]);
-                // requesting ai generating day
-                const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan/day`, {
-                    userInfo: {
-                        height: user?.metrics.height,
-                        weight: user?.metrics.weight,
-                        targetWeight: user?.targetWeight,
-                        primaryFitnessGoal: user?.primaryFitnessGoal,
-                        fitnessLevel: user?.fitnessLevel,
-                        gender: user?.gender,
-                        waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                        shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                        bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                        muscleMass: measurements?.metrics.muscleMass,
-                        leanBodyMass: measurements?.metrics.leanBodyMass,
-                    },
-                    day: {
-                        dayNumber: day.dayNumber,
-                        day: day.day,
-                        date: day.date
+        today.setHours(0, 0, 0, 0);
+        let lastId = null;
+        const batchSize = 1000;
+        while (true) {
+            const query: any = {}
+            if (lastId) query._id = { $gt: lastId }
+            const plans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
+            if (plans.length == 0) break;
+            lastId = plans[plans.length - 1]._id;
+            await Promise.all(plans.map(async (plan) => {
+                const day = plan.report.plan.days.find(day => new Date(day.date).getDate() == new Date().getDate());
+                if (day) {
+                    // getting user and measurements for sending proper metrics to ai to analyze
+                    const [user, measurements] = await Promise.all([
+                        User.findById(plan.userId),
+                        Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
+                    ]);
+                    // requesting ai generating day
+                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan/day`, {
+                        userInfo: {
+                            height: user?.metrics.height,
+                            weight: user?.metrics.weight,
+                            targetWeight: user?.targetWeight,
+                            primaryFitnessGoal: user?.primaryFitnessGoal,
+                            fitnessLevel: user?.fitnessLevel,
+                            gender: user?.gender,
+                            waistToHipRatio: measurements?.metrics.waistToHipRatio,
+                            shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
+                            bodyFatPercent: measurements?.metrics.bodyFatPercent,
+                            muscleMass: measurements?.metrics.muscleMass,
+                            leanBodyMass: measurements?.metrics.leanBodyMass,
+                        },
+                        day: {
+                            dayNumber: day.dayNumber,
+                            day: day.day,
+                            date: day.date
+                        }
+
+                    }
+                    );
+                    const data = res.data;
+                    // validating info
+                    const regex = /```json\s([\s\S]+?)```/;
+                    let match;
+                    try {
+                        // adding to db
+                        match = data.AIreport.match(regex);
+                        const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                        await Promise.all(
+                            info.day.exercises!.map(async (exercise: IExercise) => {
+
+                                const image = await ExerciseImage.findOne({ name: exercise.title });
+                                if (image) {
+                                    exercise.imageUrl = image.imageUrl;
+                                } else {
+                                    const url = await s3ImageUploadingExercise(exercise);
+                                    // if exists continue otherwise adding new doc
+                                    await ExerciseImage.findOneAndUpdate(
+                                        { name: exercise.title },
+                                        { $setOnInsert: { imageUrl: url } },
+                                        { new: true, upsert: true }
+                                    );
+                                    exercise.imageUrl = url;
+                                }
+                            })
+
+                        )
+                        info.day.date = new Date(info.day.date);
+                        plan.report.plan.days[info.day.dayNumber - 1] = info.day;
+                        plan.markModified("report.plan.days");
+                        await plan.save();
+                    } catch (err) {
+                        console.error(err);
                     }
 
+
+                } else {
+                    return;
                 }
-                );
-                const data = res.data;
-                // validating info
-                const regex = /```json\s([\s\S]+?)```/;
-                let match;
-                try {
-                    // adding to db
-                    match = data.AIreport.match(regex);
-                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
-                    await Promise.all(
-                        info.day.exercises!.map(async (exercise: IExercise) => {
-
-                            const image = await ExerciseImage.findOne({ name: exercise.title });
-                            if (image) {
-                                exercise.imageUrl = image.imageUrl;
-                            } else {
-                                const url = await s3ImageUploadingExercise(exercise);
-                                // if exists continue otherwise adding new doc
-                                await ExerciseImage.findOneAndUpdate(
-                                    { name: exercise.title },
-                                    { $setOnInsert: { imageUrl: url } },
-                                    { new: true, upsert: true }
-                                );
-                                exercise.imageUrl = url;
-                            }
-                        })
-
-                    )
-                    info.day.date = new Date(info.day.date);
-                    plan.report.plan.days[info.day.dayNumber - 1] = info.day;
-                    plan.markModified("report.plan.days");
-                    await plan.save();
-                } catch (err) {
-                    console.error(err);
-                }
-
-
-            } else {
-                return;
-            }
-        }))}
+            }))
+        }
     } catch (err) {
         console.error(err);
     }
@@ -355,7 +355,7 @@ export const generateNewDayNutritionContent = async () => {
         while (true) {
             const query: any = {};
             if (lastId) query._id = { $gt: lastId };
-            const plans = await NutritionPlan.find(query).limit(batchSize);
+            const plans = await NutritionPlan.find(query).sort({ _id: 1 }).limit(batchSize);
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             await Promise.all(plans.map(async (plan) => {
@@ -419,4 +419,3 @@ export const generateNewDayNutritionContent = async () => {
         console.error(err);
     }
 }
-

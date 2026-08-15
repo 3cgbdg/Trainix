@@ -19,4 +19,7 @@ const notificationSchema = new mongoose.Schema<INotification>({
   createdAt: { type: Date, default: Date.now, expires: 7200 }, //document expires in 2 hours
 })
 
+// every notification lookup filters by userId, most also filter by topic
+notificationSchema.index({ userId: 1, topic: 1 });
+
 export default mongoose.model<INotification>("Notification", notificationSchema);

@@ -50,4 +50,7 @@ const nutritionPlanSchema = new mongoose.Schema<INutritionPlan>({
   createdAt: { type: Date, default: Date.now },
 })
 
+// every lookup filters by userId
+nutritionPlanSchema.index({ userId: 1 });
+
 export default mongoose.model<INutritionPlan>("NutritionPlan", nutritionPlanSchema);
