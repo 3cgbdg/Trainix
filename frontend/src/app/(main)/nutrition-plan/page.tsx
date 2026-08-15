@@ -20,11 +20,15 @@ const Page = () => {
         const res = await api.get("/api/measurement/measurements");
         return res.data;
     }
-    const { data: measurement, isLoading, isError: measurementError, refetch } = useQuery({
+    const { data: measurement, isLoading, error: measurementQueryError, refetch } = useQuery({
         queryKey: ["measurement"],
         queryFn: getMeasurements,
         retry: 0,
     })
+    // a 404 here just means the user hasn't done a body scan yet - that's not
+    // a failure, GenerateNutritionPlan already guides them to /ai-analysis for it
+    const measurementNotFound = axios.isAxiosError(measurementQueryError) && measurementQueryError.response?.status === 404;
+    const measurementError = Boolean(measurementQueryError) && !measurementNotFound;
 
     // mutation - request for generation plan
     const generateNutritionPlan = useCallback(async (dayNumber: number) => {
