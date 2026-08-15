@@ -1,32 +1,30 @@
 import type { Metadata } from "next";
-import { Borel, Inter, Outfit } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
-import CheckEmptyPath from "@/components/loads/CheckEmptyPath";
 
-
-
-
-const BorelFont = Borel({
-  weight: "400",
-  variable: "--font-borel",
+const geist = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
-const InterFont = Inter({
-  variable: "--font-inter",
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
-const outfitFont = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"]
-})
+
 export const metadata: Metadata = {
-  title: "Trainix",
-  description: "Trainix - best ai fitness web app",
+  title: {
+    default: "Trainix",
+    template: "%s · Trainix",
+  },
+  description: "Personalized workouts, nutrition, body insights, and progress in one focused fitness experience.",
   icons: {
-    icon: "/logo.png"
-  }
+    icon: "/logo.png",
+  },
 };
 export default function RootLayout({
   children,
@@ -35,16 +33,11 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en">
-      <body
-        className={`${InterFont.variable} ${outfitFont.variable} ${BorelFont.variable} antialiased`}
-      >
+    <html lang="en" data-scroll-behavior="smooth">
+      <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
         <QueryProvider>
           <ReduxProvider>
-            <CheckEmptyPath/>
-          <div className="">
             {children}
-          </div>
           </ReduxProvider>
         </QueryProvider>
       </body>

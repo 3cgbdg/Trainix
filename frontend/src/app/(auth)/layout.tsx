@@ -6,7 +6,7 @@ export default async function AuthLayout({
 }>) {
 
     return (
-        <div className={`py-2 flex items-center justify-center `}>
+        <div className="flex min-h-dvh w-full items-center justify-center bg-canvas p-3 sm:p-6">
             {children}
         </div>
     );

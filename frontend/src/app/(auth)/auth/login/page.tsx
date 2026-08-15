@@ -44,13 +44,13 @@ const Page = () => {
         mutation.mutate(data);
     }
     return (
-        <div className="p-10 rounded-2xl flex flex-col items-center basis-[460px] grow-0 bg-white _border">
+        <div className="flex w-full max-w-[460px] flex-col items-center rounded-card border border-border bg-surface p-6 sm:p-10">
             <div className="   mb-4 ">
-                <Image width={120} height={120} alt="lock" src="/lock.png" />
+                <Image className="size-[120px]" width={120} height={120} alt="Secure sign in" src="/lock.png" priority />
             </div>
             <div className="flex items-center mb-4 gap-1 text-green">
                 <div className="">
-                    <Image width={48} height={48} src="/logo.png" alt="logo" />
+                    <Image className="h-auto w-12" width={48} height={46} src="/logo.png" alt="" />
                 </div>
                 <span className={` relative top-3 font-borel text-[38px] leading-none  font-bold `}>Trainix</span>
             </div>

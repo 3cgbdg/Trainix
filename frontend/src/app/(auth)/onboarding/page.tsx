@@ -35,9 +35,9 @@ const Page = () => {
         mutation.mutate(data);
     }
     return (
-        <div className="p-10 rounded-2xl flex flex-col items-center basis-[672px] grow-0 bg-white _border">
+        <div className="flex w-full max-w-[672px] flex-col items-center rounded-card border border-border bg-surface p-6 sm:p-10">
             <div className="   mb-7 ">
-                <Image width={592} height={198} alt="lock" src="/onboarding.png" />
+                <Image className="h-auto w-full" width={592} height={198} alt="A guided fitness journey" src="/onboarding.png" priority />
             </div>
 
             <div className="flex flex-col gap-3 text-center mb-[30px]">

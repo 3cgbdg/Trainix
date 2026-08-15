@@ -1,26 +1,19 @@
-import Header from "@/components/Header";
 import AuthClientUpload from "@/components/loads/AuthClientUpload";
 import Notification from "@/components/Notification";
-import Sidebar from "@/components/Sidebar";
+import { AppShell } from "@/components/layout/AppShell";
 
-export default async function RootLayout({
+export default function ProductLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   
   return (
-    <div className="flex flex-col h-screen  ">
+    <>
       <AuthClientUpload />
       <Notification />
-      <Header />
-      <div className="flex items-start grow-1 bg-neutral-100">
-        <Sidebar />
-        <div className="  sm:py-6 py-2 px-3 md:p-8 w-full">
-          {children}
-        </div>
-      </div>
-    </div>
+      <AppShell>{children}</AppShell>
+    </>
 
 
   );

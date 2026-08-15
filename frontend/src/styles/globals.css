@@ -1,81 +1,174 @@
 @import "tailwindcss";
 
 :root {
-  --foreground: #171717;
+  --canvas: oklch(97.5% 0.008 145);
+  --surface: oklch(100% 0 0);
+  --surface-muted: oklch(96.5% 0.01 145);
+  --surface-strong: oklch(91.5% 0.014 145);
+  --text-strong: oklch(20% 0.025 145);
+  --text-muted: oklch(44% 0.025 145);
+  --text-subtle: oklch(58% 0.02 145);
+  --border: oklch(88% 0.018 145);
+  --border-strong: oklch(74% 0.025 145);
+  --brand: oklch(52% 0.13 145);
+  --brand-strong: oklch(42% 0.12 145);
+  --brand-soft: oklch(93.5% 0.045 145);
+  --focus: oklch(58% 0.16 145);
+  --danger: oklch(53% 0.19 25);
+  --danger-strong: oklch(44% 0.18 25);
+  --danger-soft: oklch(94% 0.04 25);
+  --warning: oklch(58% 0.13 70);
+  --success: oklch(47% 0.12 145);
+  --on-brand: oklch(99% 0 0);
 }
 
 @theme inline {
-  --color-background: var(--color-neutral-100);
-  --font-inter: var(--font-inter);
-  --font-borel: var(--font-borel);
-  --font-outfit: var(--font-outfit);
-  --color-green: #58a446ff;
-  --color-custom-black: #19191fff;
-  --color-red:#DC6660FF;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter: var(--font-geist-sans);
+  --font-outfit: var(--font-geist-sans);
+  --font-borel: var(--font-geist-sans);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-strong: var(--surface-strong);
+  --color-strong: var(--text-strong);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-on-brand: var(--on-brand);
+
+  --color-background: var(--canvas);
+  --color-green: var(--brand);
+  --color-custom-black: var(--text-strong);
+  --color-red: var(--danger);
+
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --spacing-content: 80rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--canvas);
+  color-scheme: light;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--neutral-600);
-  font-family: var(--font-inter);
+  min-height: 100dvh;
+  background: var(--canvas);
+  color: var(--text-muted);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--text-strong);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: var(--radius-control);
+  background: var(--brand);
+  color: var(--on-brand);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 ._container {
-  @apply max-w-[1400px] px-[13px] mx-auto w-full;
+  @apply mx-auto w-full max-w-content px-3 sm:px-6;
 }
 
 ._border {
-  @apply border-[1px]  border-neutral-300 shadow-xs;
+  @apply border border-border;
 }
+
 .input {
-  @apply border-neutral-300 border-[1px] overflow-hidden p-2.5 rounded-md outline-0;
+  @apply min-h-11 w-full rounded-control border border-border bg-surface px-3 py-2.5 text-base text-strong outline-none transition-colors placeholder:text-subtle;
 }
+
+.input:hover {
+  @apply border-border-strong;
+}
+
+.input:focus-visible {
+  @apply border-brand ring-2 ring-focus/25;
+}
+
 .button-green {
-  @apply text-sm inline-flex  items-center justify-center leading-5.5 font-medium text-white bg-green rounded-md p-2.5 transition-colors hover:bg-[#468438FF] cursor-pointer;
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-transparent bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-colors hover:bg-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
 }
+
 .button-transparent {
-  @apply text-sm inline-flex  items-center justify-center leading-5.5 font-medium  bg-transparent  p-2.5 transition-colors cursor-pointer rounded-md  border-[1px]  hover:text-green hover:border-green  border-neutral-300 text-neutral-900;
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-strong transition-colors hover:border-border-strong hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
 }
+
 .page-title {
-  @apply text-3xl leading-9 font-bold text-neutral-900 font-outfit;
+  @apply text-2xl font-bold tracking-tight text-strong sm:text-3xl;
 }
-.banner-title {
-  @apply text-2xl leading-8 font-bold text-[#19191FFF] font-outfit;
-}
+
+.banner-title,
 .section-title {
-  @apply text-2xl leading-8 font-bold text-neutral-900 font-outfit;
+  @apply text-xl font-bold tracking-tight text-strong sm:text-2xl;
 }
+
 .link {
-  @apply text-sm leading-5.5 font-medium text-neutral-600 hover:text-green cursor-pointer transition-colors;
+  @apply rounded-sm text-sm font-semibold text-muted transition-colors hover:text-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus;
 }
+
 @layer utilities {
-  ._dashboard-banner {
-    background: linear-gradient(102.09deg, #f5faf5ff 0%, #fff8f080 100%);
-    border-radius: 10px;
-    box-shadow: 0px 0px 1px #171a1f0d, 0px 0px 2px #171a1f14;
-  }
+  ._dashboard-banner,
   ._workout-plan-banner {
-    background: linear-gradient(
-      140.6deg,
-      #f5faf5ff 0%,
-      #58a446cc 50%,
-      #58a446cc 100%
-    );
-    border-radius: 10px;
-    box-shadow: 0px 0px 1px #171a1f0d, 0px 0px 2px #171a1f14;
-  }
-  .skeleton {
-    background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    background: var(--brand-soft);
+    border: 1px solid color-mix(in oklab, var(--brand) 18%, transparent);
+    border-radius: var(--radius-card);
   }
 
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+  .skeleton {
+    @apply animate-pulse bg-surface-strong;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

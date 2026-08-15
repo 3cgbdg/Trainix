@@ -8,6 +8,7 @@
 /frontend/.env.local
 /frontend/.next
 /frontend/dist
+/frontend/*.tsbuildinfo
 # general
 .DS_Store
 node_modules

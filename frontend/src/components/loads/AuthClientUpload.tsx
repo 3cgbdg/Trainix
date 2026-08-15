@@ -1,47 +1,58 @@
-"use client"
-import { api } from '@/api/axiosInstance';
-import { useAppDispatch } from '@/hooks/reduxHooks';
-import { getProfile } from '@/redux/authSlice';
-import { getMeasurement } from '@/redux/measurementSlice';
-import { getNutritionDay } from '@/redux/nutritionDaySlice';
-import { getWorkouts } from '@/redux/workoutsSlice';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+"use client";
 
-// fetching data component every reload
-const AuthClientUpload = () => {
-    const dispatch = useAppDispatch();
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { api } from "@/api/axiosInstance";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { getProfile } from "@/redux/authSlice";
+import { getMeasurement } from "@/redux/measurementSlice";
+import { getNutritionDay } from "@/redux/nutritionDaySlice";
+import { getWorkouts } from "@/redux/workoutsSlice";
 
-    const router = useRouter();
-    useEffect(() => {
-        const getUser = async () => {
-            try {
-                const res1 = await api.get(`/api/auth/profile`);
-                dispatch(getProfile(res1.data.user));
-            } catch {
-                router.push("/auth/login");
-            }
-            // ping python server to wake up
+export default function AuthClientUpload() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-            await axios.get(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/ping`, {
-                withCredentials: true,
-                headers: { "Content-Type": "application/json" }
-            });
-            const res4 = await api.get("api/measurement/measurements");
-            dispatch(getMeasurement(res4.data));
-            const res2 = await api.get(`/api/fitness-plan/workouts`);
-            dispatch(getWorkouts(res2.data));
-            const res3 = await api.get("api/nutrition-plan/nutrition-plans");
-            dispatch(getNutritionDay(res3.data));
+  useEffect(() => {
+    let cancelled = false;
 
+    async function loadAuthenticatedData() {
+      try {
+        const profile = await api.get("/api/auth/profile");
+        if (cancelled) return;
+        dispatch(getProfile(profile.data.user));
+      } catch {
+        router.replace("/auth/login");
+        return;
+      }
 
-        }
+      const pythonUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
+      if (pythonUrl) {
+        void axios.get(`${pythonUrl}/api/ping`, {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }).catch(() => undefined);
+      }
 
-        getUser();
+      const [measurement, workouts, nutrition] = await Promise.allSettled([
+        api.get("api/measurement/measurements"),
+        api.get("/api/fitness-plan/workouts"),
+        api.get("api/nutrition-plan/nutrition-plans"),
+      ]);
 
-    }, []);
-    return null;
+      if (cancelled) return;
+      if (measurement.status === "fulfilled") dispatch(getMeasurement(measurement.value.data));
+      if (workouts.status === "fulfilled") dispatch(getWorkouts(workouts.value.data));
+      if (nutrition.status === "fulfilled") dispatch(getNutritionDay(nutrition.value.data));
+    }
+
+    void loadAuthenticatedData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, router]);
+
+  return null;
 }
-
-export default AuthClientUpload
