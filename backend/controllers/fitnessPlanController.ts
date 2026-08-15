@@ -239,7 +239,7 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
     try {
         const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12);
         if (measurements.length === 0) {
-            res.status(404).json({ message: "Not found!" });
+            res.status(200).json({ hasAnalysis: false });
             return;
         }
         let chartData: { month: string, bodyFat: number }[] = [];
@@ -259,7 +259,7 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
 
         const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
         if (!currentPlan?.report.advices) {
-            res.status(404).json({ message: "No completed fitness analysis yet." });
+            res.status(200).json({ hasAnalysis: false });
             return;
         }
         const weightDifference = measurements[1] ? measurements[0].metrics.weight - measurements[1].metrics.weight : 0;
@@ -327,6 +327,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
 
         const workouts = fitnessPlan.report.plan.days;
         res.status(200).json({
+            hasAnalysis: true,
             hasPlan: true,
             items: workouts,
             dates: dates,

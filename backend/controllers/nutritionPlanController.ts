@@ -56,7 +56,7 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
     try {
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         if (!nutritionPlan) {
-            res.status(404).json({ message: "Not found!" });
+            res.status(200).json({ hasPlan: false, hasCurrentDay: false });
             return;
         }
         // idx of the array item -- day
@@ -66,7 +66,7 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
         );
         const currentDay = nutritionPlan.days[idxOfCurrentDay];
         if (!currentDay) {
-            res.status(404).json({ message: "No nutrition plan is scheduled for today." });
+            res.status(200).json({ hasPlan: true, hasCurrentDay: false });
             return;
         }
         res.status(200).json(currentDay);

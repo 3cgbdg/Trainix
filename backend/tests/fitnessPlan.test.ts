@@ -257,13 +257,13 @@ describe("fitness-plan api", () => {
 
     //get-analysis route 
     describe("get-analysis", () => {
-        it("get-analysis 404", async () => {
+        it("get-analysis returns an empty state", async () => {
 
             const res = await request(app).get("/api/fitness-plan/analysis")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body.hasAnalysis).toBe(false);
         })
 
         it("get-analysis 200", async () => {
@@ -292,13 +292,13 @@ describe("fitness-plan api", () => {
 
     //get-analysis route 
     describe("get-analysis", () => {
-        it("get-analysis 404", async () => {
+        it("get-analysis returns an empty state", async () => {
 
             const res = await request(app).get("/api/fitness-plan/analysis")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body.hasAnalysis).toBe(false);
         })
 
         it("get-analysis 200", async () => {

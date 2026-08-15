@@ -97,13 +97,13 @@ describe("nutrition-plan api", () => {
     //get-nutrition-day route 
     describe("get-nutrition-day", () => {
 
-        it("get-nutrition-day 404", async () => {
+        it("get-nutrition-day returns an empty state", async () => {
 
             const res = await request(app).get("/api/nutrition-plan/nutrition-plans")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ hasPlan: false, hasCurrentDay: false });
         })
 
         it("get-nutrition-day 200", async () => {
