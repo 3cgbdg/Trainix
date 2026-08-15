@@ -19,7 +19,7 @@ export function LinkButton({
   return (
     <Link className={buttonStyles({ variant, size, className })} {...props}>
       {leadingIcon}
-      <span>{children}</span>
+      {children}
     </Link>
   );
 }

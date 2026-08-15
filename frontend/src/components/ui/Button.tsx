@@ -36,7 +36,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {...props}
     >
       {loading ? <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" /> : leadingIcon}
-      <span>{loading ? loadingLabel : children}</span>
+      {loading ? loadingLabel : children}
     </button>
   );
 });
