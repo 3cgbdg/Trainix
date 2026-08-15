@@ -21,7 +21,6 @@ export default function Notification() {
     queryKey: ["notifications"],
     queryFn: () => api.get("/api/notification/notifications").then((response) => response.data),
     retry: 0,
-    enabled: Boolean(user),
   });
 
   useEffect(() => {

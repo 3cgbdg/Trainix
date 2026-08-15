@@ -138,7 +138,6 @@ export default function DashboardPage() {
     queryFn: getDashboardNumbers,
     retry: 1,
     refetchOnWindowFocus: false,
-    enabled: Boolean(user),
   });
 
   if (!initialized || !user || isLoading) return <DashboardSkeleton />;

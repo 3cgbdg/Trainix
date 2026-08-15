@@ -33,8 +33,6 @@ const Page = () => {
         queryFn: getAnalysis,
         refetchOnWindowFocus: false,
         retry: 0,
-        enabled: Boolean(user),
-
     })
 
 

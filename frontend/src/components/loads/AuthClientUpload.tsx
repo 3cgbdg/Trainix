@@ -19,15 +19,24 @@ export default function AuthClientUpload() {
     let cancelled = false;
 
     async function loadAuthenticatedData() {
-      try {
-        const profile = await api.get("/api/auth/profile");
-        if (cancelled) return;
-        dispatch(getProfile(profile.data.user));
-      } catch {
-        if (!cancelled) dispatch(finishAuth());
+      // auth is cookie-based (JWT), not derived from the profile response, so none
+      // of these calls actually depend on each other — fire them all at once instead
+      // of waiting for profile to resolve before starting the rest.
+      const [profile, measurement, workouts, nutrition] = await Promise.allSettled([
+        api.get("/api/auth/profile"),
+        api.get("api/measurement/measurements"),
+        api.get("/api/fitness-plan/workouts"),
+        api.get("api/nutrition-plan/nutrition-plans"),
+      ]);
+
+      if (cancelled) return;
+
+      if (profile.status !== "fulfilled") {
+        dispatch(finishAuth());
         router.replace("/auth/login");
         return;
       }
+      dispatch(getProfile(profile.value.data.user));
 
       const pythonUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
       if (pythonUrl) {
@@ -37,13 +46,6 @@ export default function AuthClientUpload() {
         }).catch(() => undefined);
       }
 
-      const [measurement, workouts, nutrition] = await Promise.allSettled([
-        api.get("api/measurement/measurements"),
-        api.get("/api/fitness-plan/workouts"),
-        api.get("api/nutrition-plan/nutrition-plans"),
-      ]);
-
-      if (cancelled) return;
       if (measurement.status === "fulfilled" && isMeasurementPayload(measurement.value.data)) dispatch(getMeasurement(measurement.value.data));
       if (workouts.status === "fulfilled" && isWorkoutsPayload(workouts.value.data)) dispatch(getWorkouts(workouts.value.data));
       if (nutrition.status === "fulfilled" && isNutritionDayPayload(nutrition.value.data)) dispatch(getNutritionDay(nutrition.value.data));

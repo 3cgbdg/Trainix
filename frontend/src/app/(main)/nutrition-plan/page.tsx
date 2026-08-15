@@ -23,7 +23,6 @@ const Page = () => {
     const { data: measurement, isLoading, isError: measurementError, refetch } = useQuery({
         queryKey: ["measurement"],
         queryFn: getMeasurements,
-        enabled: Boolean(user),
         retry: 0,
     })
 

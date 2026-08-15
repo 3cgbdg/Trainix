@@ -66,7 +66,6 @@ export default function ProgressPage() {
     queryFn: getProgress,
     retry: 1,
     refetchOnWindowFocus: false,
-    enabled: Boolean(user),
   });
 
   if (!initialized || !user || isLoading) return <ProgressSkeleton />;
