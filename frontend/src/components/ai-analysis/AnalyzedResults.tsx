@@ -1,151 +1,97 @@
-"use client"
-import { api } from "@/api/axiosInstance";
-import React, { Dispatch, SetStateAction, useCallback } from "react";
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import BodyImages from "./BodyImages";
-import { useMutation } from "@tanstack/react-query";
+"use client";
 
+import { Brain, Droplets, Leaf, Moon, Percent, RefreshCw, Scale, Sparkles, Target, Weight } from "lucide-react";
+import { memo, type ComponentType, type Dispatch, type SetStateAction } from "react";
+import BodyImages from "@/components/ai-analysis/BodyImages";
+import { Button } from "@/components/ui/Button";
+import { Surface } from "@/components/ui/Surface";
+import { TrendChart, type TrendPoint } from "@/components/ui/TrendChart";
 
-// interface for metrics needed ai to analyze and create proper plan
-interface IReceivedAnalysis {
-  weight: { data: number, difference: number | null },
-  chartData: { month: string, bodyFatPercent: number }[],
-  leanBodyMass: { data: number, difference: number | null },
-  bodyFatPercent: { data: number, difference: number | null },
-  MuscleMass: { data: number, difference: number | null },
-  bmi: { data: number, difference: number | null },
-  imageUrlCurrent: string,
-  imageUrlLast: string | null,
-  waistToHipRatio: { data: number, difference: number | null },
-  advices: {
-    nutrition: string;
-    hydration: string;
-    recovery: string;
-    progress: string;
-  }
+type AnalysisMetric = { data: number | string; difference: number | null };
 
+export type ReceivedAnalysis = {
+  weight: AnalysisMetric;
+  chartData: Array<{ month: string; bodyFat?: number; bodyFatPercent?: number }>;
+  leanBodyMass: AnalysisMetric;
+  bodyFatPercent: AnalysisMetric;
+  MuscleMass: AnalysisMetric;
+  bmi: AnalysisMetric;
+  imageUrlCurrent: string;
+  imageUrlLast: string | null;
+  waistToHipRatio: AnalysisMetric;
+  advices: { nutrition: string; hydration: string; recovery: string; progress: string };
+};
+
+type MetricCardProps = {
+  label: string;
+  metric: AnalysisMetric;
+  unit?: string;
+  icon: ComponentType<{ size?: number }>;
+};
+
+function MetricCard({ label, metric, unit = "", icon: Icon }: MetricCardProps) {
+  const difference = metric.difference;
+  return (
+    <Surface padding="sm">
+      <div className="flex items-start justify-between gap-3">
+        <div><p className="text-sm font-medium text-muted">{label}</p><p className="mt-2 text-2xl font-bold tracking-tight text-strong">{metric.data}{unit}</p><p className="mt-1 text-xs text-subtle">{difference == null ? "First check-in" : difference === 0 ? "No change" : `${difference > 0 ? "+" : ""}${difference.toFixed(2)}${unit} vs previous`}</p></div>
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong"><Icon size={19} /></span>
+      </div>
+    </Surface>
+  );
 }
 
+const adviceItems = [
+  { key: "hydration", label: "Hydration", icon: Droplets },
+  { key: "nutrition", label: "Nutrition", icon: Leaf },
+  { key: "progress", label: "Training focus", icon: Target },
+  { key: "recovery", label: "Recovery", icon: Moon },
+] as const;
 
-
-const AnalyzedResults = ({ data,setReset}: { data: IReceivedAnalysis,setReset: Dispatch<SetStateAction<boolean>>}) => {
-
+function AnalyzedResults({ data, setReset }: { data: ReceivedAnalysis; setReset: Dispatch<SetStateAction<boolean>> }) {
+  const bodyFatTrend: TrendPoint[] = data.chartData.map((point) => ({
+    label: point.month,
+    values: { bodyFat: point.bodyFat ?? point.bodyFatPercent ?? 0 },
+  }));
 
   return (
-    <div className="flex flex-col gap-10">
-      <h1 className="page-title">AI Photo Analysis: Analyzing Results</h1>
-      <div className="flex flex-col gap-6">
-        <div className="bg-white rounded-[10px] _border p-6">
-          <div className="flex flex-col gap-1.5 mb-6">
-            <h2 className="section-title">Photo Analysis Comparison</h2>
-            <p className="leading-5 text-sm text-neutral-600">See the visual changes between your previous and latest fitness photos.</p>
-          </div>
-          {/* image */}
-          <BodyImages current={data.imageUrlCurrent} last={data.imageUrlLast} />
+    <div className="space-y-8">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div><p className="text-sm font-semibold text-brand-strong">Latest body check-in</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-strong sm:text-4xl">Your analysis</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">Use these estimates as directional signals alongside how you feel and perform.</p></div>
+        <Button variant="secondary" leadingIcon={<RefreshCw size={17} />} onClick={() => setReset(true)} className="w-full sm:w-auto">Retake photo</Button>
+      </header>
 
+      <section className="grid gap-4 xl:grid-cols-[minmax(18rem,0.7fr)_minmax(0,1.3fr)]">
+        <Surface padding="lg"><div className="mb-5"><h2 className="text-xl font-bold text-strong">Visual comparison</h2><p className="mt-1 text-sm leading-6 text-muted">Your previous and current private check-ins.</p></div><BodyImages current={data.imageUrlCurrent} last={data.imageUrlLast} /></Surface>
+        <div className="grid content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <MetricCard label="Body fat" metric={data.bodyFatPercent} unit="%" icon={Percent} />
+          <MetricCard label="Muscle mass" metric={data.MuscleMass} unit=" kg" icon={Weight} />
+          <MetricCard label="BMI" metric={data.bmi} icon={Scale} />
+          <MetricCard label="Waist-to-hip" metric={data.waistToHipRatio} icon={Target} />
+          <MetricCard label="Body weight" metric={data.weight} unit=" kg" icon={Weight} />
+          <MetricCard label="Lean body mass" metric={data.leanBodyMass} unit=" kg" icon={Sparkles} />
         </div>
-        {/* metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">Body Fat %</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2 ">
-              <span className="text-4xl leading-10 font-bold text-black">{data.bodyFatPercent.data}%</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.bodyFatPercent.difference && data.bodyFatPercent.difference > 0 ? "text-red" : "text-green"} `}>{data.bodyFatPercent.difference !== null && data.bodyFatPercent.difference >= 0 ? "+" + data.bodyFatPercent.difference : data.bodyFatPercent.difference}%</span>
-            </div>
-          </div>
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">Muscle Mass</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
-              <span className="text-4xl leading-10 font-bold text-black">{data.MuscleMass.data} kg</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.MuscleMass.difference && data.MuscleMass.difference < 0 ? "text-red" : "text-green"} `}>{data.MuscleMass.difference !== null && data.MuscleMass.difference >= 0 ? "+" + data.MuscleMass.difference : data.MuscleMass.difference} kg</span>
-            </div>
-          </div>
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">BMI</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
-              <span className="text-4xl leading-10 font-bold text-black">{data.bmi.data}</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.bmi.difference && data.bmi.difference > 0 ? "text-red" : "text-green"} `}>{data.bmi.difference !== null && data.bmi.difference >= 0 ? "+" + data.bmi.difference : data.bmi.difference}</span>
-            </div>
-          </div>
+      </section>
 
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">Waist-to-Hip Ratio</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
-              <span className="text-4xl leading-10 font-bold text-black">{data.waistToHipRatio.data}</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.waistToHipRatio.difference && data.waistToHipRatio.difference > 0 ? "text-red" : "text-green"} `}>{data.waistToHipRatio.difference !== null && data.waistToHipRatio.difference >= 0 ? "+" + data.waistToHipRatio.difference.toFixed(2) : data.waistToHipRatio.difference}</span>
-            </div>
-          </div>
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">Body Weight</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
-              <span className="text-4xl leading-10 font-bold text-black">{data.weight.data} kg</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.weight.difference && data.weight.difference > 0 ? "text-red" : "text-green"} `}>{data.weight.difference !== null && data.weight.difference >= 0 ? "+" + data.weight.difference : data.weight.difference} kg</span>
-            </div>
-          </div>
-          <div className="pt-8 pb-8 md:pb-6 lg:p-6 p-4 _border rounded-[10px] bg-white flex flex-col justify-between gap-4 font-outfit">
-            <h3 className="text-lg leading-7 font-medium text-neutral-600">Lean Body Mass</h3>
-            <div className="flex md:items-end justify-between md:flex-row flex-col gap-2">
-              <span className="text-4xl leading-10 font-bold text-black">{data.leanBodyMass.data} kg</span>
-              <span className={`tex-sm leading-5 font-semibold ${data.leanBodyMass.difference && data.leanBodyMass.difference > 0 ? "text-red" : "text-black"} `}>{data.leanBodyMass.difference !== null && data.leanBodyMass.difference >= 0 ? "+" + data.leanBodyMass.difference.toFixed(2) : data.leanBodyMass.difference?.toFixed(2)} kg</span>
-            </div>
-          </div>
+      <section aria-labelledby="recommendations-title">
+        <div className="mb-4"><div className="flex items-center gap-2"><Brain className="text-brand" size={21} /><h2 id="recommendations-title" className="text-xl font-bold tracking-tight text-strong sm:text-2xl">Personalized recommendations</h2></div><p className="mt-1 text-sm text-muted">Four practical areas to focus on next.</p></div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {adviceItems.map(({ key, label, icon: Icon }) => (
+            <Surface key={key} padding="lg">
+              <span className="flex size-10 items-center justify-center rounded-full bg-brand-soft text-brand-strong"><Icon size={19} /></span>
+              <h3 className="mt-4 font-bold text-strong">{label}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">{data.advices[key]}</p>
+            </Surface>
+          ))}
+        </div>
+      </section>
 
-        </div>
-        {/* AI-Powered Insights & Recommendations */}
-        <div className="bg-white rounded-[10px] _border p-6">
-          <div className="flex flex-col gap-1.5 mb-6">
-            <h2 className="section-title">AI-Powered Insights & Recommendations</h2>
-            <p className="text-sm leading-5 text-neutral-600">Detailed analysis and personalized advice based on your fitness photo.</p>
-          </div>
-          <div className="flex flex-col gap-5.5">
-            <div className="">
-              <h3 className="text-xl leading-7 font-semibold font-outfit mb-2.5">Hydration💧</h3>
-              <p className="leading-[26px] text-neutral-900">{data.advices.hydration}</p>
-            </div>
-            <div className="">
-              <h3 className="text-xl leading-7 font-semibold font-outfit mb-2.5">Nutrition🍓</h3>
-              <p className="leading-[26px] text-neutral-900">{data.advices.nutrition}</p>
-            </div>
-            <div className="">
-              <h3 className="text-xl leading-7 font-semibold font-outfit mb-2.5">Progress📈</h3>
-              <p className="leading-[26px] text-neutral-900">{data.advices.progress}</p>
-            </div>
-            <div className="">
-              <h3 className="text-xl leading-7 font-semibold font-outfit mb-2.5">Recovery😪</h3>
-              <p className="leading-[26px] text-neutral-900">{data.advices.recovery}</p>
-            </div>
-          </div>
-        </div>
-        {/* body fat chart */}
-        <div className="bg-white rounded-[10px] _border p-6 mb-3.5">
-          <div className="flex flex-col gap-1.5 mb-6">
-            <h2 className="section-title">Body Fat Percentage Trend</h2>
-            <p className="text-sm leading-5 text-neutral-600">Visualizing your body fat percentage changes over the past 6 months.</p>
-          </div>
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={data.chartData}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis dataKey="bodyFat" domain={['auto', 'auto']} />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="Body Fat (%)"
-                stroke="#22c55e"
-                dot={{ stroke: "#22c55e", strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        {/* retake photo by deleting the previous plan */}
-        <div className="flex items-center justify-end gap-4 max-w-[272px] ml-auto w-full">
-          <button onClick={() =>  setReset(true)} className="button-transparent !bg-white">Retake Photo</button>
-        </div>
-      </div>
+      <Surface padding="lg">
+        <div className="mb-5"><h2 className="text-xl font-bold text-strong">Body-fat trend</h2><p className="mt-1 text-sm text-muted">Directional change across recent monthly check-ins.</p></div>
+        <TrendChart data={bodyFatTrend} series={[{ key: "bodyFat", label: "Body fat (%)", color: "var(--brand)" }]} ariaLabel="Body fat percentage trend across recent months" />
+      </Surface>
     </div>
-  )
+  );
 }
 
-export default React.memo(AnalyzedResults)
+export default memo(AnalyzedResults);

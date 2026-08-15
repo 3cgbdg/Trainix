@@ -4,7 +4,6 @@ import measurementReducer from "../../src/redux/measurementSlice"
 import authReducer from "../../src/redux/authSlice"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
-import { store } from "@/redux/store";
 import { reportExtractFunc } from "@/utils/report";
 import { QueryClient, QueryClientProvider, } from "@tanstack/react-query";
 
@@ -68,15 +67,14 @@ const AiDay2: string = `{
   ]}
     }`;
 const mockMutate1 = jest.fn();
-const mockMutateAsync1 = jest.fn();
 const mockMutateAsync2 = jest.fn();
 const mockUseQuery = jest.fn();
-//mocking useDropzone
-jest.mock('react-dropzone');
+// mocking useDropzone
 jest.mock('react-dropzone', () => ({
     useDropzone: jest.fn().mockImplementation(({ onDrop }) => ({
         getRootProps: jest.fn(() => ({})),
         getInputProps: jest.fn(() => ({
+            type: "file",
             onChange: (e: any) => {
                 const files = e.target.files;
                 if (files.length) onDrop(files);
@@ -96,17 +94,8 @@ jest.mock("@tanstack/react-query", () => ({
     ...jest.requireActual("@tanstack/react-query"),
     useQuery: (...args: any) => mockUseQuery(...args),
     useMutation: jest.fn((options) => {
-        if (options.mutationFn.name === "sendPhoto") {
-            return {
-                mutate: (variables: any) => mockMutate1(variables, options),
-                mutateAsync: mockMutateAsync1,
-                isLoading: false,
-            };
-        }
-
-
         return {
-            mutate: jest.fn(),
+            mutate: (variables: any) => mockMutate1(variables, options),
             mutateAsync: mockMutateAsync2,
             isLoading: false,
         };
@@ -118,6 +107,12 @@ jest.mock("@/utils/report", () => ({
     reportExtractFunc: jest.fn()
 }
 ))
+
+jest.mock("@/api/axiosInstance", () => ({
+    api: {
+        get: jest.fn().mockResolvedValue({ data: {} }),
+    },
+}));
 
 // rendering with redux + tanstack providers
 const renderWithReduxState = (ui: React.ReactNode, preloadedState = {}) => {
@@ -152,7 +147,7 @@ describe("testing ai-analysis", () => {
 
     it("generating", async () => {
         //mocking getAnalysis
-        renderWithReduxState(<AiAnalysysPage />, {
+        const { store: testStore } = renderWithReduxState(<AiAnalysysPage />, {
             measurements: { measurements: null },
             auth: {
                 user: {
@@ -205,19 +200,25 @@ describe("testing ai-analysis", () => {
             isLoading: false,
             error: null,
         });
-        mockedReportExtractFunc.mockResolvedValue(undefined);
+        mockedReportExtractFunc.mockResolvedValue({
+            height: 188,
+            weight: 76,
+            waistToHipRatio: 0.82,
+            shoulderToWaistRatio: 1.42,
+            bodyFatPercent: 18,
+            muscleMass: 34,
+            leanBodyMass: 62,
+        });
 
 
-        // mock first mutate
-        await waitFor(() => {
-            mockMutate1.mockImplementation((file, { onSuccess }) => {
-                onSuccess({ AIreport: AiDay1 });
-            });
-        })
         mockMutateAsync2.mockResolvedValueOnce({ AIreport: AiDay1 }).mockResolvedValue({ AIreport: AiDay2 });
 
         // mocking file dragging
         const file = new File(["dummy content"], "photo.png", { type: "image/png" });
+        const input = screen.getByLabelText("input");
+        await act(async () => {
+            fireEvent.change(input, { target: { files: [file] } });
+        });
 
 
         // clicking button
@@ -225,22 +226,28 @@ describe("testing ai-analysis", () => {
             expect(screen.getByLabelText("btn")).toBeInTheDocument();
         });
         const btn = screen.getByLabelText("btn");
+        expect(btn).toBeEnabled();
         await act(async () => {
             fireEvent.click(btn);
         })
-        expect(btn).toHaveTextContent("Processing");
 
         // creating generated measurement
         await waitFor(async () => {
             expect(mockMutate1).toHaveBeenCalledTimes(1);
         })
+        const mutationOptions = mockMutate1.mock.calls[0][1];
+        await act(async () => {
+            await mutationOptions.onSuccess({ AIreport: AiDay1 });
+        });
         // then getting generated days created
-        expect(store.getState().measurements.measurements).not.toBeNull();
+        await waitFor(() => {
+            expect(testStore.getState().measurements.measurements).not.toBeNull();
+        });
         await waitFor(async () => {
             expect(mockMutateAsync2).toHaveBeenCalledTimes(28);
         })
 
-        expect(btn).toHaveTextContent(/Proceed to Analysis/i)
+        expect(btn).toHaveTextContent(/Analyze photo/i)
 
 
 

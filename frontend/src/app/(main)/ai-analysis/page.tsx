@@ -1,14 +1,16 @@
 "use client"
 import { api } from '@/api/axiosInstance';
 import AnalyzedResults from '@/components/ai-analysis/AnalyzedResults';
+import type { ReceivedAnalysis } from '@/components/ai-analysis/AnalyzedResults';
 import UploadPhoto from '@/components/ai-analysis/UploadPhoto';
+import { Spinner } from '@/components/ui/Feedback';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
 import { getWorkouts } from '@/redux/workoutsSlice';
 import { IMetrics } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios, { isAxiosError } from 'axios';
+import axios from 'axios';
 import { useCallback, useState } from 'react';
 
 const Page = () => {
@@ -22,10 +24,10 @@ const Page = () => {
 
     // getting ai-analyzed  data
     const getAnalysis = useCallback(async () => {
-        const res = await api.get("api/fitness-plan/analysis");
+        const res = await api.get("/api/fitness-plan/analysis");
         return res.data;
     }, []);
-    const { data, isLoading } = useQuery({
+    const { data, isLoading } = useQuery<ReceivedAnalysis>({
         queryKey: ["getAnalysis"],
         queryFn: getAnalysis,
         refetchOnWindowFocus: false,
@@ -55,7 +57,9 @@ const Page = () => {
             // days: ,
         }
 
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/fitnessPlan?dayNumber=${dayNumber + 1}`, userInfo, {
+        const pythonApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
+        if (!pythonApiUrl) throw new Error("Fitness analysis service is not configured");
+        const res = await axios.post(`${pythonApiUrl}/api/fitnessPlan?dayNumber=${dayNumber + 1}`, userInfo, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" }
         });
@@ -70,13 +74,6 @@ const Page = () => {
 
 
         },
-
-        onError: (err: unknown) => {
-            if (isAxiosError(err) && err.response) {
-                console.error(err.response.data);
-            }
-        }
-
     })
     // request func fro sending photo to python api  
     const sendPhoto = useCallback(async (file: File) => {
@@ -95,7 +92,9 @@ const Page = () => {
         }
 
         formData.append("userInfo", JSON.stringify(userInfo));
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/photo-analyze`, formData, {
+        const pythonApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
+        if (!pythonApiUrl) throw new Error("Photo analysis service is not configured");
+        const res = await axios.post(`${pythonApiUrl}/api/photo-analyze`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
@@ -108,9 +107,12 @@ const Page = () => {
         onSuccess: async (data) => {
             const measurement = await reportExtractFunc(data, "measurement");
             dispatch(getMeasurement(measurement));
-            for (let i = 0; i < 28; i++) {
-                await mutation2.mutateAsync({ dayNumber: i, measurement });
-
+            const batchSize = 4;
+            for (let start = 0; start < 28; start += batchSize) {
+                const end = Math.min(start + batchSize, 28);
+                await Promise.all(Array.from({ length: end - start }, (_, offset) =>
+                    mutation2.mutateAsync({ dayNumber: start + offset, measurement })
+                ));
             }
             queryClient.invalidateQueries({ queryKey: ['getAnalysis'] });
             const res2 = await api.get(`/api/fitness-plan/workouts`);
@@ -118,16 +120,12 @@ const Page = () => {
             setIsAnalyzed(true);
 
         },
-        onError: (err: unknown) => {
-            if (isAxiosError(err) && err.response) {
-                console.error(err.response.data);
-            }
-        }
+        onError: () => setIsAnalyzed(true),
 
     })
     //request func to python api for creating plan 
     if (isLoading) {
-        return <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green mx-auto mt-20"></div>;
+        return <div className="flex min-h-80 items-center justify-center"><Spinner label="Loading your latest body analysis" /></div>;
     }
 
     if (!data?.advices || !isAnalyzed || reset) {

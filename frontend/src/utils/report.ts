@@ -1,5 +1,4 @@
 import { api } from "@/api/axiosInstance";
-import { IMeasurements } from "@/types/types";
 
 type AiDataType = {
     AIreport: string,
