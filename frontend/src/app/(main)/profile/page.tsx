@@ -1,45 +1,41 @@
-"use client"
+"use client";
 
-import AccountSettings from "@/components/profile/AccountSettings"
-import GoalsInfoForm from "@/components/profile/GoalsInfoForm"
-import PersonalInfoForm from "@/components/profile/PersonalInfoForm"
-import { useAppSelector } from "@/hooks/reduxHooks"
-import {  UserRound } from "lucide-react"
-import Image from "next/image"
-import { useState } from "react"
+import { Camera, Target, UserRound } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import AccountSettings from "@/components/profile/AccountSettings";
+import GoalsInfoForm from "@/components/profile/GoalsInfoForm";
+import PersonalInfoForm from "@/components/profile/PersonalInfoForm";
+import { Skeleton } from "@/components/ui/Feedback";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { Surface } from "@/components/ui/Surface";
+import { useAppSelector } from "@/hooks/reduxHooks";
 
+type EditingSection = "personal" | "password" | "goals" | null;
 
+export default function ProfilePage() {
+  const user = useAppSelector((state) => state.auth.user);
+  const [editing, setEditing] = useState<EditingSection>(null);
 
+  if (!user) return <div className="space-y-4"><Skeleton className="h-44" /><Skeleton className="h-80" /><Skeleton className="h-64" /></div>;
 
-const Page = () => {
-  const { user } = useAppSelector(state => state.auth);
-// editing one of the 3 fields
-  const [editing, setEditing] = useState<null | "personal" | "password" | "goals">(null);
-
-
-
-
-  return (<>
-    { user ?
-    <div className="flex flex-col gap-6">
-      {/* banner */}
-      <div className="flex sm:flex-row flex-col  items-center gap-6 rounded-[10px]  bg-white py-4 px-8">
-        <div className={`rounded-full overflow-hidden _border size-24 flex items-center justify-center bg-white ${user?.imageUrl ? "" : " "}`}>
-          {user?.imageUrl ? <Image className="" width={96} height={96} src={user?.imageUrl} alt="user icon" />
-            : <UserRound size={40} />}
-
+  return (
+    <div className="space-y-6">
+      <Surface variant="brand" padding="lg" className="relative overflow-hidden">
+        <div aria-hidden="true" className="absolute -right-12 -top-20 size-64 rounded-full bg-brand/10 blur-2xl" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+            <div className="relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-surface-muted text-muted shadow-sm">
+              {user.imageUrl ? <Image fill sizes="96px" className="object-cover" src={user.imageUrl} alt={`${user.firstName} ${user.lastName}`} /> : <UserRound size={38} />}
+            </div>
+            <div><p className="text-sm font-semibold text-brand-strong">Your Trainix profile</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-strong">{user.firstName} {user.lastName}</h1><p className="mt-2 text-sm text-muted">{user.primaryFitnessGoal} · {user.fitnessLevel}</p></div>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end"><LinkButton href="/ai-analysis" variant="secondary" leadingIcon={<Camera size={17} />}>Update body scan</LinkButton><LinkButton href="/progress" variant="ghost" leadingIcon={<Target size={17} />}>View progress</LinkButton></div>
         </div>
-        <div className="flex flex-col gap-2 sm:text-start text-center">
-          <h1 className="page-title">{user?.firstName} {user?.lastName}</h1>
-          <p className="text-neutral-400">Manage your personal information and preferences.</p>
-        </div>
-      </div>
-      <PersonalInfoForm user={user} editing={editing} setEditing={setEditing}/>
-      <GoalsInfoForm user={user} editing={editing} setEditing={setEditing}/>
-      <AccountSettings user={user}  editing={editing} setEditing={setEditing}/>
-
-    </div>:<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green border-solid mx-auto mt-20"></div>}</>
-  )
+      </Surface>
+      <PersonalInfoForm user={user} editing={editing} setEditing={setEditing} />
+      <GoalsInfoForm user={user} editing={editing} setEditing={setEditing} />
+      <AccountSettings user={user} editing={editing} setEditing={setEditing} />
+    </div>
+  );
 }
-
-export default Page

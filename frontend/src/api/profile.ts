@@ -1,16 +1,7 @@
-import { isAxiosError } from "axios";
-import { api } from "./axiosInstance";
-import { Dispatch, SetStateAction } from "react";
+import { api } from "@/api/axiosInstance";
+import type { IUser } from "@/types/types";
 
-export  const updateProfile = async (payload: object, setError: Dispatch<SetStateAction<string | null>>) => {
-    try {
-        const res = await api.patch("/api/auth/profile",payload);
-        console.log("niger");
-        return res.data;
-
-    } catch (err) {
-        if (isAxiosError(err) && err.response) {
-            setError(err.response.data.message);
-        }
-    }
+export async function updateProfile(payload: object) {
+  const response = await api.patch<{ user: IUser }>("/api/auth/profile", payload);
+  return response.data.user;
 }

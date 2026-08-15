@@ -1,186 +1,79 @@
-"use client"
-import { useForm } from "react-hook-form"
-import { IUser } from "@/types/types";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Check, Lock, SquarePen } from "lucide-react";
-import { updateProfile } from "@/api/profile";
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
+import { Check, LockKeyhole, ShieldAlert, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import { useForm } from "react-hook-form";
 import { api } from "@/api/axiosInstance";
+import { updateProfile } from "@/api/profile";
+import { Button } from "@/components/ui/Button";
+import { TextField } from "@/components/ui/Field";
+import { Surface } from "@/components/ui/Surface";
+import { Switch } from "@/components/ui/Switch";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { getProfile, logOut } from "@/redux/authSlice";
+import type { IUser } from "@/types/types";
 
-type formType = {
-  password: string,
-  newPassword: string,
-  newPasswordAgain: string,
-  emailNotifications: boolean,
-  inAppNotifications: boolean,
-}
+type EditingSection = "personal" | "password" | "goals" | null;
+type PasswordForm = { password: string; newPassword: string; newPasswordAgain: string };
 
-const AccountSettings = ({ user, setEditing, editing }: { user: IUser, editing: string | null, setEditing: Dispatch<SetStateAction<"password" | "personal" | "goals" | null>> }) => {
-  const { register, formState: { errors }, handleSubmit, reset, watch } = useForm<formType>({});
-  const [inAppNotifsEnabled, setInAppNotifsEnabled] = useState<boolean | null>(null);
-  const [error, setError] = useState<null | string>(null);
+export default function AccountSettings({ user, setEditing, editing }: { user: IUser; editing: EditingSection; setEditing: Dispatch<SetStateAction<EditingSection>> }) {
   const router = useRouter();
-  // form request func
-  const handleSave = handleSubmit(async (data) => {
-    // Partial - for unnessasary fields
-    const payload: Partial<formType> = {};
-    if (data.newPassword && data.newPassword === data.newPasswordAgain && data.password) {
-      payload.password = data.password;
-      payload.newPassword = data.newPassword;
-      payload.newPasswordAgain = data.newPasswordAgain;
-    }
-
-    // if nothing has changed returning;
-    if (Object.keys(payload).length === 0) {
-      setEditing(null);
-      return;
-
-    }
-
-    const res = await updateProfile(payload, setError);
-    if (!res) return;
-    setEditing(null);
-    reset();
-    setError(null);
-  }
-  )
-  
-  // starting value of switchers
-  useEffect(() => {
-    if (user) {
-      setInAppNotifsEnabled(user.inAppNotifications);
-    }
-  }, [user])
-
-  // requests for switchers
-  useEffect(() => {
-    if (inAppNotifsEnabled === null) return;
-    const updateNotifications = async () => {
-      const payload: Partial<formType> = {};
-      if (inAppNotifsEnabled !== user.inAppNotifications) {
-        payload.inAppNotifications = inAppNotifsEnabled;
-      }
-      if (Object.keys(payload).length > 0) {
-        await updateProfile(payload, setError);
-      }
-    };
-
-    updateNotifications();
-  }, [inAppNotifsEnabled])
-
-  // mutatin delete account request
-  const mutation = useMutation({
-    mutationFn:async()=>await api.delete("/api/auth/profile"),
-    onSuccess: () => router.push("/auth/login"),
-
-  })
+  const dispatch = useAppDispatch();
+  const [notifications, setNotifications] = useState(user.inAppNotifications);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<PasswordForm>({ defaultValues: { password: "", newPassword: "", newPasswordAgain: "" } });
+  const notificationMutation = useMutation({
+    mutationFn: (enabled: boolean) => updateProfile({ inAppNotifications: enabled }),
+    onSuccess: (updatedUser) => dispatch(getProfile(updatedUser)),
+    onError: () => setNotifications(user.inAppNotifications),
+  });
+  const passwordMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (updatedUser) => { dispatch(getProfile(updatedUser)); setEditing(null); reset(); setSaveError(null); },
+    onError: (error) => setSaveError(isAxiosError(error) ? error.response?.data?.message ?? "Your password could not be changed." : "Your password could not be changed."),
+  });
+  const deleteMutation = useMutation({
+    mutationFn: () => api.delete("/api/auth/profile"),
+    onSuccess: () => { dispatch(logOut()); router.replace("/auth/login"); },
+  });
+  const changeNotifications = (enabled: boolean) => { setNotifications(enabled); notificationMutation.mutate(enabled); };
+  const cancelPassword = () => { reset(); setSaveError(null); setEditing(null); };
 
   return (
-    <div className=" rounded-[10px]  bg-white py-6 px-8 ">
+    <Surface padding="lg">
+      <div><h2 className="text-xl font-bold text-strong">Account settings</h2><p className="mt-1 text-sm leading-6 text-muted">Control notifications, password security, and account access.</p></div>
 
-      <h2 className="section-title mb-6">Account Settings</h2>
-      <div className="flex flex-col gap-6 mb-4">
-        <div className="flex items-center justify-between">
-          <h3 className="leading-3.5 font-medium ">In-App Notifications</h3>
-          <button type="button" onClick={() => { setInAppNotifsEnabled(!inAppNotifsEnabled) }} className={`w-11 h-6  overflow-hidden relative flex items-center cursor-pointer _border rounded-xl p-0.5 ${!inAppNotifsEnabled ? "bg-white" : "bg-green"}`}>
-            <div className={`bg-white w-5 h-5 border rounded-full  transform transition-transform duration-300 ${inAppNotifsEnabled ? "translate-x-4.5!" : "translate-x-0 bg-green!"
-              }`}></div>
-          </button>
+      <div className="mt-6 divide-y divide-border">
+        <div className="pb-6"><Switch checked={notifications} disabled={notificationMutation.isPending} onCheckedChange={changeNotifications} label="In-app notifications" description="Receive workout, meal, and progress reminders inside Trainix." />{notificationMutation.isError ? <p role="alert" className="mt-3 text-sm text-danger">The notification preference could not be saved.</p> : null}</div>
+
+        <div className="py-6">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h3 className="font-semibold text-strong">Password</h3><p className="mt-1 text-sm text-muted">Use at least eight characters with uppercase, lowercase, and a number.</p></div>{editing !== "password" ? <Button variant="secondary" leadingIcon={<LockKeyhole size={16} />} onClick={() => setEditing("password")}>Change password</Button> : null}</div>
+          {editing === "password" ? (
+            <form className="mt-5 rounded-card border border-border bg-surface-muted p-4 sm:p-5" onSubmit={handleSubmit((values) => passwordMutation.mutate(values))}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <TextField label="Current password" type="password" autoComplete="current-password" error={errors.password?.message} {...register("password", { required: "Enter your current password" })} />
+                <TextField label="New password" type="password" autoComplete="new-password" error={errors.newPassword?.message} {...register("newPassword", { required: "Enter a new password", pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/, message: "Use 8+ characters with uppercase, lowercase, and a number" } })} />
+                <TextField className="sm:col-span-2" label="Confirm new password" type="password" autoComplete="new-password" error={errors.newPasswordAgain?.message} {...register("newPasswordAgain", { required: "Confirm your new password", validate: (value) => value === watch("newPassword") || "Passwords do not match" })} />
+              </div>
+              {saveError ? <p role="alert" className="mt-4 text-sm font-medium text-danger">{saveError}</p> : null}
+              <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><Button type="button" variant="ghost" leadingIcon={<X size={16} />} onClick={cancelPassword}>Cancel</Button><Button type="submit" loading={passwordMutation.isPending} loadingLabel="Updating…" leadingIcon={<Check size={16} />}>Update password</Button></div>
+            </form>
+          ) : null}
         </div>
-        <div className="flex items-center flex-wrap gap-4 justify-between">
-          <h3 className="leading-3.5 font-medium">Change Password</h3>
-          <button onClick={async () => {
-            setEditing("password");
-            if (editing == "password") await handleSave();
 
-          }} type="button" className="button-transparent inline-flex gap-4   hover:text-green! ">
-            {editing !== "password" ?
-              <>
-                <Lock className="" size={16} />
-                <span className="text-sm font-medium">Change Password</span>
-              </>
-              :
-              <>
-                <Check className="" size={16} />
-                <span className="text-sm font-medium">Save</span>
-              </>
-            }
-
-          </button>
-        </div>
-      </div>
-
-      {/* FORM FOR PASS CHANGING */}
-      {editing === "password" &&
-        <form className="py-4 border-t-[1px] border-neutral-700 mt-6" >
-
-          <h2 className="section-title mb-6">Password Management</h2>
-          <div className="grid sm:grid-cols-2 gap-x-4  gap-y-3.5 text-sm">
-            <div className="flex flex-col gap-[10px]">
-              <label className="leading-3.5 font-medium">Current Password</label>
-              <input className={`input px-3 py-2 ${!error && !errors.password ? "" : "border-red-500!"}  `}
-                type="password"
-                {...register("password", { validate: (value) => value == "" && watch("newPassword") === "" || "The field is required" })}
-
-                disabled={editing !== "password"}
-              />
-            </div>
-            <div className="flex flex-col gap-[10px]">
-              <label className={`leading-3.5 font-medium `}>New Password</label>
-              <input className={`input px-3 py-2 ${!errors.newPassword && !error ? "" : "border-red-500!"}  `}
-                type="password"
-                {...register("newPassword", {
-                  validate: {
-                    password: (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) || value == "" || "Password must have at least one lowercase, one uppercase, one digit and minimum 8 characters",
-                  }
-                })}
-                disabled={editing !== "password"}
-              />
-              {errors.newPassword && (
-                <span data-testid='error' className="text-red-500 font-medium ">
-                  {errors.newPassword.message}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col gap-[10px] ">
-
-              <label className={`leading-3.5 font-medium `}>Confirm New Password</label>
-              <input className={`input px-3 py-2 ${!error ? "" : "border-red-500!"}`}
-                type="password"
-                {...register("newPasswordAgain", {
-                  validate: {
-                    isMatch: (value) => value === watch("newPassword") || "Passwords do not match!"
-                  }
-                })}
-                disabled={editing !== "password"}
-              />
-      
-              {error && !errors.newPasswordAgain && (
-                <span data-testid='error' className="text-red-500 font-medium ">
-                  {error}
-                </span>
-              )}
-
-
-            </div>
-
-
-
-
-
+        <div className="pt-6">
+          <div className="rounded-card border border-danger/20 bg-danger-soft p-4 sm:p-5">
+            <div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 shrink-0 text-danger" size={20} /><div><h3 className="font-semibold text-strong">Delete account</h3><p className="mt-1 text-sm leading-6 text-muted">Permanently removes your profile, plans, measurements, and progress history.</p></div></div>
+            {!confirmDelete ? <Button className="mt-4" variant="danger" leadingIcon={<Trash2 size={16} />} onClick={() => setConfirmDelete(true)}>Delete account</Button> : (
+              <div role="alert" className="mt-4 rounded-control bg-surface p-4"><p className="text-sm font-semibold text-strong">Are you absolutely sure? This cannot be undone.</p><div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row"><Button variant="secondary" onClick={() => setConfirmDelete(false)}>Keep my account</Button><Button variant="danger" loading={deleteMutation.isPending} loadingLabel="Deleting…" onClick={() => deleteMutation.mutate()}>Yes, delete permanently</Button></div>{deleteMutation.isError ? <p className="mt-3 text-sm text-danger">The account could not be deleted. Nothing was changed.</p> : null}</div>
+            )}
           </div>
-
-
-        </form>
-      }
-      <div className=" flex flex-col gap-2 border-t-[1px] border-neutral-700 pt-4">
-        <button onClick={()=>mutation.mutate()} className="text-sm inline-flex  items-center max-w-40 w-full justify-center leading-5.5 font-medium text-white bg-[#ed746eff] rounded-md p-2.5 transition-colors hover:bg-[#c52118ff] cursor-pointer">Delete Account</button>
-        <p className="text-neutral-400">This action is irreversible and will permanently delete your account and all data.</p>
+        </div>
       </div>
-
-    </div >
-  )
+    </Surface>
+  );
 }
-
-export default AccountSettings

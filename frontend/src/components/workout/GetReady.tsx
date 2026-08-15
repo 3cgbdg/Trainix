@@ -1,67 +1,33 @@
-import { IWorkouts } from "@/redux/workoutsSlice"
-import { IDayPlan, IExercise } from "@/types/types"
-import { Clock } from "lucide-react"
-import React, { Dispatch, SetStateAction } from "react"
+import { CheckCircle2, Clock3, Dumbbell, Flame, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { Surface } from "@/components/ui/Surface";
+import type { IDayPlan } from "@/types/types";
 
-const GetReady = ({ id, workout, workouts, exercise, setStart }: { id: string, workout: IDayPlan | null, workouts: IWorkouts, exercise: IExercise | null, setStart: Dispatch<SetStateAction<boolean>> }) => {
-    // getting ready section to start doing exercises
-    
-    return (
-        <div className="grid lg:grid-cols-2 justify-center gap-6">
-            <div className="flex items-center justify-center gap-6 bg-[#e5fcea] w-fit mx-auto _border rounded-2xl flex-col p-3 ">
-
-                <div className="p-6 max-w-3xl mx-auto">
-                    <h1 className="page-title mb-4"> Day {id}</h1>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-4 mb-6">
-                        <div className="bg-green p-4 rounded-lg text-center ">
-                            <p className="text-sm">Total Calories</p>
-                            <p className="text-xl font-semibold">{workout?.calories} kcal</p>
-                        </div>
-
-                        <div className="bg-green p-4 rounded-lg text-center">
-                            <p className="text-sm">Exercises Completed</p>
-                            <p className="text-xl font-semibold">
-                                {workout?.exercises?.filter((ex) => ex.status === "completed").length} / {workout?.exercises?.length}
-                            </p>
-                        </div>
-                        <div className="bg-green p-4 rounded-lg text-center">
-                            <p className="text-sm">Streak</p>
-                            <p className="text-xl font-semibold">{workouts?.streak} </p>
-                        </div>
-                    </div>
-
-
-                    <h2 className="text-xl font-semibold mb-2">Exercises</h2>
-                    <ul className="flex flex-col gap-2">
-                        {workout?.exercises?.map((ex, idx) => (
-                            <li
-                                key={idx}
-                                className={`flex justify-between item-center  p-3 rounded-lg gap-3 border ${ex.status === "completed" ? "bg-green-50 border-green" : "bg-gray-50 border-gray-200"
-                                    }`}>
-                                <span className="">{ex.title}</span>
-                                <span className="whitespace-nowrap">
-                                    {ex.calories} kcal | {ex.time ? (ex.time / 60).toFixed(0) + " min" : ex.repeats + " repeats"}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-
-            </div>
-            <div className="flex items-center justify-center lg:max-w-full max-w-[620px] gap-6 bg-[#e5fcea] _border rounded-2xl flex-col p-6 lg:min-h-[350px]">
-                <span className="text-center page-title pb-10">Start workout: {exercise?.title}</span>
-                {exercise?.repeats !== null ? <p className="text-xl leading-7 text-black">{exercise?.repeats} repeats</p>
-                    : <span className="text-xl leading-7 text-black flex gap-1 items-center">
-                        <Clock size={20} />
-                        {exercise?.time != null ? (
-                            `${String(Math.floor(exercise.time / 60)).padStart(2, "0")} : ${String(exercise.time % 60).padStart(2, "0")}`
-                        ) : "00 : 00"}
-                    </span>}
-                <button onClick={() => setStart(true)} className="button-transparent max-w-[200px]  font-outfit flex items-center gap-2 w-full"> <span className="text-2xl">Start</span></button>
-
-            </div></div>
-    )
+function exerciseSummary(time: number | null, repeats: number | null) {
+  return time ? `${Math.max(Math.round(time / 60), 1)} min` : `${repeats ?? 0} reps`;
 }
 
-export default React.memo(GetReady)
+export default function GetReady({ workout, streak, onStart, onGenerate, isGenerating, dayId }: { workout: IDayPlan; streak: number; onStart: () => void; onGenerate: () => void; isGenerating: boolean; dayId: string }) {
+  const exercises = workout.exercises ?? [];
+  const completed = exercises.filter((exercise) => exercise.status === "completed").length;
+  const timedMinutes = Math.ceil(exercises.reduce((sum, exercise) => sum + (exercise.time ?? 0), 0) / 60);
+  const estimatedMinutes = Math.max(timedMinutes, exercises.length * 4);
+
+  return (
+    <div className="space-y-6">
+      <header><p className="text-sm font-semibold text-brand-strong">Workout {dayId}</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-strong sm:text-4xl">{workout.day}</h1><p className="mt-2 text-sm leading-6 text-muted">Review the session, then start when you have space and water nearby.</p></header>
+      <Surface variant="brand" padding="lg">
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div><Clock3 className="text-brand" size={20} /><p className="mt-3 text-2xl font-bold text-strong">{estimatedMinutes} min</p><p className="text-xs text-muted">Estimated duration</p></div>
+          <div><CheckCircle2 className="text-brand" size={20} /><p className="mt-3 text-2xl font-bold text-strong">{completed}/{exercises.length}</p><p className="text-xs text-muted">Exercises completed</p></div>
+          <div><Flame className="text-brand" size={20} /><p className="mt-3 text-2xl font-bold text-strong">{streak} days</p><p className="text-xs text-muted">Current streak</p></div>
+        </div>
+      </Surface>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <Surface padding="lg"><h2 className="text-xl font-bold text-strong">Session outline</h2><ol className="mt-5 space-y-2">{exercises.length ? exercises.map((exercise, index) => <li key={`${exercise.title}-${index}`} className="flex items-center justify-between gap-4 rounded-control bg-surface-muted px-4 py-3"><span className="min-w-0"><span className="mr-3 text-xs font-bold text-subtle">{String(index + 1).padStart(2, "0")}</span><span className="font-semibold text-strong">{exercise.title}</span></span><span className="shrink-0 text-xs font-medium text-muted">{exerciseSummary(exercise.time, exercise.repeats)}</span></li>) : <li className="rounded-control border border-dashed border-border-strong p-6 text-center text-sm text-muted">This day still needs its exercise details.</li>}</ol></Surface>
+        <Surface padding="lg" className="flex flex-col justify-between gap-8"><div><span className="flex size-11 items-center justify-center rounded-full bg-brand-soft text-brand-strong">{exercises.length ? <Dumbbell size={20} /> : <Sparkles size={20} />}</span><h2 className="mt-4 text-xl font-bold text-strong">{exercises.length ? "Ready to move?" : "Generate this workout"}</h2><p className="mt-2 text-sm leading-6 text-muted">{exercises.length ? "You can pause timed exercises, skip movements, or finish early whenever needed." : "Trainix will create the missing day from your current goal and measurements."}</p></div>{workout.status === "Completed" ? <LinkButton href={`/workout/${dayId}/success`} className="w-full">View results</LinkButton> : exercises.length ? <Button size="lg" className="w-full" leadingIcon={<Dumbbell size={19} />} onClick={onStart}>Start workout</Button> : <Button size="lg" className="w-full" loading={isGenerating} loadingLabel="Generating…" leadingIcon={<Sparkles size={19} />} onClick={onGenerate}>Generate workout</Button>}</Surface>
+      </div>
+    </div>
+  );
+}

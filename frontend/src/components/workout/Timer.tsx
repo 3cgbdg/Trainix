@@ -1,43 +1,23 @@
-"use client"
+"use client";
 
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
-const Timer = ({ workoutTime, isPaused, onFinish }: { workoutTime: number, onFinish: () => void, isPaused: boolean }) => {
-    const [time, setTime] = useState<number>(workoutTime);
+function Timer({ workoutTime, isPaused, onFinish }: { workoutTime: number; onFinish: () => void; isPaused: boolean }) {
+  const [time, setTime] = useState(workoutTime);
+  const finished = useRef(false);
 
-    //seeting local time state
-    useEffect(() => {
-        setTime(workoutTime);
-    }, [workoutTime]);
+  useEffect(() => {
+    if (isPaused || time <= 0) return;
+    const timeout = window.setTimeout(() => setTime((current) => Math.max(current - 1, 0)), 1000);
+    return () => window.clearTimeout(timeout);
+  }, [isPaused, time]);
+  useEffect(() => {
+    if (time === 0 && !finished.current) { finished.current = true; onFinish(); }
+  }, [time, onFinish]);
 
-    //checking the end oof the timer 
-
-    useEffect(() => {
-        if (time <= 0) {
-            onFinish()
-        }
-    },[time])
-
-    // timer engine
-    useEffect(() => {
-        if (isPaused) return;
-
-        const interval = setInterval(() => {
-            setTime(prev => prev - 1);
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [isPaused]);
-
-
-
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-
-    return (
-        <div className="text-6xl leading-[60px] text-black font-bold md:h-40 h-20 flex items-center justify-center mb-2">{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
-
-    )
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  return <div role="timer" aria-label={`${minutes} minutes ${seconds} seconds remaining`} className="font-mono text-5xl font-bold tabular-nums tracking-tight text-strong sm:text-6xl">{String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}</div>;
 }
 
-export default React.memo(Timer)
+export default memo(Timer);
