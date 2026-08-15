@@ -1,77 +1,104 @@
-"use client"
+"use client";
 
-import { api } from "@/api/axiosInstance"
-import { useAppDispatch } from "@/hooks/reduxHooks"
-import { changeStatus } from "@/redux/nutritionDaySlice"
-import { IMeal } from "@/types/types"
-import { useMutation } from "@tanstack/react-query"
-import { Check, ChevronDown, Soup, Timer } from "lucide-react"
-import Image from "next/image"
-import React, { Dispatch, SetStateAction, useCallback } from "react"
-// accordion for meal
-const MealAccordion = ({ meal, isOpen, setIsOpen, dayNumber, idx }: { dayNumber: number, idx: number, meal: IMeal, isOpen: string | null, setIsOpen: Dispatch<SetStateAction<string | null>> }) => {
-    const dispatch = useAppDispatch();
-    const mutation = useMutation({
-        mutationFn: ({ dayNumber, index }: { dayNumber: number; index: number }) => api.patch(`api/nutrition-plan/nutrition-plans/days/${dayNumber}/meal/status`, { index }).then(res => res.data),
-        onSuccess: () => {
-            dispatch(changeStatus(idx))
-        }
+import { useMutation } from "@tanstack/react-query";
+import { Check, ChevronDown, Clock3, Soup, Timer } from "lucide-react";
+import Image from "next/image";
+import { memo, useId, type Dispatch, type SetStateAction } from "react";
+import { api } from "@/api/axiosInstance";
+import { Button } from "@/components/ui/Button";
+import { useAppDispatch } from "@/hooks/reduxHooks";
+import { cn } from "@/lib/cn";
+import { changeStatus } from "@/redux/nutritionDaySlice";
+import type { IMeal } from "@/types/types";
 
-    })
+type MealAccordionProps = {
+  dayNumber: number;
+  idx: number;
+  meal: IMeal;
+  isOpen: string | null;
+  setIsOpen: Dispatch<SetStateAction<string | null>>;
+};
 
+function MealAccordion({ meal, isOpen, setIsOpen, dayNumber, idx }: MealAccordionProps) {
+  const dispatch = useAppDispatch();
+  const contentId = useId();
+  const expanded = isOpen === meal.mealTitle;
+  const mutation = useMutation({
+    mutationFn: ({ planDay, index }: { planDay: number; index: number }) =>
+      api.patch(`/api/nutrition-plan/nutrition-plans/days/${planDay}/meal/status`, { index }).then((response) => response.data),
+    onSuccess: () => dispatch(changeStatus(idx)),
+  });
 
-    return (
-        <div className={`_border relative rounded-[10px] overflow-hidden pt-[27px] px-4 pb-4 w-full `}>
+  return (
+    <article className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="relative aspect-[16/7] min-h-44 overflow-hidden bg-surface-muted">
+        <Image
+          priority={idx < 2}
+          fill
+          sizes="(max-width: 768px) 100vw, 55vw"
+          className="object-cover"
+          src={meal.imageUrl === "food-placeholder.jpg" ? "/food-placeholder.jpg" : meal.imageUrl}
+          alt={`${meal.mealTitle} meal`}
+        />
+        <span className="absolute left-3 top-3 rounded-full bg-surface/90 px-3 py-1 text-xs font-bold text-strong shadow-sm backdrop-blur">{meal.foodIntake}</span>
+        {meal.status === "eaten" ? <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 text-xs font-bold text-on-brand"><Check size={13} /> Eaten</span> : null}
+      </div>
 
-            <div className="flex items-center justify-between mb-1">
-                <h3 className="text-lg leading-7 font-semibold text-neutral-900">
-                    {meal.foodIntake} - {meal.mealTitle}
-                </h3>
-                <button onClick={() => setIsOpen(prev => prev == meal.mealTitle ? null : meal.mealTitle)} className={`text-neutral-900 transition-transform cursor-pointer outline-0 ${isOpen == meal.mealTitle ? "rotate-180 " : ""}`}>
-                    <ChevronDown />
-                </button>
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold text-strong">{meal.mealTitle}</h3>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium text-muted">
+              <span className="inline-flex items-center gap-1.5"><Clock3 size={14} /> {meal.time}</span>
+              <span>{meal.mealCalories} kcal</span>
+              <span>{meal.mealProtein}g protein</span>
             </div>
-            <span className="text-sm text-neutral-600 "><b>Time:</b> {meal.time}</span>
-            <div className="rounded-md overflow-hidden mt-4 mb-4 _border">
-                <Image  priority={[0, 1].includes(idx)} className="max-h-[250px] object-cover object-center w-full" height={300} width={516} src={meal.imageUrl == "food-placeholder.jpg" ? "/food-placeholder.jpg" : meal.imageUrl} alt="food picture" />
-            </div>
-            <div className="flex items-center justify-between">
-                <p className="text-sm text-neutral-900 ">{meal.description}</p>
-                {
-                    meal.status !== "eaten" ?
-
-
-                        <button onClick={() => mutation.mutate({ dayNumber: dayNumber - 1, index: idx })} className="button-green max-w-[50px]"><Check /></button>
-                        : <span className="button-transparent pointer-events-none">Eaten</span>
-                }
-            </div>
-            {isOpen === meal.mealTitle &&
-                <div className="pt-4 flex flex-col gap-4 mt-4 border-t-[1px] border-neutral-300">
-                    <div className="flex flex-col gap-2">
-                        <h4 className="text-neutral-900 font-semibold flex items-center gap-2">
-                            <Soup size={16} className="text-green" />
-                            <span>Ingredients:</span>
-                        </h4>
-                        <div className="text-sm text-neutral-600">
-                            {meal.ingredients.map((item, idx) => (<p key={idx}>{item}</p>))}
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <h4 className="text-neutral-900 font-semibold flex items-center gap-2">
-                            <Timer size={16} className="text-green" />
-                            <span>Preparation:</span>
-                        </h4>
-                        <div className="text-sm text-neutral-600">
-                            {meal.preparation.split(".").map((item, idx) => (<p key={idx}>{item}</p>))}
-                        </div>
-                    </div>
-                </div>
-            }
-
-
-
+          </div>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-controls={contentId}
+            aria-label={`${expanded ? "Hide" : "Show"} ${meal.mealTitle} details`}
+            onClick={() => setIsOpen((current) => current === meal.mealTitle ? null : meal.mealTitle)}
+            className="flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-surface-muted hover:text-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            <ChevronDown className={cn("transition-transform", expanded && "rotate-180")} />
+          </button>
         </div>
-    )
+
+        <p className="mt-4 text-sm leading-6 text-muted">{meal.description}</p>
+        {meal.status !== "eaten" ? (
+          <Button
+            variant="secondary"
+            className="mt-5 w-full sm:w-auto"
+            leadingIcon={<Check size={17} />}
+            loading={mutation.isPending}
+            loadingLabel="Saving…"
+            onClick={() => mutation.mutate({ planDay: dayNumber - 1, index: idx })}
+          >
+            Mark as eaten
+          </Button>
+        ) : null}
+
+        {expanded ? (
+          <div id={contentId} className="mt-5 grid gap-5 border-t border-border pt-5 sm:grid-cols-2">
+            <div>
+              <h4 className="flex items-center gap-2 text-sm font-bold text-strong"><Soup size={16} className="text-brand" /> Ingredients</h4>
+              <ul className="mt-3 space-y-1.5 text-sm leading-5 text-muted">
+                {meal.ingredients.map((ingredient) => <li key={ingredient}>• {ingredient}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h4 className="flex items-center gap-2 text-sm font-bold text-strong"><Timer size={16} className="text-brand" /> Preparation</h4>
+              <ol className="mt-3 space-y-1.5 text-sm leading-5 text-muted">
+                {meal.preparation.split(".").filter(Boolean).map((step, index) => <li key={`${step}-${index}`}>{index + 1}. {step.trim()}</li>)}
+              </ol>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </article>
+  );
 }
 
-export default React.memo(MealAccordion)
+export default memo(MealAccordion);

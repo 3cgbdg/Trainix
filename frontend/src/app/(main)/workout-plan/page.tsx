@@ -1,75 +1,104 @@
-"use client"
-import { useAppSelector } from "@/hooks/reduxHooks"
-import { IDayPlan } from "@/types/types"
-import { Bolt, CalendarDays } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+"use client";
 
+import { CalendarDays, CheckCircle2, ChevronRight, Dumbbell, Sparkles } from "lucide-react";
+import { EmptyState } from "@/components/ui/Feedback";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { Surface } from "@/components/ui/Surface";
+import { useAppSelector } from "@/hooks/reduxHooks";
+import { cn } from "@/lib/cn";
 
-const Page = () => {
-    const router = useRouter();
-    const { workouts } = useAppSelector(state => state.workouts);
+const statusStyles = {
+  Pending: "bg-amber-50 text-amber-700",
+  Completed: "bg-brand-soft text-brand-strong",
+  Missed: "bg-danger-soft text-danger",
+};
+
+export default function WorkoutPlanPage() {
+  const workouts = useAppSelector((state) => state.workouts.workouts);
+
+  if (!workouts?.items?.length) {
     return (
+      <Surface padding="lg">
+        <EmptyState
+          icon={<Sparkles size={34} />}
+          title="Build your first training plan"
+          description="Complete a body scan and Trainix will prepare a realistic routine for your level, schedule, and goal."
+          action={<LinkButton href="/ai-analysis" size="lg">Create my plan</LinkButton>}
+        />
+      </Surface>
+    );
+  }
 
-        <>
-            {workouts ? <>
-                <div className='flex flex-col gap-6'>
-                    <h1 className='page-title '>Workout Plan</h1>
-                    <div className=" _workout-plan-banner sm:py-1 px-8 py-4  min-h-60 flex items-center  justify-between  ">
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-4 mb-1">
-                                <Bolt size={32} color="white" />
-                                <div className="flex flex-col gap-0.5 ">
-                                    <h2 className='banner-title'>Full Body Strength</h2>
-                                    <p className='text-lg leading-7 text-[#19191FFF]'>Week - &quot;{workouts.currentWeekTitle}&quot;</p>
-                                </div>
-                            </div>
-                            <p className="text-lg leading-7 text-custom-black">Your AI-powered plan is ready to guide you through this week&apos;s routines. Stay consistent for optimal results!</p>
-                            <Link className="button-green max-w-[182px] w-full" href={`/workout/${workouts.todayWorkoutNumber + 1}`}>Start Today&apos;s Workout</Link>
-                        </div>
+  const todayIndex = Math.min(Math.max(workouts.todayWorkoutNumber, 0), workouts.items.length - 1);
+  const todayWorkout = workouts.items[todayIndex];
+  const completedCount = workouts.items.filter((day) => day.status === "Completed").length;
+  const weekProgress = (completedCount / workouts.items.length) * 100;
+
+  return (
+    <div className="space-y-8">
+      <header>
+        <p className="text-sm font-semibold text-brand-strong">Your training rhythm</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-strong sm:text-4xl">Workout plan</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">A clear weekly structure with enough flexibility for real life.</p>
+      </header>
+
+      <Surface variant="brand" padding="lg" className="relative overflow-hidden">
+        <div aria-hidden="true" className="absolute -right-14 -top-20 size-64 rounded-full bg-brand/10 blur-2xl" />
+        <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-brand-strong"><Dumbbell size={18} /> Up next</div>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-strong">{todayWorkout.day}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">Week {workouts.currentWeekTitle} · {todayWorkout.exercises?.length ?? 0} exercises · {todayWorkout.status}</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <LinkButton href={`/workout/${todayIndex + 1}`} size="lg" leadingIcon={<Dumbbell size={19} />} className="w-full sm:w-auto">
+                {todayWorkout.status === "Completed" ? "Review workout" : "Start workout"}
+              </LinkButton>
+              <LinkButton href="/nutrition-plan" variant="secondary" size="lg" className="w-full sm:w-auto">Open nutrition</LinkButton>
+            </div>
+          </div>
+          <div className="rounded-card border border-brand/15 bg-surface/80 p-5 backdrop-blur">
+            <div className="flex items-end justify-between gap-3">
+              <div><p className="text-sm font-medium text-muted">Weekly progress</p><p className="mt-1 text-2xl font-bold text-strong">{completedCount} of {workouts.items.length}</p></div>
+              <CheckCircle2 className="text-brand" size={24} />
+            </div>
+            <div role="progressbar" aria-label="Weekly workout progress" aria-valuemin={0} aria-valuemax={workouts.items.length} aria-valuenow={completedCount} className="mt-4 h-2 overflow-hidden rounded-full bg-surface-strong">
+              <div className="h-full rounded-full bg-brand" style={{ width: `${weekProgress}%` }} />
+            </div>
+          </div>
+        </div>
+      </Surface>
+
+      <section aria-labelledby="schedule-title">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div><h2 id="schedule-title" className="text-xl font-bold tracking-tight text-strong sm:text-2xl">Weekly schedule</h2><p className="mt-1 text-sm text-muted">Your plan, one day at a time.</p></div>
+          <span className="hidden text-sm font-medium text-subtle sm:inline">Week {workouts.currentWeekTitle}</span>
+        </div>
+        <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {workouts.items.map((day, index) => {
+            const date = workouts.dates?.[index];
+            const isToday = index === todayIndex;
+            return (
+              <li key={`${day.dayNumber}-${String(day.date)}`}>
+                <Surface padding="sm" className={cn("flex h-full flex-col gap-5", isToday && "border-brand bg-brand-soft/40")}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-full", isToday ? "bg-brand text-on-brand" : "bg-surface-muted text-muted")}><CalendarDays size={18} /></span>
+                      <div className="min-w-0"><p className="truncate font-semibold text-strong">{date?.weekDay ?? `Day ${index + 1}`}</p><p className="mt-0.5 text-xs text-subtle">{date?.monthAndDate ?? "Scheduled session"}{isToday ? " · Today" : ""}</p></div>
                     </div>
-
-
-                    <div className="flex flex-col gap-4 ">
-                        <h2 className='section-title'>Weekly Schedule</h2>
-                        <div className="grid sm:p-0 p-5 sm:grid-cols-3 grid-cols-1 lg:grid-cols-4 gap-6">
-                            {
-                                workouts.items.map((item: IDayPlan, idx: number) => (
-                                    <div key={idx} className=" p-4 pt-5.5 bg-white rounded-md _border flex flex-col  ">
-                                        <div className="flex items-center justify-between xl:mb-8 mb-4 flex-col gap-2 xl:flex-row">
-                                            <div className="flex items-center gap-2">
-                                                <CalendarDays className="text-neutral-600" size={20} />
-                                                <span className={`text-lg leading-7 font-semibold`}>{workouts.dates[idx].weekDay}</span>
-                                            </div>
-                                            <span className={`text-xs leading-5  p-1.5 rounded-2xl ${item.status === "Pending" ? "bg-[#E67E00FF] text-white" : item.status === "Missed" ? "text-white bg-red" : "text-neutral-900"} `}>{item.status}</span>
-
-                                        </div>
-                                        <div className="flex flex-col justify-between grow-1 gap-2">
-                                            <div className="flex flex-col gap-2 ">
-                                                <span className="text-sm leading-5">{workouts.dates[idx].monthAndDate}</span>
-                                                <span className="font-medium text-neutral-900">{item.day}</span>
-                                                <span></span>
-                                            </div>
-                                            {item.status !== "Completed" &&
-                                                <div className="flex justify-end ">
-                                                    <div onClick={() => router.push(`/workout/${idx + 1}`)} className=" button-transparent max-w-[110px]  w-full">View Details</div>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                ))}
-
-
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-            </> : <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto mt-20"></div>}
-        </>
-    )
+                    <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", statusStyles[day.status])}>{day.status}</span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between gap-5">
+                    <div><h3 className="font-semibold text-strong">{day.day}</h3><p className="mt-1 text-sm text-muted">{day.exercises?.length ?? 0} exercises{day.calories ? ` · ${day.calories} kcal` : ""}</p></div>
+                    <LinkButton href={`/workout/${index + 1}`} variant={isToday ? "primary" : "secondary"} className="w-full justify-between">
+                      {day.status === "Completed" ? "Review details" : "View details"}<ChevronRight size={17} />
+                    </LinkButton>
+                  </div>
+                </Surface>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    </div>
+  );
 }
-
-export default Page
