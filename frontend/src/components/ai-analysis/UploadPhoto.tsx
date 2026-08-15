@@ -4,6 +4,7 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import { Camera, Check, ImagePlus, LockKeyhole, ScanLine } from "lucide-react";
 import { memo, useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import { useDropzone } from "react-dropzone";
+import axios from "axios";
 import { Button } from "@/components/ui/Button";
 import { Surface } from "@/components/ui/Surface";
 import { cn } from "@/lib/cn";
@@ -20,6 +21,14 @@ type UploadPhotoProps = {
 };
 
 const guidelines = ["Full body visible", "Even front lighting", "Simple, neutral background"];
+
+function getAnalysisError(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const detail = error.response?.data?.detail;
+    if (typeof detail === "string" && detail.length < 180) return detail;
+  }
+  return "The analysis could not be completed. Use a clear full-body photo and try again.";
+}
 
 function UploadPhoto({ isAnalyzed, setIsAnalyzed, setFileName, setReset, fileName, setFile, file, mutation }: UploadPhotoProps) {
   const [fileError, setFileError] = useState<string | null>(null);
@@ -85,7 +94,7 @@ function UploadPhoto({ isAnalyzed, setIsAnalyzed, setFileName, setReset, fileNam
             )}
           </div>
           {fileError ? <p role="alert" className="mt-3 text-sm font-medium text-danger">{fileError}</p> : null}
-          {mutation.isError ? <p role="alert" className="mt-3 text-sm font-medium text-danger">The analysis could not be completed. Your current plan was not changed.</p> : null}
+          {mutation.isError ? <p role="alert" className="mt-3 text-sm font-medium text-danger">{getAnalysisError(mutation.error)} Your current plan was not changed.</p> : null}
         </Surface>
 
         <div className="space-y-4">

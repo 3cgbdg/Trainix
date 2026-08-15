@@ -201,13 +201,16 @@ describe("testing ai-analysis", () => {
             error: null,
         });
         mockedReportExtractFunc.mockResolvedValue({
-            height: 188,
-            weight: 76,
-            waistToHipRatio: 0.82,
-            shoulderToWaistRatio: 1.42,
-            bodyFatPercent: 18,
-            muscleMass: 34,
-            leanBodyMass: 62,
+            metrics: {
+                height: 188,
+                weight: 76,
+                waistToHipRatio: 0.82,
+                shoulderToWaistRatio: 1.42,
+                bodyFatPercent: 18,
+                muscleMass: 34,
+                leanBodyMass: 62,
+            },
+            imageUrl: "url",
         });
 
 

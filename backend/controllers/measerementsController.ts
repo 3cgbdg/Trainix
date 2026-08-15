@@ -21,8 +21,8 @@ export const createMeasurement = async (req: Request, res: Response): Promise<vo
     const body = req.body;
 
     try {
-        await Measurement.create({ userId: (req as AuthRequest).userId, metrics: body.metrics, imageUrl: body.imageUrl });
-        res.status(200).json({ message: "Successfully created!" });
+        const measurement = await Measurement.create({ userId: (req as AuthRequest).userId, metrics: body.metrics, imageUrl: body.imageUrl });
+        res.status(200).json({ message: "Successfully created!", measurement });
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });

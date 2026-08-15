@@ -9,6 +9,7 @@ import { getMeasurement } from '@/redux/measurementSlice';
 import { getWorkouts } from '@/redux/workoutsSlice';
 import { IMetrics } from '@/types/types';
 import { reportExtractFunc } from '@/utils/report';
+import { isMeasurementPayload, isWorkoutsPayload } from '@/lib/apiGuards';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCallback, useState } from 'react';
@@ -32,6 +33,7 @@ const Page = () => {
         queryFn: getAnalysis,
         refetchOnWindowFocus: false,
         retry: 0,
+        enabled: Boolean(user),
 
     })
 
@@ -106,17 +108,19 @@ const Page = () => {
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
             const measurement = await reportExtractFunc(data, "measurement");
+            if (!isMeasurementPayload(measurement)) throw new Error("The analysis service returned invalid body metrics.");
             dispatch(getMeasurement(measurement));
+            await mutation2.mutateAsync({ dayNumber: 0, measurement: measurement.metrics });
             const batchSize = 4;
-            for (let start = 0; start < 28; start += batchSize) {
+            for (let start = 1; start < 28; start += batchSize) {
                 const end = Math.min(start + batchSize, 28);
                 await Promise.all(Array.from({ length: end - start }, (_, offset) =>
-                    mutation2.mutateAsync({ dayNumber: start + offset, measurement })
+                    mutation2.mutateAsync({ dayNumber: start + offset, measurement: measurement.metrics })
                 ));
             }
             queryClient.invalidateQueries({ queryKey: ['getAnalysis'] });
             const res2 = await api.get(`/api/fitness-plan/workouts`);
-            dispatch(getWorkouts(res2.data));
+            if (isWorkoutsPayload(res2.data)) dispatch(getWorkouts(res2.data));
             setIsAnalyzed(true);
 
         },

@@ -24,11 +24,12 @@ export const reportExtractFunc = async (data: AiDataType, method: "nutrition" | 
             }
         } else {
             const info =typeof data.AIreport=="string" ? JSON.parse(data.AIreport) : data.AIreport;
-            await api.post(`/api/measurement/measurements`, { metrics: info, imageUrl: data.imageUrl });
-            return info;
+            const res = await api.post(`/api/measurement/measurements`, { metrics: info, imageUrl: data.imageUrl });
+            return res.data.measurement;
 
         }
     } catch (err) {
         console.error(err);
+        throw err;
     }
 }   
