@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@/api/axiosInstance";
 import { useAppDispatch } from "@/hooks/reduxHooks";
-import { getProfile } from "@/redux/authSlice";
+import { finishAuth, getProfile } from "@/redux/authSlice";
 import { getMeasurement } from "@/redux/measurementSlice";
 import { getNutritionDay } from "@/redux/nutritionDaySlice";
 import { getWorkouts } from "@/redux/workoutsSlice";
+import { isMeasurementPayload, isNutritionDayPayload, isWorkoutsPayload } from "@/lib/apiGuards";
 
 export default function AuthClientUpload() {
   const dispatch = useAppDispatch();
@@ -23,6 +24,7 @@ export default function AuthClientUpload() {
         if (cancelled) return;
         dispatch(getProfile(profile.data.user));
       } catch {
+        if (!cancelled) dispatch(finishAuth());
         router.replace("/auth/login");
         return;
       }
@@ -42,9 +44,9 @@ export default function AuthClientUpload() {
       ]);
 
       if (cancelled) return;
-      if (measurement.status === "fulfilled") dispatch(getMeasurement(measurement.value.data));
-      if (workouts.status === "fulfilled") dispatch(getWorkouts(workouts.value.data));
-      if (nutrition.status === "fulfilled") dispatch(getNutritionDay(nutrition.value.data));
+      if (measurement.status === "fulfilled" && isMeasurementPayload(measurement.value.data)) dispatch(getMeasurement(measurement.value.data));
+      if (workouts.status === "fulfilled" && isWorkoutsPayload(workouts.value.data)) dispatch(getWorkouts(workouts.value.data));
+      if (nutrition.status === "fulfilled" && isNutritionDayPayload(nutrition.value.data)) dispatch(getNutritionDay(nutrition.value.data));
     }
 
     void loadAuthenticatedData();
