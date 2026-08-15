@@ -15,11 +15,12 @@ import { useAppSelector } from "@/hooks/reduxHooks";
 import { cn } from "@/lib/cn";
 
 type DashboardNumbers = {
+  hasPlan?: boolean;
   weight?: number;
   lastWeight?: number;
   bmi?: number;
   streak?: number;
-  calories?: { current?: number; target?: number };
+  calories?: { current?: number; target?: number | null } | null;
   weightsData?: Array<{ month: string; weight: number }>;
 };
 
@@ -127,7 +128,7 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-  const user = useAppSelector((state) => state.auth.user);
+  const { initialized, user } = useAppSelector((state) => state.auth);
   const nutritionDay = useAppSelector((state) => state.nutritionDay.nutritionDay);
   const workouts = useAppSelector((state) => state.workouts.workouts);
   const todayIndex = workouts?.todayWorkoutNumber ?? 0;
@@ -137,12 +138,13 @@ export default function DashboardPage() {
     queryFn: getDashboardNumbers,
     retry: 1,
     refetchOnWindowFocus: false,
+    enabled: Boolean(user),
   });
 
-  if (!user || isLoading) return <DashboardSkeleton />;
+  if (!initialized || !user || isLoading) return <DashboardSkeleton />;
 
-  const calorieCurrent = nutritionDay?.dailyGoals.calories.current ?? data?.calories?.current ?? 0;
-  const calorieTarget = nutritionDay?.dailyGoals.calories.target ?? data?.calories?.target ?? 0;
+  const calorieCurrent = nutritionDay?.dailyGoals?.calories?.current ?? data?.calories?.current ?? 0;
+  const calorieTarget = nutritionDay?.dailyGoals?.calories?.target ?? data?.calories?.target ?? 0;
   const exerciseCount = todayWorkout?.exercises?.length ?? 0;
   const timedSeconds = todayWorkout?.exercises?.reduce((sum, exercise) => sum + (exercise.time ?? 0), 0) ?? 0;
   const estimatedMinutes = Math.max(Math.round(timedSeconds / 60), exerciseCount * 4);

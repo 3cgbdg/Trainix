@@ -10,6 +10,7 @@ import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCallback } from 'react';
+import { isMeasurementPayload, isNutritionDayPayload } from '@/lib/apiGuards';
 
 const Page = () => {
     const { user } = useAppSelector(state => state.auth);
@@ -22,13 +23,13 @@ const Page = () => {
     const { data: measurement, isLoading, isError: measurementError, refetch } = useQuery({
         queryKey: ["measurement"],
         queryFn: getMeasurements,
+        enabled: Boolean(user),
+        retry: 0,
     })
 
     // mutation - request for generation plan
     const generateNutritionPlan = useCallback(async (dayNumber: number) => {
-        if (!user || !measurement) {
-            return null;
-        }
+        if (!user || !isMeasurementPayload(measurement)) throw new Error("A valid body measurement is required");
         const nutritionApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
         if (!nutritionApiUrl) throw new Error("Nutrition service is not configured");
         const userInfo = {
@@ -38,11 +39,11 @@ const Page = () => {
             primaryFitnessGoal: user.primaryFitnessGoal,
             fitnessLevel: user.fitnessLevel,
             gender: user.gender,
-            waistToHipRatio: measurement.waistToHipRatio,
-            shoulderToWaistRatio: measurement.shoulderToWaistRatio,
-            bodyFatPercent: measurement.bodyFatPercent,
-            muscleMass: measurement.muscleMass,
-            leanBodyMass: measurement.leanBodyMass,
+            waistToHipRatio: measurement.metrics.waistToHipRatio,
+            shoulderToWaistRatio: measurement.metrics.shoulderToWaistRatio,
+            bodyFatPercent: measurement.metrics.bodyFatPercent,
+            muscleMass: measurement.metrics.muscleMass,
+            leanBodyMass: measurement.metrics.leanBodyMass,
             // days: ,
         }
 
@@ -57,6 +58,7 @@ const Page = () => {
         mutationFn: generateNutritionPlan,
         onSuccess: async (data) => {
             const newData = await reportExtractFunc(data, "nutrition");
+            if (!isNutritionDayPayload(newData?.day)) throw new Error("The nutrition service returned an invalid meal plan");
             dispatch(getNutritionDay(newData.day));
         },
     })

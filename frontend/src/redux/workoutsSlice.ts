@@ -7,9 +7,10 @@ export interface IWorkouts {
         monthAndDate: string,
 
     }[],
-    todayWorkoutNumber: number,
-    currentWeekTitle: number,
+    todayWorkoutNumber: number | null,
+    currentWeekTitle: string | null,
     streak: number,
+    hasPlan?: boolean,
 
 }
 interface IinitialState {

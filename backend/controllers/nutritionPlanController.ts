@@ -36,7 +36,7 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
         if (nutritionPlan) {
             nutritionPlan.days.push(obj);
             await nutritionPlan.save();
-            res.status(200).json({ message: "Successfully added day!" });
+            res.status(200).json({ message: "Successfully added day!", day: obj });
             return;
         }
         // otherwise creating plan with this item
@@ -64,7 +64,12 @@ export const getNutritionDay = async (req: Request, res: Response): Promise<void
             (new Date().getTime() - new Date(nutritionPlan.createdAt).getTime()) /
             (1000 * 60 * 60 * 24)
         );
-        res.status(200).json(nutritionPlan.days[idxOfCurrentDay]);
+        const currentDay = nutritionPlan.days[idxOfCurrentDay];
+        if (!currentDay) {
+            res.status(404).json({ message: "No nutrition plan is scheduled for today." });
+            return;
+        }
+        res.status(200).json(currentDay);
         return;
     } catch {
         res.status(500).json({ message: "Server error!" });

@@ -60,15 +60,16 @@ function ProgressSkeleton() {
 }
 
 export default function ProgressPage() {
-  const user = useAppSelector((state) => state.auth.user);
+  const { initialized, user } = useAppSelector((state) => state.auth);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["progress", new Date().toISOString().slice(0, 10)],
     queryFn: getProgress,
     retry: 1,
     refetchOnWindowFocus: false,
+    enabled: Boolean(user),
   });
 
-  if (!user || isLoading) return <ProgressSkeleton />;
+  if (!initialized || !user || isLoading) return <ProgressSkeleton />;
   if (isError || !data) return <Surface><ErrorState title="Your progress could not be loaded" description="Your saved check-ins are safe. Try again when the connection is stable." onRetry={() => void refetch()} /></Surface>;
 
   const weightDelta = data.weight !== undefined && data.lastWeight != null ? data.weight - data.lastWeight : undefined;

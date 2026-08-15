@@ -29,7 +29,7 @@ export default function WorkoutPlanPage() {
     );
   }
 
-  const todayIndex = Math.min(Math.max(workouts.todayWorkoutNumber, 0), workouts.items.length - 1);
+  const todayIndex = Math.min(Math.max(workouts.todayWorkoutNumber ?? 0, 0), workouts.items.length - 1);
   const todayWorkout = workouts.items[todayIndex];
   const completedCount = workouts.items.filter((day) => day.status === "Completed").length;
   const weekProgress = (completedCount / workouts.items.length) * 100;

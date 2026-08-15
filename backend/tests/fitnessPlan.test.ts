@@ -153,13 +153,14 @@ describe("fitness-plan api", () => {
     })
     //get-workouts route 
     describe("get-workouts", () => {
-        it("get-workouts 404", async () => {
+        it("get-workouts returns an empty plan state", async () => {
 
             const res = await request(app).get("/api/fitness-plan/workouts")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body.hasPlan).toBe(false);
+            expect(res.body.items).toEqual([]);
         })
 
         it("get-workouts 200", async () => {
@@ -186,14 +187,15 @@ describe("fitness-plan api", () => {
 
     //get-numbers route 
     describe("get-numbers", () => {
-        it("get-numbers 404", async () => {
+        it("get-numbers returns empty metrics when no plan exists", async () => {
 
             const res = await request(app).get("/api/fitness-plan/reports/numbers")
                 .query({ date: new Date(), progress: true })
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body.hasPlan).toBe(false);
+            expect(res.body.calories).toBeNull();
         })
 
         it("get-numbers 200 if progress == true", async () => {
