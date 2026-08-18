@@ -1,12 +1,10 @@
+import "./instrument";
 import http from "http"
 import { app } from "./app";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { socketInit } from "./socket";
 import { initCron } from "./utils/cron";
 
-// api routes
-dotenv.config();
 const server = http.createServer(app);
 
 // initializing io sockets server

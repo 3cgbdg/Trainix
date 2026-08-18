@@ -1,13 +1,26 @@
 import express from "express"
-import { deleteProfile, getProfile, getSocketToken, logIn, logOut, onBoarding,  refresh, signUp, updateProfile } from "../controllers/authController";
+import rateLimit from "express-rate-limit";
+import { deleteProfile, forgotPassword, getProfile, getSocketToken, logIn, logOut, onBoarding,  refresh, resetPassword, signUp, updateProfile } from "../controllers/authController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const authRoute = express.Router();
+
+// forgot-password sends a real email per request, so it needs its own limit
+// beyond what a bare route would have (there is no rate limiting elsewhere yet)
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many requests. Please try again later." },
+});
 
 authRoute.post("/login", logIn);
 authRoute.post("/signup", signUp);
 authRoute.post("/onboarding", authMiddleware, onBoarding);
 authRoute.post("/refresh", refresh);
+authRoute.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
+authRoute.post("/reset-password", resetPassword);
 authRoute.get("/profile", authMiddleware, getProfile);
 authRoute.get("/socket-token", authMiddleware, getSocketToken);
 authRoute.delete("/profile", authMiddleware, deleteProfile);

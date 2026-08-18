@@ -2,8 +2,9 @@
 
 import { Camera, Target, UserRound } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import AccountSettings from "@/components/profile/AccountSettings";
+import BillingSection from "@/components/profile/BillingSection";
 import GoalsInfoForm from "@/components/profile/GoalsInfoForm";
 import PersonalInfoForm from "@/components/profile/PersonalInfoForm";
 import { Skeleton } from "@/components/ui/Feedback";
@@ -35,6 +36,9 @@ export default function ProfilePage() {
       </Surface>
       <PersonalInfoForm user={user} editing={editing} setEditing={setEditing} />
       <GoalsInfoForm user={user} editing={editing} setEditing={setEditing} />
+      <Suspense fallback={null}>
+        <BillingSection user={user} />
+      </Suspense>
       <AccountSettings user={user} editing={editing} setEditing={setEditing} />
     </div>
   );

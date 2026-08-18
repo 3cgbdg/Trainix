@@ -95,7 +95,10 @@ const Page = () => {
                             {errors.password.message}
                         </span>
                     )}
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2 cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
+                    <div className="flex items-center justify-between">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
+                        <Link href="/auth/forgot-password" className="link">Forgot password?</Link>
+                    </div>
                 </div>
                 {loginError && (
                     <span role="alert" className="text-red-500 font-medium">

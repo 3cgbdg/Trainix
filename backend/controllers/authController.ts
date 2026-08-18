@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import User, { IUser } from "../models/User";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
@@ -7,6 +8,10 @@ import FitnessPlan from "../models/FitnessPlan";
 import NutritionPlan from "../models/NutritionPlan";
 import Measurement from "../models/Measurement";
 import Notification from "../models/Notification";
+import { sendPasswordResetEmail } from "../utils/email";
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+const hashResetToken = (token: string) => crypto.createHash("sha256").update(token).digest("hex");
 
 // signup func
 export const signUp = async (req: Request, res: Response): Promise<void> => {
@@ -140,6 +145,70 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// requesting a password-reset email. Always responds with the same generic
+// message regardless of whether the email is registered, so this endpoint
+// can't be used to enumerate which emails have accounts.
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email } = req.body;
+        const genericResponse = { message: "If an account exists for that email, a reset link has been sent." };
+        if (!email) {
+            res.status(200).json(genericResponse);
+            return;
+        }
+        const user = await User.findOne({ email });
+        if (user) {
+            const rawToken = crypto.randomBytes(32).toString("hex");
+            user.resetPasswordTokenHash = hashResetToken(rawToken);
+            user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+            await user.save();
+            const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+            const resetLink = `${frontendUrl.replace(/\/$/, "")}/auth/reset-password?token=${rawToken}&email=${encodeURIComponent(email)}`;
+            await sendPasswordResetEmail(email, resetLink);
+        }
+        res.status(200).json(genericResponse);
+        return;
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
+// completing a password reset with the token emailed by forgotPassword
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, token, newPassword } = req.body;
+        if (!email || !token || !newPassword) {
+            res.status(400).json({ message: "Missing required fields" });
+            return;
+        }
+        if (typeof newPassword !== "string" || newPassword.length < 8) {
+            res.status(400).json({ message: "Password must be at least 8 characters." });
+            return;
+        }
+        const user = await User.findOne({ email }).select("+resetPasswordTokenHash +resetPasswordExpires");
+        if (!user || !user.resetPasswordTokenHash || !user.resetPasswordExpires || user.resetPasswordExpires.getTime() < Date.now()) {
+            res.status(400).json({ message: "This reset link is invalid or has expired." });
+            return;
+        }
+        const providedHash = hashResetToken(token);
+        const tokensMatch = crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(user.resetPasswordTokenHash));
+        if (!tokensMatch) {
+            res.status(400).json({ message: "This reset link is invalid or has expired." });
+            return;
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.resetPasswordTokenHash = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        res.status(200).json({ message: "Password updated. You can now log in." });
+        return;
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
 // log-out func
 export const logOut = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -184,6 +253,13 @@ export const getSocketToken = async (req: Request, res: Response): Promise<void>
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
         const profile = await User.findById((req as AuthRequest).userId).select("-password");
+        if (!profile) {
+            // the JWT is still valid but the account it points to is gone (e.g.
+            // deleted); a 200 with a null user left callers stuck treating this
+            // as a signed-in session with no data instead of a signed-out one
+            res.status(404).json({ message: "User was not found!" });
+            return;
+        }
         res.json({ user: profile });
         return;
     } catch (err) {

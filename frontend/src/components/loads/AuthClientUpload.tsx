@@ -33,6 +33,10 @@ export default function AuthClientUpload() {
 
       if (profile.status !== "fulfilled") {
         dispatch(finishAuth());
+        // clear the httpOnly session cookies server-side — otherwise proxy.ts's
+        // presence-only check keeps treating this as an authenticated request
+        // and redirects straight back to a protected route, looping forever
+        try { await api.delete("/api/auth/logout"); } catch { /* best-effort */ }
         router.replace("/auth/login");
         return;
       }
