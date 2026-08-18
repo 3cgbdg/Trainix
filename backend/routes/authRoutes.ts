@@ -1,5 +1,5 @@
 import express from "express"
-import { deleteProfile, getProfile, logIn, logOut, onBoarding,  refresh, signUp, updateProfile } from "../controllers/authController";
+import { deleteProfile, getProfile, getSocketToken, logIn, logOut, onBoarding,  refresh, signUp, updateProfile } from "../controllers/authController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const authRoute = express.Router();
@@ -9,6 +9,7 @@ authRoute.post("/signup", signUp);
 authRoute.post("/onboarding", authMiddleware, onBoarding);
 authRoute.post("/refresh", refresh);
 authRoute.get("/profile", authMiddleware, getProfile);
+authRoute.get("/socket-token", authMiddleware, getSocketToken);
 authRoute.delete("/profile", authMiddleware, deleteProfile);
 authRoute.patch("/profile", authMiddleware, updateProfile);
 authRoute.delete("/logout", logOut);

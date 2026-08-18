@@ -14,6 +14,7 @@ describe("notifications api", () => {
     let accessToken: string;
     let user: IUserDocument;
     let notification: INotificationDocument;
+    let otherUsersNotification: INotificationDocument;
     let invalidToken: string;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
@@ -39,6 +40,11 @@ describe("notifications api", () => {
         });
         notification = await Notification.create({
             userId: user._id,
+            topic: "water",
+            info: "water 2000ml",
+        });
+        otherUsersNotification = await Notification.create({
+            userId: user2._id,
             topic: "water",
             info: "water 2000ml",
         });
@@ -79,6 +85,15 @@ describe("notifications api", () => {
     //delete-notification route
     describe("delete-notifications", () => {
 
+        it("cannot delete another user's notification", async () => {
+            const res = await request(app).delete(`/api/notification/notifications/${otherUsersNotification._id}`)
+                .set("Cookie", `access-token=${accessToken}`)
+                .set("Authorization", `Bearer ${accessToken}`)
+            expect(res.status).toBe(404);
+            const stillExists = await Notification.findById(otherUsersNotification._id);
+            expect(stillExists).not.toBeNull();
+        })
+
         it("delete-notifications 200", async () => {
             const res = await request(app).delete(`/api/notification/notifications/${notification._id}`)
                 .set("Cookie", `access-token=${accessToken}`)
@@ -88,7 +103,7 @@ describe("notifications api", () => {
         })
 
         it("delete-notifications - server error!", async () => {
-            jest.spyOn(Notification, 'findByIdAndDelete').mockImplementationOnce(() => {
+            jest.spyOn(Notification, 'findOneAndDelete').mockImplementationOnce(() => {
                 throw new Error("DB error");
             });
             const res = await request(app).delete(`/api/notification/notifications/${notification._id}`)

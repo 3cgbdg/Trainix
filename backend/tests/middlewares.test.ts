@@ -40,23 +40,24 @@ describe("middlewares for backend", () => {
         await User.deleteMany({});
     })
     describe("auth middleware", () => {
+        // using a real protected route to exercise the middleware, since there's
+        // no dedicated debug route in the app
         it("Protected", async () => {
-            const res = await request(app).get("/api/protected")
-                .set("Cookie", `token=${validToken}`)
+            const res = await request(app).get("/api/notification/notifications")
+                .set("Cookie", `access-token=${validToken}`)
                 .set("Authorization", `Bearer ${validToken}`);
 
             expect(res.status).toBe(200);
-            expect(res.body).toBe("Route is protected");
         })
         it("401 not authorized", async () => {
-            const res = await request(app).get("/api/protected");
+            const res = await request(app).get("/api/notification/notifications");
 
             expect(res.status).toBe(401);
             expect(res.body.message).toBe("Not authorized!");
         })
         it("403 invalid token", async () => {
-            const res = await request(app).get("/api/protected")
-                .set("Cookie", `token=dsaddasd}`)
+            const res = await request(app).get("/api/notification/notifications")
+                .set("Cookie", `access-token=dsaddasd}`)
                 .set("Authorization", `Bearer dsadasd`);
 
             expect(res.status).toBe(403);

@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
-import User from "../models/User";
+import User, { IUser } from "../models/User";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import { AuthRequest } from "../middlewares/authMiddleware";
+import FitnessPlan from "../models/FitnessPlan";
+import NutritionPlan from "../models/NutritionPlan";
+import Measurement from "../models/Measurement";
+import Notification from "../models/Notification";
 
 // signup func
 export const signUp = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
+        if (!data.email || !data.password || !data.name || !data.surname || !data.gender) {
+            res.status(400).json({ message: "Missing required fields" });
+            return;
+        }
         const user = await User.findOne({ email: data.email });
         if (user) {
             res.status(409).json({ message: "User with such an email exists" });
@@ -47,8 +55,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
 export const onBoarding = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
-        console.log(data)
-        const user = await User.findByIdAndUpdate((req as AuthRequest).userId, { $set: { "metrics.weight": data.weight, "metrics.height": data.height, targetWeight: data.targetWeight, primaryFitnessGoal: data.primaryFitnessGoal, fitnessLevel: data.fitnessLevel } });
+        const user = await User.findByIdAndUpdate((req as AuthRequest).userId, { $set: { "metrics.weight": data.weight, "metrics.height": data.height, targetWeight: data.targetWeight, primaryFitnessGoal: data.primaryFitnessGoal, fitnessLevel: data.fitnessLevel } }, { runValidators: true });
         if (!user) {
             res.status(404).json({ message: "User was not found!" })
             return;
@@ -92,7 +99,8 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
         });
-        res.json({ message: "User logged in!", user: user });
+        const { password, ...userWithoutPassword } = user.toObject();
+        res.json({ message: "User logged in!", user: userWithoutPassword });
         return;
     } catch (err) {
         res.status(500).json({ message: "Server error!" });
@@ -155,6 +163,23 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+// short-lived token for the direct cross-origin Socket.IO handshake, which can't
+// rely on the httpOnly access-token cookie: the frontend and backend are on
+// different origins in production, and the cookie is scoped to whichever origin
+// the browser believes served it — the frontend's, via the Next.js rewrite proxy —
+// so it never reaches a direct connection to the backend origin. This endpoint is
+// reached through that same proxy, so the httpOnly cookie DOES work here.
+export const getSocketToken = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const token = jwt.sign({ userId: (req as AuthRequest).userId }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+        res.json({ token });
+        return;
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
 // profile getting
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -170,7 +195,14 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 // deleting profile func
 export const deleteProfile = async (req: Request, res: Response): Promise<void> => {
     try {
-        await User.findByIdAndDelete((req as AuthRequest).userId);
+        const userId = (req as AuthRequest).userId;
+        await Promise.all([
+            User.findByIdAndDelete(userId),
+            FitnessPlan.deleteMany({ userId }),
+            NutritionPlan.deleteMany({ userId }),
+            Measurement.deleteMany({ userId }),
+            Notification.deleteMany({ userId }),
+        ]);
         res.json({ message: "Successfully deleted!" });
         return;
     } catch (err) {
@@ -185,45 +217,52 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         // payload-Partial-IUser( including pass-changing )
         const payload = req.body;
         const profile = await User.findById((req as AuthRequest).userId);
-        if (profile) {
-            // pass check (fields-newPassword - newPasswordAgain -password)
-            if (payload.password) {
-                const isGood = await bcrypt.compare(payload.password, profile.password);
-                if (!isGood) {
-                    res.status(403).json({ message: "Password is incorrect!" });
-                    return;
-                }
+        if (!profile) {
+            res.status(404).json({ message: "User was not found!" });
+            return;
+        }
+        // pass check (fields-newPassword - newPasswordAgain -password)
+        if (payload.password) {
+            const isGood = await bcrypt.compare(payload.password, profile.password);
+            if (!isGood) {
+                res.status(403).json({ message: "Password is incorrect!" });
+                return;
+            }
 
-                if (payload.newPassword && payload.newPassword === payload.newPasswordAgain) {
-                    const hashedPass = await bcrypt.hash(payload.newPassword, 10);
-                    profile.password = hashedPass;
+            if (payload.newPassword && payload.newPassword === payload.newPasswordAgain) {
+                const hashedPass = await bcrypt.hash(payload.newPassword, 10);
+                profile.password = hashedPass;
 
-                } else if (payload.newPassword || payload.newPasswordAgain) {
-                    res.status(400).json({ message: "Passwords do not match!" });
-                    return;
+            } else if (payload.newPassword || payload.newPasswordAgain) {
+                res.status(400).json({ message: "Passwords do not match!" });
+                return;
+            }
+        }
+        // updating metrics expect pass
+        const editableFields: (keyof IUser | keyof IUser["metrics"])[] = ["firstName", "lastName", "email", "gender", "dateOfBirth", "weight", "height", "targetWeight", "fitnessLevel", "primaryFitnessGoal", "inAppNotifications"];
+        Object.entries(payload).forEach(([key, value]) => {
+            if (!(editableFields as string[]).includes(key)) return;
+            if (value !== undefined) {
+                // height,weight have different location
+                if (["height", "weight"].includes(key)) {
+                    profile.set(`metrics.${key}`, value);
+
+                } else {
+                    profile.set(key, value);
                 }
             }
-            // updating metrics expect pass
-            Object.entries(payload).forEach(([key, value]) => {
-                if (key === "password" || key === "newPassword" || key === "newPasswordAgain") return;
-                if (value !== undefined) {
-                    // height,weight have different location  
-                    if (["height", "weight"].includes(key)) {
-                        profile.set(`metrics.${key}`, value);
 
-                    } else {
-                        profile.set(key, value);
-                    }
-                }
-
-            });
-            profile.markModified(`metrics`);
-            await profile.save();
-        }
-        const { password, ...newObj } = profile!.toObject();
+        });
+        profile.markModified(`metrics`);
+        await profile.save();
+        const { password, ...newObj } = profile.toObject();
         res.json({ user: newObj });
         return;
     } catch (err) {
+        if (err && typeof err === "object" && "code" in err && err.code === 11000) {
+            res.status(409).json({ message: "User with such an email exists" });
+            return;
+        }
         res.status(500).json({ message: "Server error!" });
         return;
     }

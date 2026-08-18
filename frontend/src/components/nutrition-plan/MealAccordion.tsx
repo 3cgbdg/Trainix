@@ -68,16 +68,19 @@ function MealAccordion({ meal, isOpen, setIsOpen, dayNumber, idx }: MealAccordio
 
         <p className="mt-4 text-sm leading-6 text-muted">{meal.description}</p>
         {meal.status !== "eaten" ? (
-          <Button
-            variant="secondary"
-            className="mt-5 w-full sm:w-auto"
-            leadingIcon={<Check size={17} />}
-            loading={mutation.isPending}
-            loadingLabel="Saving…"
-            onClick={() => mutation.mutate({ planDay: dayNumber - 1, index: idx })}
-          >
-            Mark as eaten
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              className="mt-5 w-full sm:w-auto"
+              leadingIcon={<Check size={17} />}
+              loading={mutation.isPending}
+              loadingLabel="Saving…"
+              onClick={() => mutation.mutate({ planDay: dayNumber - 1, index: idx })}
+            >
+              Mark as eaten
+            </Button>
+            {mutation.isError ? <p role="alert" className="mt-3 text-sm text-danger">Could not save. Try again.</p> : null}
+          </>
         ) : null}
 
         {expanded ? (

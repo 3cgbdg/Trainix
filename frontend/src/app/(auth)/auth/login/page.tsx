@@ -1,6 +1,7 @@
 "use client"
 import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image"
 import Link from "next/link";
@@ -39,6 +40,9 @@ const Page = () => {
             console.error("Login failed:", error);
         },
     });
+    const loginError = mutation.isError
+        ? (isAxiosError(mutation.error) ? mutation.error.response?.data?.message : null) ?? "Login failed. Please try again."
+        : null;
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const onSubmit: SubmitHandler<formType> = async (data) => {
         mutation.mutate(data);
@@ -66,7 +70,7 @@ const Page = () => {
                             // validating email format with regex
                             isValidEmailForm: (value) => {
                                 if (!value) return true;
-                                return /^\w+@\w+\.\w{2,3}$/.test(value) || "Wrong email format";
+                                return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value) || "Wrong email format";
                             },
                             isEmpty: (value) => {
                                 return value.length !== 0 || "Field is required";
@@ -93,6 +97,11 @@ const Page = () => {
                     )}
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2 cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
                 </div>
+                {loginError && (
+                    <span role="alert" className="text-red-500 font-medium">
+                        {loginError}
+                    </span>
+                )}
                 <button id="log-in-btn" className="button-green">Login</button>
             </form>
             <Link href={"/auth/signup"} className="w-full button-transparent hover:underline">Sign Up</Link>

@@ -16,7 +16,7 @@ test('E2E test for generating process both nutrition&fitness plans', async ({ pa
     
     await test.step("generating fitness-plan", async () => {
         // routing to the ai-analysis page
-        await page.getByLabel("create-plan-btn").click();
+        await page.getByTestId("create-plan-btn").click();
         await page.waitForURL("**/ai-analysis");
         // adding file to analyze
         const fileInput = page.locator('input[type="file"]');
@@ -25,7 +25,7 @@ test('E2E test for generating process both nutrition&fitness plans', async ({ pa
         const generateBtn = page.getByLabel("btn");
         await generateBtn.click();
         // checking if processing
-        expect(generateBtn).toHaveText("Processing");
+        await expect(generateBtn).toHaveText("Analyzing your photo…");
         await expect(page.getByText(/Photo Analysis Comparison/i)).toBeVisible({ timeout: 80000 }); //waiting max-80 secs to get all plan and analysis visible
     })
 
@@ -36,7 +36,7 @@ test('E2E test for generating process both nutrition&fitness plans', async ({ pa
         const generateBtn = page.getByLabel("btn");
         await generateBtn.click();
         // checking if processing
-        expect(generateBtn).toHaveText("Processing");
+        await expect(generateBtn).toHaveText("Building your plan…");
         await expect(page.getByText(/Personalized Nutrition Plan/i)).toBeVisible({ timeout: 80000 }); //waiting max-80 secs to get all plan and analysis visible
     })
 });

@@ -180,7 +180,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <LinkButton href={todayWorkout ? `/workout/${todayIndex + 1}` : "/ai-analysis"} size="lg" leadingIcon={todayWorkout ? <Dumbbell size={19} /> : <Sparkles size={19} />} className="w-full sm:w-auto">
+              <LinkButton href={todayWorkout ? `/workout/${todayIndex + 1}` : "/ai-analysis"} data-testid={todayWorkout ? undefined : "create-plan-btn"} size="lg" leadingIcon={todayWorkout ? <Dumbbell size={19} /> : <Sparkles size={19} />} className="w-full sm:w-auto">
                 {todayWorkout ? "Start workout" : "Create my plan"}
               </LinkButton>
               {todayWorkout ? <LinkButton href="/workout-plan" size="lg" variant="secondary" className="w-full sm:w-auto">See weekly plan</LinkButton> : null}

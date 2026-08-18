@@ -54,7 +54,7 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
 // func for getting nutr. day
 export const getNutritionDay = async (req: Request, res: Response): Promise<void> => {
     try {
-        const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
+        const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId }).lean();
         if (!nutritionPlan) {
             res.status(200).json({ hasPlan: false, hasCurrentDay: false });
             return;
@@ -83,7 +83,7 @@ export const getWeekStatistics = async (req: Request, res: Response): Promise<vo
         const { week } = req.query;
         const weekNumber = Number(week);
         // finding week number forlater loop idx using
-        const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
+        const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId }).lean();
         if (!nutritionPlan) {
             res.status(404).json({ message: "Not found!" });
             return;
@@ -119,6 +119,10 @@ export const updateMealStatus = async (req: Request, res: Response): Promise<voi
             return;
         }
         const currentDay = nutritionPlan.days[dayNum];
+        if (!currentDay || !currentDay.meals[index]) {
+            res.status(400).json({ message: "Invalid day or meal index!" });
+            return;
+        }
         currentDay.meals[index].status = "eaten";
         //adding fresh numbers to dailyGoals - calories,fats,carbs,protein.
         currentDay.dailyGoals.calories.current += currentDay.meals[index].mealCalories;
@@ -141,6 +145,10 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
     try {
         const { day } = req.params;
         const { amount } = req.body;
+        if (typeof amount !== "number" || !Number.isFinite(amount)) {
+            res.status(400).json({ message: "A valid amount is required!" });
+            return;
+        }
         // getting parsed to num idx of the day
         const dayNum = Number(day);
         const nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
@@ -149,7 +157,12 @@ export const updateWaterCurrent = async (req: Request, res: Response): Promise<v
             return;
         }
         // adding numbers to current waterIntake
-        nutritionPlan.days[dayNum].waterIntake.current += amount;
+        const currentDay = nutritionPlan.days[dayNum];
+        if (!currentDay) {
+            res.status(400).json({ message: "Invalid day index!" });
+            return;
+        }
+        currentDay.waterIntake.current = Math.max(0, currentDay.waterIntake.current + amount);
 
         nutritionPlan.markModified(`days.${dayNum}.waterIntake`);
         await nutritionPlan.save();

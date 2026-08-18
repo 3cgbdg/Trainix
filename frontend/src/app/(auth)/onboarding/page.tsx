@@ -1,6 +1,7 @@
 "use client"
 import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import Image from "next/image"
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -31,6 +32,9 @@ const Page = () => {
             console.error("Onboarding failed:", error);
         },
     });
+    const onboardingError = mutation.isError
+        ? (isAxiosError(mutation.error) ? mutation.error.response?.data?.message : null) ?? "Could not save your details. Please try again."
+        : null;
     const onSubmit: SubmitHandler<formType> = async (data) => {
         mutation.mutate(data);
     }
@@ -71,12 +75,7 @@ const Page = () => {
               
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="targetWeight">Target Weight (kg) - Optional</label>
-                    <input {...register("targetWeight", { required: "Field is required" })} className="input w-full" placeholder="e.g., 65" type="text" id="targetWeight" />
-                    {errors.targetWeight && (
-                        <span data-testid='error' className="text-red-500 font-medium ">
-                            {errors.targetWeight.message}
-                        </span>
-                    )}
+                    <input {...register("targetWeight")} className="input w-full" placeholder="e.g., 65" type="text" id="targetWeight" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="fitnessLevel">Your Fitness Level</label>
@@ -94,19 +93,24 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm leading-[22px] font-medium" htmlFor="targetWeight">Your Primary Fitness Goal</label>
-                    <select  defaultValue={""} {...register("primaryFitnessGoal")} className="input cursor-pointer">
+                    <select  defaultValue={""} {...register("primaryFitnessGoal", { required: "Field is required" })} className="input cursor-pointer">
                         <option value="" disabled  hidden>Select your primary goal</option>
                         <option value="Lose weight">Lose weight</option>
                         <option value="Gain muscle">Gain muscle</option>
                         <option value="Stay fit">Stay fit</option>
                         <option value="Improve endurance">Improve endurance</option>
                     </select>
-                    {errors.targetWeight && (
+                    {errors.primaryFitnessGoal && (
                         <span data-testid='error' className="text-red-500 font-medium ">
-                            {errors.targetWeight.message}
+                            {errors.primaryFitnessGoal.message}
                         </span>
                     )}
                 </div>
+                {onboardingError && (
+                    <span role="alert" className="text-red-500 font-medium">
+                        {onboardingError}
+                    </span>
+                )}
                 <button className="button-green">Continue to Dashboard</button>
             </form>
 
