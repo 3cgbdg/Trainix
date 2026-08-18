@@ -1,6 +1,7 @@
 "use client"
 import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image"
 import Link from "next/link";
@@ -32,9 +33,12 @@ const Page = () => {
             router.push("/onboarding");
         },
         onError: (error) => {
-            console.error("Login failed:", error);
+            console.error("Signup failed:", error);
         },
     });
+    const signupError = mutation.isError
+        ? (isAxiosError(mutation.error) ? mutation.error.response?.data?.message : null) ?? "Sign up failed. Please try again."
+        : null;
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const onSubmit: SubmitHandler<formType> = async (data) => {
         mutation.mutate(data);
@@ -78,7 +82,7 @@ const Page = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="flex flex-col gap-2">
                         <label className="text-sm leading-[22px] font-medium" htmlFor="dateOfBirth">Date of birth</label>
-                        <input defaultValue="Select your birth date" {...register("dateOfBirth", { required: "Field is required" })} className="input w-full" type="date" min="1900-01-01"
+                        <input {...register("dateOfBirth", { required: "Field is required" })} className="input w-full" type="date" min="1900-01-01"
                             max="2018-12-31" id="dateOfBirth" />
                         {errors.dateOfBirth && (
                             <span data-testid='error' className="text-red-500 font-medium ">
@@ -107,7 +111,7 @@ const Page = () => {
                             // validating email format with regex
                             isValidEmailForm: (value) => {
                                 if (!value) return true;
-                                return /^\w+@\w+\.\w{2,3}$/.test(value) || "Wrong email format";
+                                return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value) || "Wrong email format";
                             },
                             isEmpty: (value) => {
                                 return value.length !== 0 || "Field is required";
@@ -134,6 +138,11 @@ const Page = () => {
                     )}
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2 cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
                 </div>
+                {signupError && (
+                    <span role="alert" className="text-red-500 font-medium">
+                        {signupError}
+                    </span>
+                )}
                 <button className="button-green ">Sign Up</button>
             </form>
             <Link href={"/auth/login"} className="button-transparent w-full hover:underline">Login</Link>
