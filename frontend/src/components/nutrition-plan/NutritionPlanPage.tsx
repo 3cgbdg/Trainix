@@ -46,8 +46,8 @@ export default function NutritionPlanPage({ day }: { day: INutritionDayPlan }) {
   const waterMutation = useMutation({
     mutationFn: ({ planDay, amount }: { planDay: number; amount: number }) =>
       api.patch(`/api/nutrition-plan/nutrition-plans/days/${planDay}/water`, { amount }).then((response) => response.data),
-    onSuccess: () => {
-      dispatch(logWater(parsedWaterAmount));
+    onSuccess: (_data, variables) => {
+      dispatch(logWater(variables.amount));
       setWaterAmount("");
     },
   });
@@ -95,7 +95,7 @@ export default function NutritionPlanPage({ day }: { day: INutritionDayPlan }) {
             <p className="mt-5 text-2xl font-bold text-strong">{day.waterIntake.current.toLocaleString()} <span className="text-sm font-medium text-subtle">/ {day.waterIntake.target.toLocaleString()} ml</span></p>
             <ProgressBar className="mt-3" indicatorClassName="bg-sky-600" value={day.waterIntake.current} max={day.waterIntake.target} label="Daily water intake" />
             <div className="mt-5 flex items-end gap-2">
-              <TextField className="min-w-0 flex-1" label="Add water" type="number" min="1" inputMode="numeric" placeholder="250 ml" value={waterAmount} error={waterError} onChange={(event) => setWaterAmount(event.target.value)} />
+              <TextField className="min-w-0 flex-1" label="Add water" type="number" min="1" inputMode="numeric" placeholder="250 ml" value={waterAmount} error={waterError} disabled={waterMutation.isPending} onChange={(event) => setWaterAmount(event.target.value)} />
               <Button className="mb-0.5 shrink-0" loading={waterMutation.isPending} loadingLabel="Logging…" disabled={!waterAmount || Boolean(waterError)} leadingIcon={<Droplets size={17} />} onClick={() => waterMutation.mutate({ planDay: day.dayNumber - 1, amount: parsedWaterAmount })}>Log</Button>
             </div>
             {waterMutation.isError ? <p role="alert" className="mt-3 text-sm text-danger">Water could not be saved. Try again.</p> : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock3, Lightbulb, Pause, Play, SkipForward, Square } from "lucide-react";
+import { Check, Clock3, Dumbbell, Lightbulb, Pause, Play, SkipForward, Square } from "lucide-react";
 import Image from "next/image";
 import { memo, useCallback, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,10 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Surface } from "@/components/ui/Surface";
 import Timer from "@/components/workout/Timer";
 import type { IDayPlan, IExercise } from "@/types/types";
+
+// the backend falls back to this sentinel (no real file behind it) when it
+// couldn't source a photo for an exercise, so render an icon instead of a broken image
+const hasRealImage = (url: string) => url !== "exercise-placeholder.jpg" && url !== "food-placeholder.jpg";
 
 function ExercisePage({ workout, exercise, index, onComplete, onSkip, onFinish, isSubmitting }: { workout: IDayPlan; exercise: IExercise; index: number; onComplete: () => void; onSkip: () => void; onFinish: () => void; isSubmitting: boolean }) {
   const [isPaused, setIsPaused] = useState(false);
@@ -28,7 +32,7 @@ function ExercisePage({ workout, exercise, index, onComplete, onSkip, onFinish, 
         <Surface variant="brand" padding="lg" className="flex min-h-[34rem] flex-col items-center justify-center text-center">
           {timed ? <Timer workoutTime={exercise.time!} isPaused={isPaused} onFinish={finishTimedExercise} /> : <p className="text-6xl font-bold tracking-tight text-strong">{exercise.repeats}<span className="ml-2 text-xl font-semibold text-muted">reps</span></p>}
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-strong">{exercise.title}</h2>
-          <div className="relative mt-6 aspect-square w-full max-w-xs overflow-hidden rounded-card border border-brand/15 bg-surface"><Image fill sizes="320px" priority className="object-cover" src={exercise.imageUrl} alt={`${exercise.title} demonstration`} /></div>
+          <div className="relative mt-6 aspect-square w-full max-w-xs overflow-hidden rounded-card border border-brand/15 bg-surface">{hasRealImage(exercise.imageUrl) ? <Image fill sizes="320px" priority className="object-cover" src={exercise.imageUrl} alt={`${exercise.title} demonstration`} /> : <div className="flex size-full items-center justify-center text-subtle"><Dumbbell size={40} /></div>}</div>
           <div className="mt-7 flex w-full max-w-lg flex-col gap-2 sm:flex-row sm:justify-center">
             <Button variant="secondary" leadingIcon={<SkipForward size={18} />} onClick={onSkip}>Skip</Button>
             {timed ? <Button leadingIcon={isPaused ? <Play size={18} /> : <Pause size={18} />} onClick={() => setIsPaused((current) => !current)}>{isPaused ? "Resume" : "Pause"}</Button> : <Button leadingIcon={<Check size={18} />} onClick={onComplete}>Complete reps</Button>}
@@ -38,7 +42,7 @@ function ExercisePage({ workout, exercise, index, onComplete, onSkip, onFinish, 
 
         <div className="space-y-4">
           <Surface padding="lg"><h3 className="font-bold text-strong">How to perform it</h3><p className="mt-3 text-sm leading-6 text-muted">{exercise.instruction}</p><div className="mt-5 rounded-control bg-surface-muted p-4"><div className="flex items-center gap-2 font-semibold text-strong"><Lightbulb size={17} className="text-brand" /> Coach’s tip</div><p className="mt-2 text-sm leading-6 text-muted">{exercise.advices}</p></div></Surface>
-          <Surface padding="lg"><p className="text-xs font-semibold uppercase tracking-wide text-subtle">Up next</p>{nextExercise ? <div className="mt-3 flex items-center gap-3"><div className="relative size-16 shrink-0 overflow-hidden rounded-control bg-surface-muted"><Image fill sizes="64px" className="object-cover" src={nextExercise.imageUrl} alt="" /></div><div><h3 className="font-bold text-strong">{nextExercise.title}</h3><p className="mt-1 inline-flex items-center gap-1 text-xs text-muted"><Clock3 size={13} />{nextExercise.time ? `${Math.ceil(nextExercise.time / 60)} min` : `${nextExercise.repeats ?? 0} reps`}</p></div></div> : <p className="mt-3 font-semibold text-strong">Final exercise—finish strong.</p>}</Surface>
+          <Surface padding="lg"><p className="text-xs font-semibold uppercase tracking-wide text-subtle">Up next</p>{nextExercise ? <div className="mt-3 flex items-center gap-3"><div className="relative size-16 shrink-0 overflow-hidden rounded-control bg-surface-muted">{hasRealImage(nextExercise.imageUrl) ? <Image fill sizes="64px" className="object-cover" src={nextExercise.imageUrl} alt="" /> : <div className="flex size-full items-center justify-center text-subtle"><Dumbbell size={20} /></div>}</div><div><h3 className="font-bold text-strong">{nextExercise.title}</h3><p className="mt-1 inline-flex items-center gap-1 text-xs text-muted"><Clock3 size={13} />{nextExercise.time ? `${Math.ceil(nextExercise.time / 60)} min` : `${nextExercise.repeats ?? 0} reps`}</p></div></div> : <p className="mt-3 font-semibold text-strong">Final exercise—finish strong.</p>}</Surface>
         </div>
       </div>
     </div>

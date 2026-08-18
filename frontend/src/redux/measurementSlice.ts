@@ -10,7 +10,7 @@ const initialState: IinitialState = {
 }
 
 const measurementSlice = createSlice({
-    name: "auth",
+    name: "measurement",
     initialState,
     reducers: {
         getMeasurement: (state, action: PayloadAction<IMeasurements>) => {

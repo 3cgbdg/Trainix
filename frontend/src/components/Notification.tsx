@@ -23,15 +23,31 @@ export default function Notification() {
     retry: 0,
   });
 
+  const userId = user?._id;
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl || !user) return;
-    const socket = io(apiUrl);
-    socket.emit("joinNotifications", user._id);
+    if (!apiUrl || !userId) return;
+    let cancelled = false;
+    let socket: ReturnType<typeof io> | undefined;
     const receive = ({ data }: { data: AppNotification }) => queryClient.setQueryData<AppNotification[]>(["notifications"], (current = []) => [...current, data]);
-    socket.on("getNotifications", receive);
-    return () => { socket.off("getNotifications", receive); socket.disconnect(); };
-  }, [queryClient, user]);
+
+    // the socket connects directly to the backend origin, bypassing the
+    // same-origin proxy the httpOnly auth cookie is scoped to — so the token
+    // for this handshake has to be fetched over the (proxied) REST API instead.
+    // It's valid for as long as the access-token cookie is, which bounds how
+    // long a reconnect can go before needing a fresh one.
+    void api.get("/api/auth/socket-token").then(({ data }) => {
+      if (cancelled) return;
+      socket = io(apiUrl, { auth: { token: data.token } });
+      socket.on("getNotifications", receive);
+    }).catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      socket?.off("getNotifications", receive);
+      socket?.disconnect();
+    };
+  }, [queryClient, userId]);
 
   const dismiss = async (notification: AppNotification, openProfile = false) => {
     queryClient.setQueryData<AppNotification[]>(["notifications"], (current = []) => current.filter((item) => item._id !== notification._id));

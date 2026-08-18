@@ -35,7 +35,7 @@ const workoutsSlice = createSlice({
             if (index !== -1) {
                 state.workouts.items[index] = action.payload.day;
             }
-            if (action.payload.streak)
+            if (action.payload.streak !== undefined)
                 state.workouts.streak = action.payload.streak;
         },
     }
