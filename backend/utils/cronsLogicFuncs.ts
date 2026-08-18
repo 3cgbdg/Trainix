@@ -31,7 +31,7 @@ export const regularReminder = async () => {
             await Promise.all(plans.map(async (item) => {
                 // checking whether user turned off in-app-notifications
                 if (!item.userId.inAppNotifications) return;
-                const day = item.days.find(day => new Date(day.date).getDate() === today.getDate());
+                const day = item.days.find(day => new Date(day.date).toDateString() === today.toDateString());
                 if (!day) return;
                 // check water
                 let notification: INotification | null;
@@ -91,7 +91,7 @@ export const workoutReminder = async () => {
             await Promise.all(plans.map(async (item) => {
                 // checking whether user turned off in-app-notifications
                 if (!item.userId.inAppNotifications) return;
-                const day = item.report.plan.days.find(day => new Date(day.date).getDate() === today.getDate());
+                const day = item.report.plan.days.find(day => new Date(day.date).toDateString() === today.toDateString());
 
                 if (!day) return;
 
@@ -235,23 +235,35 @@ export const checkMissedDay = async () => {
 }
 
 export const checkingStatusOfPlan = async () => {
-
-    let lastId = null;
-    const batchSize = 1000;
-    while (true) {
-        const query: any = {}
-        if (lastId) query._id = { $gt: lastId }
-        const fitnessPlans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
-        if (fitnessPlans.length == 0) break;
-        lastId = fitnessPlans[fitnessPlans.length - 1]._id;
-        for (let plan of fitnessPlans) {
-            const amountOfDays = plan.report.plan.days.length;
-            if (new Date(plan.report.plan.days[amountOfDays - 1].date).getTime() < new Date().getTime()) {
-                await FitnessPlan.deleteOne({ _id: plan._id });
+    try {
+        let lastId = null;
+        const batchSize = 1000;
+        while (true) {
+            const query: any = {}
+            if (lastId) query._id = { $gt: lastId }
+            const fitnessPlans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
+            if (fitnessPlans.length == 0) break;
+            lastId = fitnessPlans[fitnessPlans.length - 1]._id;
+            const expiredIds = [];
+            for (let plan of fitnessPlans) {
+                try {
+                    const amountOfDays = plan.report.plan.days.length;
+                    if (amountOfDays === 0) continue;
+                    if (new Date(plan.report.plan.days[amountOfDays - 1].date).getTime() < new Date().getTime()) {
+                        expiredIds.push(plan._id);
+                    }
+                } catch (err) {
+                    // one malformed plan shouldn't stop the rest of this batch from being checked
+                    console.error(err);
+                }
+            }
+            if (expiredIds.length > 0) {
+                await FitnessPlan.deleteMany({ _id: { $in: expiredIds } });
             }
         }
+    } catch (err) {
+        console.error(err);
     }
-
 }
 
 
@@ -270,7 +282,7 @@ export const generateNewDayFitnessContent = async () => {
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             await Promise.all(plans.map(async (plan) => {
-                const day = plan.report.plan.days.find(day => new Date(day.date).getDate() == new Date().getDate());
+                const day = plan.report.plan.days.find(day => new Date(day.date).toDateString() == today.toDateString());
                 if (day) {
                     // getting user and measurements for sending proper metrics to ai to analyze
                     const [user, measurements] = await Promise.all([

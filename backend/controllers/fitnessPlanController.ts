@@ -82,8 +82,10 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
     // array of completed ,non-completed exercises
     const { day } = req.params;
     try {
-        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId });
-        const user = await User.findById((req as AuthRequest).userId);
+        const [plan, user] = await Promise.all([
+            FitnessPlan.findOne({ userId: (req as AuthRequest).userId }),
+            User.findById((req as AuthRequest).userId),
+        ]);
         if (!plan) {
             res.status(404).json({ message: "Not found!" });
             return;
@@ -155,13 +157,12 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        const measurementsDescending = await Measurement.find({ userId: (req as AuthRequest).userId })
-            .sort({ createdAt: -1 })
-            .limit(12)
-            .lean();
+        const [measurementsDescending, plan, user] = await Promise.all([
+            Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12).lean(),
+            FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).lean(),
+            User.findById((req as AuthRequest).userId).lean(),
+        ]);
         const measurements = [...measurementsDescending].reverse();
-        const plan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).lean();
-        const user = await User.findById((req as AuthRequest).userId).lean();
 
         // getting info for charts (example {month:"Aug",weight:74}[])
 
@@ -237,7 +238,7 @@ export const getNumbers = async (req: Request, res: Response): Promise<void> => 
 // full analysis of the body from measurements of the last image uploading
 export const getAnalysis = async (req: Request, res: Response): Promise<void> => {
     try {
-        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12);
+        const measurements = await Measurement.find({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).limit(12).lean();
         if (measurements.length === 0) {
             res.status(200).json({ hasAnalysis: false });
             return;
@@ -247,7 +248,7 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
         let unavailableMonth: string[] = [];
         for (let item of measurements) {
             // for 6 month
-            if (chartData.length > 6) break;
+            if (chartData.length >= 6) break;
             const month = item.createdAt.toLocaleDateString("en-US", { month: "short" });
             if (!unavailableMonth.includes(month)) {
                 unavailableMonth.push(month);
@@ -257,7 +258,7 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
         }
 
 
-        const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        const currentPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).lean();
         if (!currentPlan?.report.advices) {
             res.status(200).json({ hasAnalysis: false });
             return;
@@ -288,7 +289,7 @@ export const getAnalysis = async (req: Request, res: Response): Promise<void> =>
 // getting info about the personal workout days for redux state
 export const getWorkouts = async (req: Request, res: Response): Promise<void> => {
     try {
-        const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).lean();
         if (!fitnessPlan) {
             res.status(200).json({
                 hasPlan: false,
@@ -310,7 +311,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
             // pushing day
             dates.push({ weekDay: item.date.toLocaleDateString("en-US", { weekday: "long" }), monthAndDate: `${item.date.getDate()} ${item.date.toLocaleDateString("en-US", { month: "long" })}` });
             // if date == today - current day idx
-            if (itemDate.getDate() === today.getDate() && itemDate.getMonth() === today.getMonth()) {
+            if (itemDate.getDate() === today.getDate() && itemDate.getMonth() === today.getMonth() && itemDate.getFullYear() === today.getFullYear()) {
                 todayWorkoutNumber = i;
             }
         }
@@ -346,7 +347,7 @@ export const getWorkouts = async (req: Request, res: Response): Promise<void> =>
 export const getWorkout = async (req: Request, res: Response): Promise<void> => {
     const { day } = req.params;
     try {
-        const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 });
+        const fitnessPlan = await FitnessPlan.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).lean();
         if (!fitnessPlan) {
             res.status(404).json({ message: "Not found!" })
             return;
