@@ -425,6 +425,37 @@ describe("fitness-plan api", () => {
             jest.restoreAllMocks();
         });
 
+        it("create-fitness-day 402 - free tier monthly plan quota already used", async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            const quotaUser = await User.create({
+                firstName: 'quota', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'quota@gmail.com', password: hashedPass,
+                aiPlanGenerationsThisMonth: 1, aiPlanGenerationsResetAt: new Date(),
+            });
+            const quotaToken = jwt.sign({ userId: quotaUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+            const res = await request(app).post("/api/fitness-plan/days")
+                .send({ data: body })
+                .set("Cookie", `access-token=${quotaToken}`)
+                .set("Authorization", `Bearer ${quotaToken}`)
+            expect(res.status).toBe(402);
+            const stillNoPlan = await FitnessPlan.findOne({ userId: quotaUser._id });
+            expect(stillNoPlan).toBeNull();
+        });
+
+        it("create-fitness-day 201 - premium tier bypasses the monthly quota", async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            const premiumUser = await User.create({
+                firstName: 'premium', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'premium@gmail.com', password: hashedPass,
+                subscriptionTier: 'premium', aiPlanGenerationsThisMonth: 5,
+            });
+            const premiumToken = jwt.sign({ userId: premiumUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+            const res = await request(app).post("/api/fitness-plan/days")
+                .send({ data: body })
+                .set("Cookie", `access-token=${premiumToken}`)
+                .set("Authorization", `Bearer ${premiumToken}`)
+            expect(res.status).toBe(201);
+        }, 10000);
 
     })
 
@@ -476,7 +507,52 @@ describe("fitness-plan api", () => {
             jest.restoreAllMocks();
         });
     })
-    //delete-fitness-plan route 
+    describe("longestStreak", () => {
+        it("keeps the peak streak after the current streak resets", async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            const streakUser = await User.create({
+                firstName: 'streak', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'streak@gmail.com', password: hashedPass,
+            });
+            const streakToken = jwt.sign({ userId: streakUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+            const makeDay = (dayNumber: number) => ({
+                date: new Date(), dayNumber, status: "Pending", calories: 500, day: "day",
+                exercises: [{ title: "ex", repeats: null, time: 30, instruction: "i", advices: "a", calories: 100, status: "incompleted", imageUrl: "img" }],
+            });
+            const streakPlan = await FitnessPlan.create({
+                userId: streakUser._id,
+                report: {
+                    streak: 3,
+                    briefAnalysis: { targetWeight: 1, fitnessLevel: "f", primaryFitnessGoal: "f" },
+                    plan: { week1Title: "w", week2Title: "w", week3Title: "w", week4Title: "w", days: [makeDay(1), makeDay(2)] },
+                    advices: { nutrition: "n", hydration: "h", recovery: "r", progress: "p" },
+                },
+            });
+            streakUser.longestStreak = 3;
+            await streakUser.save();
+
+            // completing day 1 pushes streak to 4, which should raise longestStreak to 4
+            await request(app).post("/api/fitness-plan/workouts/0/completed")
+                .send([{ completed: true }])
+                .set("Cookie", `access-token=${streakToken}`)
+                .set("Authorization", `Bearer ${streakToken}`);
+            let updatedUser = await User.findById(streakUser._id);
+            expect(updatedUser!.longestStreak).toBe(4);
+
+            // simulate a missed day resetting the current streak, independent of the peak
+            await FitnessPlan.updateOne({ _id: streakPlan._id }, { $set: { "report.streak": 0 } });
+
+            // completing day 2 brings the current streak to 1, well below the existing peak of 4
+            await request(app).post("/api/fitness-plan/workouts/1/completed")
+                .send([{ completed: true }])
+                .set("Cookie", `access-token=${streakToken}`)
+                .set("Authorization", `Bearer ${streakToken}`);
+            updatedUser = await User.findById(streakUser._id);
+            expect(updatedUser!.longestStreak).toBe(4);
+        });
+    });
+
+    //delete-fitness-plan route
     describe("delete-fitness-plan", () => {
         it("delete-fitness-plan 200", async () => {
 

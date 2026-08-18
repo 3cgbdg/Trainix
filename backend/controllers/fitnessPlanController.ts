@@ -8,6 +8,26 @@ import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise } from "../utils/images";
 import { io, userSocketMap } from "../socket";
 import Notification, { INotification } from "../models/Notification";
+import { IUserDocument } from "../models/User";
+
+const FREE_TIER_MONTHLY_PLAN_LIMIT = 1;
+
+// a full plan generation (photo analysis + 28 days of AI content) is the most
+// expensive thing a user can trigger, so free-tier usage is metered per
+// calendar month; premium is unlimited
+function consumeFreeTierPlanQuota(user: IUserDocument): boolean {
+    if (user.subscriptionTier === "premium") return true;
+    const now = new Date();
+    const resetAt = user.aiPlanGenerationsResetAt;
+    const isNewMonth = !resetAt || resetAt.getMonth() !== now.getMonth() || resetAt.getFullYear() !== now.getFullYear();
+    if (isNewMonth) {
+        user.aiPlanGenerationsThisMonth = 0;
+        user.aiPlanGenerationsResetAt = now;
+    }
+    if (user.aiPlanGenerationsThisMonth >= FREE_TIER_MONTHLY_PLAN_LIMIT) return false;
+    user.aiPlanGenerationsThisMonth += 1;
+    return true;
+}
 
 // adding report-fitnessplan day  func with iterations
 export const addFitnessDay = async (req: Request, res: Response): Promise<void> => {
@@ -62,6 +82,16 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
             res.status(200).json({ message: "Day created!", day: data });
             return;
         } else {
+            const user = await User.findById((req as AuthRequest).userId);
+            if (!user) {
+                res.status(404).json({ message: "User was not found!" });
+                return;
+            }
+            if (!consumeFreeTierPlanQuota(user)) {
+                res.status(402).json({ message: `Free plan includes ${FREE_TIER_MONTHLY_PLAN_LIMIT} new AI-generated plan per month. Upgrade to Premium for unlimited plans.` });
+                return;
+            }
+            await user.save();
             const workoutDay = new Date();
             data.day.date = workoutDay;
             const fitnessPlan = new FitnessPlan({ userId: (req as AuthRequest).userId, "report.plan.week3Title": data.week3Title, "report.plan.week4Title": data.week4Title, "report.plan.week2Title": data.week2Title, "report.plan.week1Title": data.week1Title, "report.plan.days": [data.day], "report.advices": data.advices, "report.streak": 0, "report.briefAnalysis": data.briefAnalysis });
@@ -110,9 +140,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
         if (currentDay.exercises!.every(exercise => exercise.status === "completed")) {
             currentDay.status = "Completed";
             plan.report.streak += 1;
-            if (plan.report.streak > user.longestStreak) {
-                user.longestStreak += 1;
-            }
+            user.longestStreak = Math.max(user.longestStreak, plan.report.streak);
             // updating current metrics (weight + bodyFat with calories release)
             const measurement = await Measurement.findOne({ userId: user._id }).sort({ createdAt: -1 });
             if (measurement) {

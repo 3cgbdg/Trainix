@@ -21,6 +21,8 @@ export interface IUser {
   fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
   primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",
   inAppNotifications: boolean,
+  subscriptionTier: "free" | "premium",
+  subscriptionStatus?: string,
 }
 
 export interface IDayPlan {
