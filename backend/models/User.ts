@@ -23,6 +23,14 @@ export interface IUser {
     targetWeight: number,
     fitnessLevel: "Beginner" | "Intermediate" | "Advanced",
     primaryFitnessGoal: "Lose weight" | "Gain muscle" | "Stay fit" | "Improve endurance",
+    resetPasswordTokenHash?: string,
+    resetPasswordExpires?: Date,
+    subscriptionTier: "free" | "premium",
+    subscriptionStatus?: string,
+    stripeCustomerId?: string,
+    stripeSubscriptionId?: string,
+    aiPlanGenerationsThisMonth: number,
+    aiPlanGenerationsResetAt: Date,
 }
 
 export interface IUserDocument extends IUser, Document<mongoose.Types.ObjectId> { }
@@ -47,6 +55,15 @@ const userSchema = new mongoose.Schema<IUser>({
     targetWeight: { type: Number },
     fitnessLevel: { type: String, enum: ["Beginner", "Intermediate", "Advanced"] },
     primaryFitnessGoal: { type: String, enum: ["Lose weight", "Gain muscle", "Stay fit", "Improve endurance"] },
+    // never selected by default, so a reset token can't leak through a query that forgets to exclude it
+    resetPasswordTokenHash: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
+    subscriptionTier: { type: String, enum: ["free", "premium"], default: "free" },
+    subscriptionStatus: { type: String },
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    aiPlanGenerationsThisMonth: { type: Number, default: 0 },
+    aiPlanGenerationsResetAt: { type: Date, default: Date.now },
 })
 
 export default mongoose.model<IUser>("User", userSchema);
