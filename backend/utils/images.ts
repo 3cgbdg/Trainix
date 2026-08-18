@@ -3,6 +3,13 @@ import axios from "axios";
 import { IMeal } from "../models/NutritionPlan";
 import { IExercise } from "../models/FitnessPlan";
 
+// strips anything but letters/numbers/spaces (any script, via Unicode property
+// escapes) so a title can't inject "/" or ".." segments into the S3 key and
+// escape the intended food-images/exercise-images folder, without collapsing
+// non-Latin titles down to a single shared "untitled" key
+const sanitizeKeySegment = (title: string): string =>
+    title.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, "").trim().split(/\s+/).join("_") || "untitled";
+
 export const searchPhotos = async (query: string): Promise<string[] | undefined> => {
     try {
         const res = await axios.get('https://api.unsplash.com/search/photos', {
@@ -35,19 +42,23 @@ export const s3ImageUploadingMeal = async (data: IMeal): Promise<string> => {
 
     }
     else {
-        const response = await axios.get(urls[0], { responseType: "arraybuffer" });
-        const buffer = Buffer.from(response.data, 'binary');
-        const title: string = data.mealTitle;
-        const key = `${process.env.AWS_S3_BUCKET_NAME}/food-images/${title.toLowerCase().split(" ").join("_")}.jpg`
-        await s3.send(new PutObjectCommand({
-            Body: buffer,
-            Key: key,
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            ContentType: "image/jpeg"
-        }))
+        try {
+            const response = await axios.get(urls[0], { responseType: "arraybuffer" });
+            const buffer = Buffer.from(response.data, 'binary');
+            const key = `${process.env.AWS_S3_BUCKET_NAME}/food-images/${sanitizeKeySegment(data.mealTitle)}.jpg`
+            await s3.send(new PutObjectCommand({
+                Body: buffer,
+                Key: key,
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                ContentType: "image/jpeg"
+            }))
 
-        url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
-        return url;
+            url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
+            return url;
+        } catch (error) {
+            console.error(error);
+            return "food-placeholder.jpg";
+        }
     }
 
 }
@@ -70,19 +81,23 @@ export const s3ImageUploadingExercise = async (data: IExercise): Promise<string>
 
     }
     else {
-        const response = await axios.get(urls[0], { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(response.data, 'binary');
-        const title: string = data.title;
-        const key = `${process.env.AWS_S3_BUCKET_NAME}/exercise-images/${title.toLowerCase().split(" ").join("_")}.jpg`
-        await s3.send(new PutObjectCommand({
-            Body: buffer,
-            Key: key,
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            ContentType: "image/jpeg"
-        }))
+        try {
+            const response = await axios.get(urls[0], { responseType: 'arraybuffer' });
+            const buffer = Buffer.from(response.data, 'binary');
+            const key = `${process.env.AWS_S3_BUCKET_NAME}/exercise-images/${sanitizeKeySegment(data.title)}.jpg`
+            await s3.send(new PutObjectCommand({
+                Body: buffer,
+                Key: key,
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                ContentType: "image/jpeg"
+            }))
 
-        url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
-        return url;
+            url = `https://d1llcprgwazvgp.cloudfront.net/${key}`;
+            return url;
+        } catch (error) {
+            console.error(error);
+            return "exercise-placeholder.jpg";
+        }
     }
 
 }

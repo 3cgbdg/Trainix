@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema<IUser>({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     password: { type: String, required: true },
-    email: { type: String, unique: true },
+    email: { type: String, unique: true, required: true },
     inAppNotifications: { type: Boolean, default:true },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: ["Male", "Female"], required: true },

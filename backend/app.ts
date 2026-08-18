@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import compression from "compression";
@@ -30,9 +30,14 @@ app.use("/api/nutrition-plan", authMiddleware, nutritionPlanRoute);
 app.use("/api/measurement", authMiddleware, measurementsRoute);
 app.use("/api/notification", authMiddleware, notificationRoute);
 
-//route for testing auth middleware
-app.get("/api/protected", authMiddleware, async (req: Request, res: Response) => {
-    return res.status(200).json("Route is protected");
-})
-
+// catch-all error handler — must be registered last, and must keep all four
+// params so Express recognizes it as an error handler instead of regular middleware
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+    console.error(err);
+    if (res.headersSent) {
+        next(err);
+        return;
+    }
+    res.status(500).json({ message: "Server error!" });
+});
 
