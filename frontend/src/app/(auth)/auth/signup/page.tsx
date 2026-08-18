@@ -145,6 +145,9 @@ const Page = () => {
                 )}
                 <button className="button-green ">Sign Up</button>
             </form>
+            <p className="mb-4 text-center text-xs leading-5 text-neutral-600">
+                By signing up, you agree to our <Link href="/terms" className="link">Terms of Service</Link> and <Link href="/privacy" className="link">Privacy Policy</Link>.
+            </p>
             <Link href={"/auth/login"} className="button-transparent w-full hover:underline">Login</Link>
 
 
