@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import CookieConsent from "@/components/CookieConsent";
 import QueryProvider from "@/providers/QueryProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
             {children}
           </ReduxProvider>
         </QueryProvider>
+        <CookieConsent />
       </body>
     </html>
   );

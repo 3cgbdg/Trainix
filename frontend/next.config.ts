@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -35,4 +36,13 @@ const nextConfig: NextConfig = {
     ];
   },
 };
-export default nextConfig;
+
+// no-ops (and doesn't fail the build) when SENTRY_AUTH_TOKEN isn't set — it
+// just skips source map upload/release management, which needs a real token
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true,
+  widenClientFileUpload: false,
+  telemetry: false,
+});

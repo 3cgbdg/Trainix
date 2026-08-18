@@ -6,6 +6,7 @@ import User, { IUserDocument } from "../models/User";
 import jwt from "jsonwebtoken";
 import { logOut } from "../controllers/authController";
 import bcrypt from "bcrypt"
+import * as emailUtils from "../utils/email";
 
 // not fully juust primitive interface for update profile api test
 interface IPayload {
@@ -320,7 +321,81 @@ describe("auth api", () => {
             expect(res.body).toEqual({ message: "Server error!" });
             jest.restoreAllMocks();
         });
+
+        it("get-profile 404 when the token is valid but the account no longer exists", async () => {
+            const deletedUserToken = jwt.sign({ userId: "507f1f77bcf86cd799439011" }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+            const res = await request(app).get("/api/auth/profile")
+                .set("Cookie", `access-token=${deletedUserToken}`)
+                .set("Authorization", `Bearer ${deletedUserToken}`)
+            expect(res.status).toBe(404);
+        });
     })
+    // forgot-password / reset-password routes
+    describe("forgot-password / reset-password", () => {
+        let resetUser: IUserDocument;
+        beforeAll(async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            resetUser = await User.create({
+                firstName: 'reset', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'reset-me@gmail.com', password: hashedPass,
+            });
+        });
+        afterEach(() => jest.restoreAllMocks());
+
+        const captureResetLink = () => {
+            const spy = jest.spyOn(emailUtils, "sendPasswordResetEmail").mockResolvedValue();
+            return () => {
+                const link = spy.mock.calls[0]?.[1] as string | undefined;
+                return link ? new URL(link).searchParams.get("token")! : "";
+            };
+        };
+
+        it("forgot-password 200 for a real email, and sends a usable token", async () => {
+            const getToken = captureResetLink();
+            const res = await request(app).post("/api/auth/forgot-password").send({ email: 'reset-me@gmail.com' });
+            expect(res.status).toBe(200);
+            expect(getToken()).not.toBe("");
+        });
+
+        it("forgot-password 200 for an unknown email too, without sending anything (no enumeration)", async () => {
+            const spy = jest.spyOn(emailUtils, "sendPasswordResetEmail").mockResolvedValue();
+            const res = await request(app).post("/api/auth/forgot-password").send({ email: 'nobody-here@gmail.com' });
+            expect(res.status).toBe(200);
+            expect(res.body.message).toBe("If an account exists for that email, a reset link has been sent.");
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("reset-password 400 for a bad token", async () => {
+            const res = await request(app).post("/api/auth/reset-password").send({ email: 'reset-me@gmail.com', token: 'not-the-right-token', newPassword: '12345678Bb' });
+            expect(res.status).toBe(400);
+        });
+
+        it("reset-password 200 with the real token, and the new password actually works on login", async () => {
+            const getToken = captureResetLink();
+            await request(app).post("/api/auth/forgot-password").send({ email: 'reset-me@gmail.com' });
+            const token = getToken();
+
+            const res = await request(app).post("/api/auth/reset-password").send({ email: 'reset-me@gmail.com', token, newPassword: '12345678Bb' });
+            expect(res.status).toBe(200);
+
+            const loginRes = await request(app).post("/api/auth/login").send({ email: 'reset-me@gmail.com', password: '12345678Bb' });
+            expect(loginRes.status).toBe(200);
+
+            // the token is single-use
+            const reuseRes = await request(app).post("/api/auth/reset-password").send({ email: 'reset-me@gmail.com', token, newPassword: '12345678Cc' });
+            expect(reuseRes.status).toBe(400);
+        });
+
+        it("reset-password 400 for a too-short password", async () => {
+            const getToken = captureResetLink();
+            await request(app).post("/api/auth/forgot-password").send({ email: 'reset-me@gmail.com' });
+            const token = getToken();
+
+            const res = await request(app).post("/api/auth/reset-password").send({ email: 'reset-me@gmail.com', token, newPassword: 'short' });
+            expect(res.status).toBe(400);
+        });
+    })
+
     // delete-profile route
     describe("delete-profile", () => {
         it("delete-profile 200", async () => {
