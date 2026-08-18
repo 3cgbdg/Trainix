@@ -2,9 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ["lucide-react", "recharts"],
+    optimizePackageImports: ["lucide-react"],
   },
   images: {
+    // exercise/meal images are immutable once generated (deduped by name and
+    // reused across all users), so cache them for a year instead of the 60s default
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: 'https',
