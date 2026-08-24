@@ -11,6 +11,9 @@ const PROTECTED_PREFIXES = [
   "/workout",
 ];
 const AUTH_PATHS = ["/auth/login", "/auth/signup"];
+// signed-in visitors land on "/" too (e.g. an old bookmark) -- send them
+// straight into the app instead of showing the marketing page
+const REDIRECT_WHEN_AUTHED = ["/", ...AUTH_PATHS];
 
 // This is a presence-only check (no signature verification) so that unauthenticated
 // requests never receive the protected app shell's HTML in the first place — the
@@ -28,7 +31,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  if (authed && AUTH_PATHS.includes(pathname)) {
+  if (authed && REDIRECT_WHEN_AUTHED.includes(pathname)) {
     return NextResponse.redirect(new URL("/today", request.url));
   }
 
@@ -36,5 +39,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/today/:path*", "/dashboard/:path*", "/workout-plan/:path*", "/ai-analysis/:path*", "/progress/:path*", "/profile/:path*", "/nutrition-plan/:path*", "/workout/:path*", "/auth/login", "/auth/signup"],
+  matcher: ["/", "/today/:path*", "/dashboard/:path*", "/workout-plan/:path*", "/ai-analysis/:path*", "/progress/:path*", "/profile/:path*", "/nutrition-plan/:path*", "/workout/:path*", "/auth/login", "/auth/signup"],
 };
