@@ -1,1 +1,16 @@
-{}
+{
+  "name": "trainix-workspace",
+  "private": true,
+  "scripts": {
+    "qa:types": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck",
+    "qa:frontend": "npm --prefix frontend test -- --runInBand --watchAll=false",
+    "qa:api": "npm --prefix backend test -- --runInBand",
+    "qa:e2e": "npm --prefix frontend run test:e2e",
+    "qa:e2e:list": "npm --prefix frontend run test:e2e:list",
+    "qa:e2e:smoke": "npm --prefix frontend run test:e2e:smoke",
+    "qa:e2e:headed": "npm --prefix frontend run test:e2e:headed",
+    "qa:e2e:install": "npm --prefix frontend run test:e2e:install",
+    "qa": "npm run qa:types && npm run qa:frontend && npm run qa:api && npm run qa:e2e:smoke",
+    "qa:all": "npm run qa && npm run qa:e2e"
+  }
+}
