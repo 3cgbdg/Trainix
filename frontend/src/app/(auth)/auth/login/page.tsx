@@ -3,12 +3,11 @@ import { api } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Eye, EyeClosed } from "lucide-react";
-import Image from "next/image"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Logo } from "@/components/ui/Logo";
+import { Button } from "@/components/ui/Button";
 
 type formType = {
     email: string;
@@ -49,23 +48,14 @@ const Page = () => {
         mutation.mutate(data);
     }
     return (
-        <div className="flex w-full max-w-[460px] flex-col items-center rounded-card border border-border bg-surface p-6 sm:p-10">
-            <div className="   mb-4 ">
-                <Image className="size-[120px]" width={120} height={120} alt="Secure sign in" src="/lock.png" priority />
+        <div className="flex w-full max-w-[440px] flex-col rounded-card border border-border bg-surface p-6 shadow-sm sm:p-8">
+            <div className="mb-6 flex flex-col gap-1.5 text-center">
+                <h1 className="text-2xl font-bold tracking-tight text-strong">Welcome back</h1>
+                <p className="text-sm leading-6 text-muted">Login to see today&apos;s workout, meals, and progress.</p>
             </div>
-            <div className="flex items-center mb-4 gap-1 text-green">
-                <div className="">
-                    <Logo size={48} />
-                </div>
-                <span className={` relative top-3 font-outfit text-[38px] leading-none  font-bold `}>Trainix</span>
-            </div>
-            <div className="flex flex-col gap-4 text-center mb-4">
-                <h1 className="text-neutral-900 leading-8 text-2xl font-bold ">Access Your Fitness Journey</h1>
-                <p className="text-sm leading-5 text-neutral-600 ">Login or create an account to personalize your fitness with AI.</p>
-            </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4 mb-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm leading-[22px] font-medium" htmlFor="email">Email</label>
+                    <label className="text-sm font-medium text-strong" htmlFor="email">Email</label>
                     <input    {...register("email", {
                         validate: {
                             // validating email format with regex
@@ -79,38 +69,47 @@ const Page = () => {
                         }
                     })} className="input w-full" placeholder="Enter your email" type="text" id="email" />
                     {errors.email && (
-                        <span data-testid='error' className="text-red-500 font-medium ">
+                        <span data-testid='error' className="text-sm font-medium text-danger">
                             {errors.email.message}
                         </span>
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm leading-[22px] font-medium" htmlFor="password">Password</label>
-                    <input  {...register("password", {
-                        validate: {
-                            password: (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) || "Password must have at least one lowercase, one uppercase, one digit and minimum 8 characters",
-                        }
-                    })} className="input w-full" placeholder="Enter your password" type={`${showPassword ? "text" : "password"}`} id="password" />
+                    <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-strong" htmlFor="password">Password</label>
+                        <Link href="/auth/forgot-password" className="link">Forgot password?</Link>
+                    </div>
+                    <div className="relative">
+                        <input  {...register("password", {
+                            validate: {
+                                password: (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) || "Password must have at least one lowercase, one uppercase, one digit and minimum 8 characters",
+                            }
+                        })} className="input w-full pr-11" placeholder="Enter your password" type={`${showPassword ? "text" : "password"}`} id="password" />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-subtle transition-colors hover:text-strong"
+                        >
+                            {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                     {errors.password && (
-                        <span data-testid='error' className="text-red-500 font-medium ">
+                        <span data-testid='error' className="text-sm font-medium text-danger">
                             {errors.password.message}
                         </span>
                     )}
-                    <div className="flex items-center justify-between">
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer transition-all hover:text-green w-fit flex items-center text-sm gap-1"> {!showPassword ? <>Show password <Eye size={18} /></> : <>Unshow password <EyeClosed size={18} /></>}</button>
-                        <Link href="/auth/forgot-password" className="link">Forgot password?</Link>
-                    </div>
                 </div>
                 {loginError && (
-                    <span role="alert" className="text-red-500 font-medium">
+                    <span role="alert" className="text-sm font-medium text-danger">
                         {loginError}
                     </span>
                 )}
-                <button id="log-in-btn" className="button-green">Login</button>
+                <Button id="log-in-btn" type="submit" size="lg" className="w-full" loading={mutation.isPending} loadingLabel="Logging in…">Login</Button>
             </form>
-            <Link href={"/auth/signup"} className="w-full button-transparent hover:underline">Sign Up</Link>
-
-
+            <p className="mt-6 text-center text-sm text-muted">
+                Don&apos;t have an account? <Link href="/auth/signup" className="link">Sign up</Link>
+            </p>
         </div>
     )
 }
