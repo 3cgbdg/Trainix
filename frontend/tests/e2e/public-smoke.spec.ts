@@ -6,7 +6,7 @@ test.describe('public smoke', () => {
 
     await expect(page.getByRole('heading', {
       level: 1,
-      name: 'Your body, your plan — built from one photo',
+      name: 'One AI coach for your body, training, and nutrition',
     })).toBeVisible();
     await expect(page.getByRole('img', {
       name: "The Trainix dashboard showing today's workout, nutrition progress, and weight trend",

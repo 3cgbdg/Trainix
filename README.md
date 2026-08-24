@@ -1,116 +1,54 @@
-# 🏋️‍♂️ Trainix — AI Fitness & Nutrition Platform
+# Trainix — AI Fitness & Nutrition Platform
 
-Trainix is a modern full-stack web application for personal fitness, progress analysis, and nutrition planning.  
-It uses AI to analyze photos, generates individual workout and nutrition plans, stores measurements, sends notifications, and allows you to track your progress.
+Trainix turns a body check-in into an adaptive fitness experience. The platform combines computer-vision body analysis, personalized workout and nutrition generation, progress tracking, and day-to-day coaching in one product.
 
----
+[Live demo](https://trainix-beta.vercel.app/) · Full-stack case study
 
-## 🚀 Live Demo
+## Product experience
 
-> ⚡️ Free Render server — cold start up to 3 minutes  
-[👉 View Demo](https://trainix-beta.vercel.app/)
+| AI coaching dashboard | Computer-vision body analysis |
+| --- | --- |
+| ![Trainix AI coaching dashboard](docs/portfolio/assets/01-trainix-cover.png) | ![Trainix body analysis](docs/portfolio/assets/02-trainix-ai-analysis.png) |
 
----
+![Trainix adaptive workout plan](docs/portfolio/assets/03-trainix-generated-plan.png)
 
-## 🛠️ Tech Stack
+## Core capabilities
 
-- **Frontend:** Next.js, React, Tailwind CSS, Redux Toolkit, TanStack Query
-- **Backend:** Express.js, MongoDB, JWT Auth, AWS S3, OpenAI API
-- **Testing:** Jest, Playwright, Supertest
-- **DevOps:** Docker, Render
+- AI-assisted body analysis from a photo check-in
+- Adaptive 28-day workout generation based on body metrics, goal, and fitness level
+- Personalized nutrition plans with calories and macro targets
+- Progress reporting across weight, body composition, adherence, and streaks
+- Secure JWT authentication with session refresh and protected app routes
+- Photo storage through AWS S3 and CloudFront
+- Resilient frontend state with Redux Toolkit and TanStack Query
+- Full-stack QA covering types, unit tests, API tests, and Playwright flows
 
----
+## Architecture
 
-## 📦 Features
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS, Redux Toolkit, TanStack Query
+- **Core API:** Express.js, MongoDB, JWT authentication, Socket.IO
+- **AI service:** Python API for photo analysis and plan generation
+- **Infrastructure:** AWS S3/CloudFront, Docker, Render, Vercel
+- **Quality:** Jest, Supertest, Playwright, TypeScript
 
-- AI photo progress analysis
-- Fitness and nutrition plan generation
-- Body measurements and progress history
-- Notifications and advice
-- User authentication (JWT)
-- Photo storage on AWS S3 with CDN CloudFront
-- OpenAI integration with python api using 
-
----
-
-## 📌 API Endpoints
-
-- `POST /api/auth/login` — Login
-- `POST /api/auth/register` — Register
-- `GET /api/fitness-plan` — Get fitness plan
-- `POST /api/fitness-plan` — Generate fitness plan
-- `GET /api/nutrition-plan` — Get nutrition plan
-- `POST /api/measurements` — Add measurements
-- `GET /api/notifications` — Get notifications
-
----
-
-## 🧪 Testing
-
-- **Unit & Integration:** Jest
-- **E2E:** Playwright
-- **Backend API:** Supertest
-
-Run tests:
-```bash
-# Frontend
-npm run test --- not still working   # Jest
-npx playwright test    # Playwright
-
-# Backend
-npm run test           # Jest & Supertest
-```
----
-
-## 🚀 Getting Started
-
-### 1. Clone & Install
+## Local development
 
 ```bash
-git clone https://github.com/gaykun1/Trainix.git
-cd Trainix
-cd frontend && npm install
-cd ../backend && npm install
+npm --prefix frontend install
+npm --prefix backend install
+npm --prefix frontend run dev
+npm --prefix backend run dev
 ```
 
-### 2. Environment Variables
+Copy `.env.example` into the relevant service and provide the documented database, authentication, storage, and AI service values before starting the full stack.
 
-- Copy `.env.example` to `.env` in both `frontend/` and `backend/`
-- Fill in your MongoDB URI, AWS keys, OpenAI API, JWT secret
-
-### 3. Run Development Servers
-
-**Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000)
-
-**Backend:**
-```bash
-cd backend
-npm run dev
-```
-
----
-
-## 🐳 Docker
+## Quality checks
 
 ```bash
-cd backend
-docker build -t trainix-backend .
-docker run -p 5200:5200 trainix-backend
+npm run qa:types
+npm run qa:frontend
+npm run qa:api
+npm run qa:e2e:smoke
 ```
 
----
-
-## 📄 License
-
-This project is licensed under the [GNU GPL v3](LICENSE).
-
----
-
-## 💡 Credits
-
-Made with ❤️ by [3cgbdg](https://github.com/3cgbdg)
+The repository is licensed under the [GNU GPL v3](LICENSE).

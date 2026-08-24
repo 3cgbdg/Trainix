@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Activity, Apple, Camera, Dumbbell, LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import { Activity, Apple, Camera, Dumbbell, LayoutDashboard, LogOut, Sparkles, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType } from "react";
@@ -100,6 +100,23 @@ export function AppNavigation() {
         <nav aria-label="Primary" className="mt-8 flex flex-1 flex-col gap-1">
           <NavLinks />
         </nav>
+        <div className="mb-4 rounded-card border border-brand/20 bg-brand-soft p-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-brand-strong">
+            <span className="grid size-8 place-items-center rounded-full bg-brand text-white">
+              <Sparkles size={16} aria-hidden="true" />
+            </span>
+            AI coach active
+          </div>
+          <p className="mt-2 text-xs leading-5 text-muted">
+            Your plan adapts from workouts, nutrition, and body scans.
+          </p>
+          <Link
+            href="/ai-analysis"
+            className="mt-3 inline-flex min-h-9 items-center text-xs font-bold text-brand-strong hover:text-brand"
+          >
+            Review latest scan →
+          </Link>
+        </div>
         <div className="border-t border-border pt-4">
           <Button
             variant="ghost"
