@@ -6,27 +6,27 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { Logo } from "@/components/ui/Logo";
 
 export const metadata: Metadata = {
-  title: "AI Fitness & Nutrition Coaching",
-  description: "Upload one photo and Trainix builds your personalized workout plan, nutrition plan, and progress tracking — powered by AI.",
+  title: "Adaptive AI Fitness Coaching",
+  description: "Trainix combines AI body analysis, adaptive workouts, personalized nutrition, and progress tracking in one coaching dashboard.",
 };
 
 const SHOWCASE = [
   {
-    title: "A weekly schedule, not a wall of exercises",
-    description: "Every day of your plan laid out in advance — what's next, how long it takes, and where you are in the week.",
+    title: "Your adaptive week, already organized",
+    description: "See every workout, recovery day, duration, and completion state in one plan that stays connected to your goal.",
     image: "/images/app-workout-plan.png",
   },
   {
-    title: "Meals and macros built around your training",
-    description: "Daily calorie and macro targets with real meals to match, plus water tracking — not a spreadsheet you have to fill in yourself.",
-    image: "/images/app-nutrition-plan.png",
+    title: "Computer vision that changes the plan",
+    description: "Each scan turns body metrics and visible progress into clear training, nutrition, and recovery adjustments.",
+    image: "/images/app-ai-analysis.png",
   },
 ] as const;
 
 const STEPS = [
-  { title: "Upload a photo", description: "One clear, full-body photo is all the AI needs for your baseline." },
-  { title: "Get your plan", description: "A workout and nutrition plan built around your body, goal, and level — ready in under a minute." },
-  { title: "Train, eat, track", description: "Follow your daily plan and watch your streak, weight, and body composition move." },
+  { title: "Create your baseline", description: "Add your goal and one clear body photo so the AI can understand where you are starting." },
+  { title: "Get an adaptive plan", description: "Trainix connects your scan, fitness level, target, workouts, and nutrition into one practical week." },
+  { title: "Train, check in, adapt", description: "Complete the plan, track progress, and let every new check-in sharpen what comes next." },
 ];
 
 function Wordmark({ className = "" }: { className?: string }) {
@@ -93,13 +93,13 @@ export default function LandingPage() {
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8">
             <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-none lg:text-left">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3 py-1 text-xs font-semibold text-brand-strong">
-                <Sparkles size={14} /> AI-powered fitness coaching
+                <Sparkles size={14} /> Adaptive AI fitness coaching
               </span>
               <h1 className="mt-5 text-4xl font-bold tracking-tight text-strong sm:text-5xl">
-                Your body, your plan — built from one photo
+                One AI coach for your body, training, and nutrition
               </h1>
               <p className="mt-4 text-base leading-7 text-muted sm:text-lg">
-                Trainix turns a single photo into a personalized workout and nutrition plan, then keeps it honest with real progress tracking. No generic templates.
+                Trainix turns body scans and daily progress into workouts, nutrition, and next-step coaching that keeps adapting with you. No disconnected trackers or generic templates.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
                 <LinkButton href="/auth/signup" size="lg" leadingIcon={<Sparkles size={18} />}>Start free</LinkButton>
@@ -186,8 +186,8 @@ export default function LandingPage() {
         <section className="_container pb-20">
           <div className="mx-auto max-w-3xl rounded-card border border-brand/20 bg-brand-soft px-6 py-12 text-center sm:px-12">
             <Apple size={28} className="mx-auto text-brand-strong" />
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-strong sm:text-3xl">Your plan is one photo away</h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">Free to start, no credit card, and you can see your first plan today.</p>
+            <h2 className="mt-4 text-2xl font-bold tracking-tight text-strong sm:text-3xl">Start with a scan. Keep adapting.</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">Build your first personalized week today, then let every workout and check-in make the next one smarter.</p>
             <div className="mt-6">
               <LinkButton href="/auth/signup" size="lg" leadingIcon={<Sparkles size={18} />}>Start free</LinkButton>
             </div>
