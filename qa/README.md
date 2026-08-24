@@ -1,11 +1,12 @@
 # Trainix QA Toolkit
 
-This repository includes matching project QA agents, skills, and safety hooks for Codex under `.cursor/` and Claude Code under `.claude/`. Ask either tool to use the `qa-engineer` agent for a feature, regression, API, or browser-testing task. The detailed workflows in `.cursor/skills/` are canonical; Claude skills load those same files to prevent drift.
+This repository includes matching project QA agents, skills, and safety hooks for Cursor/Codex under `.cursor/` and Claude Code under `.claude/`. Universal QA behavior is generated from the versioned [qa-agent-kit](https://github.com/3cgbdg/qa-agent-kit); `.qa-agent/profile.json` is Trainix's only project-specific source. Generated adapters are committed for offline use and verified against `.qa-agent/manifest.json`.
 
 ## Quality gates
 
 | Command | Coverage | External services |
 | --- | --- | --- |
+| `npm run qa:agent:check` | Generated QA source/version, hashes, platform parity, and hook skill references | None |
 | `npm run qa:types` | Backend and frontend TypeScript | None |
 | `npm run qa:frontend` | Jest component tests | Mocked/local |
 | `npm run qa:api` | Jest + Supertest + in-memory MongoDB | Must be mocked |
@@ -20,11 +21,22 @@ Playwright uses port `3100` by default so it cannot silently reuse a developer a
 
 ## Suggested workflow
 
-1. Create a risk-based plan with `.cursor/skills/qa-test-design/SKILL.md` and `qa/templates/test-plan.md`.
+1. Create a risk-based plan with `.cursor/skills/qa-test-strategy/SKILL.md` and `qa/templates/test-plan.md`.
 2. Add deterministic API/component tests first.
 3. Add Playwright only for critical user journeys that cross layers.
 4. Run the focused test, then the affected-area regression gate.
 5. Record defects with `qa/templates/bug-report.md` and make a go/conditional-go/no-go recommendation.
+
+## Updating the agent
+
+Edit `.qa-agent/profile.json` for Trainix-only facts. Edit the upstream kit for universal QA behavior, then render from a checkout of `qa-agent-kit`:
+
+```bash
+node /path/to/qa-agent-kit/scripts/render.mjs --profile .qa-agent/profile.json --target .
+npm run qa:agent:check
+```
+
+Do not edit generated agent or skill files directly.
 
 ## Current automation debt
 
