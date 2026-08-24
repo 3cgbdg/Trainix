@@ -1,0 +1,14 @@
+---
+description: Trainix QA verification and safe automation conventions
+alwaysApply: true
+---
+
+# QA Quality Gate
+
+- Use the `qa-engineer` agent for test planning, API coverage, browser automation, regression, and failure triage.
+- Read the matching `.cursor/skills/qa-*/SKILL.md` workflow before QA implementation.
+- Before claiming application changes are verified, run the narrow affected test and the appropriate `npm run qa:*` gate.
+- Use `npm run qa` for the deterministic local gate; reserve `npm run qa:all` for environments with the legacy E2E dependencies configured.
+- Default tests to local or sandbox environments. Never mutate production or commit secrets/test accounts.
+- Mock AI, email, Stripe, S3, Unsplash, sockets, and other external boundaries in deterministic regression tests.
+- Report commands, pass/fail evidence, defects, and remaining risk; do not hide failures with sleeps, retries, or weaker assertions.

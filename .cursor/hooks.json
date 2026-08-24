@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/qa-impact.mjs",
+        "matcher": "Write|TabWrite",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/protect-remote-testing.mjs",
+        "matcher": "curl|Invoke-RestMethod|Invoke-WebRequest|playwright|qa:e2e",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ]
+  }
+}
