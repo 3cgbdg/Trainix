@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/3cgbdg/qa-agent-kit/v0.1.0/schema/project-profile.schema.json",
+  "schemaVersion": 1,
+  "project": {
+    "name": "Trainix",
+    "summary": "A Next.js and Express fitness platform covering onboarding, workouts, nutrition, measurements, coaching, AI-assisted planning, and billing."
+  },
+  "platforms": ["claude", "cursor"],
+  "instructionFiles": [
+    "AGENTS.md and nested instruction files",
+    "qa/README.md for executable quality gates and known automation debt"
+  ],
+  "commands": [
+    "npm run qa:agent:check — validate generated QA adapters and source manifest",
+    "npm run qa — full deterministic gate",
+    "npm run qa:types — frontend/backend TypeScript",
+    "npm run qa:frontend — Jest component tests",
+    "npm run qa:api — Jest/Supertest with in-memory MongoDB",
+    "npm run qa:e2e:smoke — isolated public Playwright smoke on port 3100"
+  ],
+  "facts": [
+    "Frontend is Next.js; backend is Express with MongoDB/Mongoose.",
+    "Authentication and refresh behavior are cookie-based.",
+    "Deterministic smoke must not silently reuse a developer server.",
+    "Legacy plan-generation E2E uses fixed credentials, fixed sleeps, and live AI; it is opt-in debt, not release-gate evidence."
+  ],
+  "risks": [
+    "Authentication, refresh/logout, authorization, ownership, and cross-user data isolation",
+    "Onboarding and workout completion/streak state",
+    "Nutrition, measurements, uploads, notifications, and billing boundaries",
+    "AI failure/retry behavior and responsive/accessibility regressions"
+  ],
+  "boundaries": [
+    "AI providers, Stripe, email, S3/file storage, sockets, and any remote environment",
+    "MongoDB must be isolated/in-memory for automated API gates unless another target is explicitly authorized"
+  ],
+  "journeys": [
+    "Public landing to signup/login",
+    "Authentication, refresh/logout, and protected-route behavior",
+    "Onboarding through workout plan and completion/streak",
+    "Nutrition and measurement state changes",
+    "Failure/recovery around AI, upload, notification, and billing boundaries"
+  ]
+}
