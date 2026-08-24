@@ -26,8 +26,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter: var(--font-geist-sans);
-  --font-outfit: var(--font-geist-sans);
-  --font-borel: var(--font-geist-sans);
+  --font-outfit: var(--font-outfit-sans);
 
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);

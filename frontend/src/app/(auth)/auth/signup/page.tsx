@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { Logo } from "@/components/ui/Logo";
 
 type formType = {
     email: string;
@@ -50,9 +51,9 @@ const Page = () => {
             </div>
             <div className="flex items-center mb-4 gap-1 text-green">
                 <div className="">
-                    <Image className="h-auto w-12" width={48} height={46} src="/logo.png" alt="" />
+                    <Logo size={48} />
                 </div>
-                <span className={` relative top-3 font-borel text-[38px] leading-none  font-bold `}>Trainix</span>
+                <span className={` relative top-3 font-outfit text-[38px] leading-none  font-bold `}>Trainix</span>
             </div>
             <div className="flex flex-col gap-4 text-center mb-4">
                 <h1 className="text-neutral-900 leading-8 text-2xl font-bold ">Access Your Fitness Journey</h1>
