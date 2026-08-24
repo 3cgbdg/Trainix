@@ -279,6 +279,18 @@ export const deleteProfile = async (req: Request, res: Response): Promise<void> 
             Measurement.deleteMany({ userId }),
             Notification.deleteMany({ userId }),
         ]);
+        res.clearCookie("refresh-token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        });
+        res.clearCookie("access-token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        });
         res.json({ message: "Successfully deleted!" });
         return;
     } catch (err) {

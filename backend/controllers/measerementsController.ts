@@ -7,7 +7,7 @@ export const getMeasurement = async (req: Request, res: Response): Promise<void>
     try {
         const measurement = await Measurement.findOne({ userId: (req as AuthRequest).userId }).sort({ createdAt: -1 }).lean();
         if (!measurement) {
-            res.status(404).json({ message: "Not found!" });
+            res.status(200).json({ hasMeasurement: false, measurement: null });
             return;
         }
         res.status(200).json(measurement);

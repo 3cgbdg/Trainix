@@ -38,9 +38,10 @@ const toneClasses = {
   warning: "bg-amber-50 text-amber-700",
 };
 
-async function getDashboardNumbers() {
+async function getDashboardNumbers(signal?: AbortSignal) {
   const response = await api.get<DashboardNumbers>("/api/fitness-plan/reports/numbers", {
     params: { date: new Date().toISOString() },
+    signal,
   });
   return response.data;
 }
@@ -135,7 +136,8 @@ export default function DashboardPage() {
   const todayWorkout = workouts?.items?.[todayIndex];
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["dashboard-numbers", new Date().toISOString().slice(0, 10)],
-    queryFn: getDashboardNumbers,
+    queryFn: ({ signal }) => getDashboardNumbers(signal),
+    enabled: initialized && Boolean(user),
     retry: 1,
     refetchOnWindowFocus: false,
   });

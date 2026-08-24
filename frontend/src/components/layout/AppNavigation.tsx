@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Activity, Apple, Camera, Dumbbell, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType } from "react";
-import { api } from "@/api/axiosInstance";
+import { api, resumeSessionRefresh, suspendSessionRefresh } from "@/api/axiosInstance";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { useAppDispatch } from "@/hooks/reduxHooks";
@@ -70,9 +70,16 @@ function NavLinks({ compact = false }: { compact?: boolean }) {
 export function AppNavigation() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const logoutMutation = useMutation({
-    mutationFn: () => api.delete("/api/auth/logout"),
+    mutationFn: async () => {
+      await queryClient.cancelQueries();
+      suspendSessionRefresh();
+      try { return await api.delete("/api/auth/logout"); }
+      catch (error) { resumeSessionRefresh(); throw error; }
+    },
     onSuccess: () => {
+      queryClient.clear();
       dispatch(logOut());
       router.push("/auth/login");
     },

@@ -32,3 +32,7 @@ export function isMetricsPayload(value: unknown): value is IMetrics {
 export function isMeasurementPayload(value: unknown): value is IMeasurements {
   return isRecord(value) && isMetricsPayload(value.metrics) && typeof value.imageUrl === "string";
 }
+
+export function isEmptyMeasurementPayload(value: unknown): value is { hasMeasurement: false; measurement: null } {
+  return isRecord(value) && value.hasMeasurement === false && value.measurement === null;
+}

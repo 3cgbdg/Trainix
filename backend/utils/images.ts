@@ -36,7 +36,7 @@ export const s3ImageUploadingMeal = async (data: IMeal): Promise<string> => {
     // getting urls of images from unsplash
     const urls = await searchPhotos(data.mealTitle);
 
-    if (!urls) {
+    if (!urls?.length) {
         url = "food-placeholder.jpg";
         return url;
 
@@ -75,7 +75,7 @@ export const s3ImageUploadingExercise = async (data: IExercise): Promise<string>
     // getting urls of images from unsplash
     const urls = await searchPhotos(data.title + " workout");
 
-    if (!urls) {
+    if (!urls?.length) {
         url = "exercise-placeholder.jpg";
         return url;
 

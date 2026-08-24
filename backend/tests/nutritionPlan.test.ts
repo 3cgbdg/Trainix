@@ -82,6 +82,7 @@ describe("nutrition-plan api", () => {
                 ]
 
         });
+        await MealImage.create({ name: "fsfsf", imageUrl: "food-placeholder.jpg" });
         // tokens
         accessToken = jwt.sign({ userId: user1._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
         invalidToken = jwt.sign({ userId: user2._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
@@ -90,6 +91,7 @@ describe("nutrition-plan api", () => {
     afterAll(async () => {
         await NutritionPlan.deleteMany({});
         await User.deleteMany({});
+        await MealImage.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
     });

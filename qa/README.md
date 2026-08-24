@@ -11,9 +11,10 @@ This repository includes matching project QA agents, skills, and safety hooks fo
 | `npm run qa:frontend` | Jest component tests | Mocked/local |
 | `npm run qa:api` | Jest + Supertest + in-memory MongoDB | Must be mocked |
 | `npm run qa:e2e:smoke` | Public landing/auth Playwright smoke | Local frontend only |
-| `npm run qa:e2e` | Playwright journeys | Local app; some legacy specs currently require configured backend/AI services |
+| `npm run qa:e2e` | Full signup → AI contract → workout → nutrition → refresh/logout Playwright journey | Disposable local MongoDB and AI contract double; no remote services |
+| `npm run qa:providers:live` | Bounded signup, Stripe readiness, password-reset, production AI, Unsplash/S3, CDN, and account-cleanup smoke | Live services; requires explicit opt-in and authorized provider accounts |
 | `npm run qa` | Type, component, API, and deterministic browser smoke gates | Local/test only |
-| `npm run qa:all` | All gates above | Same caveat as E2E |
+| `npm run qa:all` | All deterministic and isolated full-flow gates | Local/test only |
 
 Use Node.js 20 or later and install dependencies with `npm ci` in both `backend/` and `frontend/`.
 Run `npm run qa:e2e:install` once to install the pinned Playwright Chromium browser.
@@ -38,6 +39,17 @@ npm run qa:agent:check
 
 Do not edit generated agent or skill files directly.
 
-## Current automation debt
+## External-service coverage
 
-The existing plan-generation Playwright specs use a hard-coded account, fixed sleeps, and live AI-dependent behavior. Treat them as opt-in integration checks until they are migrated to isolated fixtures and mocked external responses; do not use their environment failures as release evidence.
+`npm run qa:e2e` starts the real Next.js and Express applications against disposable MongoDB plus a local AI contract double. It proves browser → AI contract → API → persistence → UI behavior without using remote credentials. Stripe, SMTP, S3/Unsplash, and notification side effects remain covered through mocked backend integration tests; a live-provider certification requires explicit authorization and dedicated sandbox accounts.
+
+Run the live-provider probe only against an authorized environment:
+
+```bash
+TRAINIX_LIVE_TEST=1 \
+TRAINIX_API_URL=https://your-api.example.com \
+TRAINIX_AI_URL=https://your-ai.example.com \
+npm run qa:providers:live
+```
+
+The command creates and deletes a disposable Trainix account. A successful Stripe checkout probe creates a customer and an uncompleted Checkout Session, and image probes can leave uniquely named shared image-cache objects because the application has no provider-side cleanup endpoint.

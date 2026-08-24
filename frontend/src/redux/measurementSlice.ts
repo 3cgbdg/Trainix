@@ -16,9 +16,12 @@ const measurementSlice = createSlice({
         getMeasurement: (state, action: PayloadAction<IMeasurements>) => {
             state.measurements = action.payload
         },
+        clearMeasurement: (state) => {
+            state.measurements = null
+        },
       
     }
 })
 
-export const { getMeasurement } = measurementSlice.actions;
+export const { clearMeasurement, getMeasurement } = measurementSlice.actions;
 export default measurementSlice.reducer;
