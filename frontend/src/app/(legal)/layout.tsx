@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 export default function LegalLayout({
   children,
@@ -11,8 +11,8 @@ export default function LegalLayout({
       <header className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-1.5">
-            <Image className="h-auto w-8" width={32} height={31} src="/logo.png" alt="" />
-            <span className="font-borel text-xl font-bold leading-none text-green">Trainix</span>
+            <Logo size={32} />
+            <span className="font-outfit text-xl font-bold leading-none text-green">Trainix</span>
           </Link>
         </div>
       </header>

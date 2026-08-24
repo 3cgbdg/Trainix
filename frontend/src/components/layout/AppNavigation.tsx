@@ -2,12 +2,12 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { Activity, Apple, Camera, Dumbbell, LayoutDashboard, LogOut, UserRound } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType } from "react";
 import { api } from "@/api/axiosInstance";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/ui/Logo";
 import { useAppDispatch } from "@/hooks/reduxHooks";
 import { cn } from "@/lib/cn";
 import { logOut } from "@/redux/authSlice";
@@ -34,8 +34,8 @@ function isCurrentPath(pathname: string, matches: string[]) {
 function Brand() {
   return (
     <Link href="/today" className="inline-flex min-h-11 items-center gap-2 rounded-control px-2 text-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-      <Image className="h-auto w-8" src="/logo.png" width={2000} height={1902} sizes="32px" alt="" priority />
-      <span className="text-lg font-bold tracking-tight">Trainix</span>
+      <Logo size={32} />
+      <span className="font-outfit text-lg font-bold tracking-tight">Trainix</span>
     </Link>
   );
 }

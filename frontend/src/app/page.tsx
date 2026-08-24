@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/LinkButton";
+import { Logo } from "@/components/ui/Logo";
 import { Surface } from "@/components/ui/Surface";
 
 export const metadata: Metadata = {
@@ -42,8 +43,8 @@ const STEPS = [
 function Wordmark({ className = "" }: { className?: string }) {
   return (
     <Link href="/" className={`flex items-center gap-1.5 text-green ${className}`}>
-      <Image className="h-auto w-8" width={32} height={31} src="/logo.png" alt="" />
-      <span className="relative top-0.5 font-borel text-2xl font-bold leading-none">Trainix</span>
+      <Logo size={32} />
+      <span className="relative top-0.5 font-outfit text-2xl font-bold leading-none">Trainix</span>
     </Link>
   );
 }

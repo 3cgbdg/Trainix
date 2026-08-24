@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "@/styles/globals.css";
 import CookieConsent from "@/components/CookieConsent";
 import QueryProvider from "@/providers/QueryProvider";
@@ -17,15 +17,19 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const outfit = Outfit({
+  variable: "--font-outfit-sans",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Trainix",
     template: "%s · Trainix",
   },
   description: "Personalized workouts, nutrition, body insights, and progress in one focused fitness experience.",
-  icons: {
-    icon: "/logo.png",
-  },
 };
 export default function RootLayout({
   children,
@@ -35,7 +39,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geist.variable} ${geistMono.variable} ${outfit.variable} antialiased`}>
         <QueryProvider>
           <ReduxProvider>
             {children}
