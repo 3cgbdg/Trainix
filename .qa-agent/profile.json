@@ -8,7 +8,7 @@
   "platforms": ["claude", "cursor"],
   "instructionFiles": [
     "AGENTS.md and nested instruction files",
-    "qa/README.md for executable quality gates and known automation debt"
+    "qa/README.md for executable quality gates and external-service modes"
   ],
   "commands": [
     "npm run qa:agent:check — validate generated QA adapters and source manifest",
@@ -16,13 +16,15 @@
     "npm run qa:types — frontend/backend TypeScript",
     "npm run qa:frontend — Jest component tests",
     "npm run qa:api — Jest/Supertest with in-memory MongoDB",
-    "npm run qa:e2e:smoke — isolated public Playwright smoke on port 3100"
+    "npm run qa:e2e:smoke — isolated public Playwright smoke on port 3100",
+    "npm run qa:e2e — isolated full Trainix browser flow with disposable MongoDB and a local AI contract double",
+    "npm run qa:all — deterministic gates plus the isolated full browser flow"
   ],
   "facts": [
     "Frontend is Next.js; backend is Express with MongoDB/Mongoose.",
     "Authentication and refresh behavior are cookie-based.",
     "Deterministic smoke must not silently reuse a developer server.",
-    "Legacy plan-generation E2E uses fixed credentials, fixed sleeps, and live AI; it is opt-in debt, not release-gate evidence."
+    "Full browser E2E uses disposable MongoDB and a local AI contract double and must not inherit remote-provider credentials."
   ],
   "risks": [
     "Authentication, refresh/logout, authorization, ownership, and cross-user data isolation",

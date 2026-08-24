@@ -7,7 +7,7 @@ import User from "../models/User";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise } from "../utils/images";
 import { io, userSocketMap } from "../socket";
-import Notification, { INotification } from "../models/Notification";
+import Notification from "../models/Notification";
 import { IUserDocument } from "../models/User";
 
 const FREE_TIER_MONTHLY_PLAN_LIMIT = 1;
@@ -130,6 +130,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
             res.status(404).json({ message: "Workout day was not found!" });
             return;
         }
+        const wasCompleted = currentDay.status === "Completed";
         for (let [i, exercise] of currentDay.exercises!.entries()) {
             if (completedItems[i]?.completed) {
                 exercise.status = "completed"
@@ -137,7 +138,7 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
 
         }
         // if every exercise`s status is completed than day status is Completed + streak+=1
-        if (currentDay.exercises!.every(exercise => exercise.status === "completed")) {
+        if (!wasCompleted && currentDay.exercises!.every(exercise => exercise.status === "completed")) {
             currentDay.status = "Completed";
             plan.report.streak += 1;
             user.longestStreak = Math.max(user.longestStreak, plan.report.streak);
@@ -153,10 +154,9 @@ export const completeWorkout = async (req: Request, res: Response): Promise<void
                 await measurement.save();
             }
             const socketId = userSocketMap.get(String(user._id));
-            let notification: INotification | null;
-            notification = await Notification.findOne({ userId: user._id, topic: "measurement" });
+            let notification = await Notification.findOne({ userId: user._id, topic: "measurement" });
             if (!notification) {
-                const notification = new Notification({ userId: user._id, info: `Reminder:  Want to update your metrics ?`, topic: "measurement" })
+                notification = await Notification.create({ userId: user._id, info: "Reminder: Want to update your metrics?", topic: "measurement" });
 
                 if (socketId)
                     io.to(socketId).emit("getNotifications", { data: notification })

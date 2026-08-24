@@ -1,5 +1,5 @@
 "use client"
-import { api } from "@/api/axiosInstance";
+import { api, resumeSessionRefresh } from "@/api/axiosInstance";
 import { useMutation, } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Eye, EyeClosed } from "lucide-react";
@@ -18,6 +18,7 @@ type formType = {
     gender: string,
 }
 const loginUser = async (data: formType) => {
+    resumeSessionRefresh();
     const res = await api.post(`/api/auth/signup`, data);
     return res.data;
 };

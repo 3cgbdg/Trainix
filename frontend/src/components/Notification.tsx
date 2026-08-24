@@ -15,21 +15,22 @@ const topicIcons = { water: Droplets, sport: Dumbbell, measurement: Ruler };
 
 export default function Notification() {
   const user = useAppSelector((state) => state.auth.user);
+  const userId = user?._id;
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: notifications = [] } = useQuery<AppNotification[]>({
-    queryKey: ["notifications"],
-    queryFn: () => api.get("/api/notification/notifications").then((response) => response.data),
+    queryKey: ["notifications", userId],
+    queryFn: ({ signal }) => api.get("/api/notification/notifications", { signal }).then((response) => response.data),
+    enabled: Boolean(user?._id),
     retry: 0,
   });
 
-  const userId = user?._id;
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl || !userId) return;
     let cancelled = false;
     let socket: ReturnType<typeof io> | undefined;
-    const receive = ({ data }: { data: AppNotification }) => queryClient.setQueryData<AppNotification[]>(["notifications"], (current = []) => [...current, data]);
+    const receive = ({ data }: { data: AppNotification }) => queryClient.setQueryData<AppNotification[]>(["notifications", userId], (current = []) => [...current, data]);
 
     // the socket connects directly to the backend origin, bypassing the
     // same-origin proxy the httpOnly auth cookie is scoped to — so the token
@@ -50,9 +51,9 @@ export default function Notification() {
   }, [queryClient, userId]);
 
   const dismiss = async (notification: AppNotification, openProfile = false) => {
-    queryClient.setQueryData<AppNotification[]>(["notifications"], (current = []) => current.filter((item) => item._id !== notification._id));
+    queryClient.setQueryData<AppNotification[]>(["notifications", userId], (current = []) => current.filter((item) => item._id !== notification._id));
     try { await api.delete(`/api/notification/notifications/${notification._id}`); }
-    catch { void queryClient.invalidateQueries({ queryKey: ["notifications"] }); }
+    catch { void queryClient.invalidateQueries({ queryKey: ["notifications", userId] }); }
     if (openProfile) router.push("/profile");
   };
 

@@ -31,9 +31,10 @@ type MetricProps = {
   icon: ComponentType<{ size?: number }>;
 };
 
-async function getProgress() {
+async function getProgress(signal?: AbortSignal) {
   const response = await api.get<ProgressData>("/api/fitness-plan/reports/numbers", {
     params: { date: new Date().toISOString(), progress: true },
+    signal,
   });
   return response.data;
 }
@@ -63,7 +64,8 @@ export default function ProgressPage() {
   const { initialized, user } = useAppSelector((state) => state.auth);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["progress", new Date().toISOString().slice(0, 10)],
-    queryFn: getProgress,
+    queryFn: ({ signal }) => getProgress(signal),
+    enabled: initialized && Boolean(user),
     retry: 1,
     refetchOnWindowFocus: false,
   });

@@ -1,7 +1,8 @@
 "use client";
 
 import { CalendarDays, CheckCircle2, ChevronRight, Dumbbell, Sparkles } from "lucide-react";
-import { EmptyState } from "@/components/ui/Feedback";
+import { useEffect, useState } from "react";
+import { EmptyState, Skeleton } from "@/components/ui/Feedback";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { Surface } from "@/components/ui/Surface";
 import { useAppSelector } from "@/hooks/reduxHooks";
@@ -14,7 +15,14 @@ const statusStyles = {
 };
 
 export default function WorkoutPlanPage() {
+  const [hydrated, setHydrated] = useState(false);
   const workouts = useAppSelector((state) => state.workouts.workouts);
+
+  useEffect(() => setHydrated(true), []);
+
+  if (!hydrated) {
+    return <div aria-label="Loading workout plan" className="space-y-4"><Skeleton className="h-24" /><Skeleton className="h-64" /><Skeleton className="h-80" /></div>;
+  }
 
   if (!workouts?.items?.length) {
     return (

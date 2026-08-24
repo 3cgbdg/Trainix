@@ -8,6 +8,7 @@ import bcrypt from "bcrypt"
 import FitnessPlan from "../models/FitnessPlan";
 import Measurement from "../models/Measurement";
 import ExerciseImage from "../models/ExerciseImage";
+import Notification from "../models/Notification";
 
 
 
@@ -103,6 +104,7 @@ describe("fitness-plan api", () => {
                 leanBodyMass: 12,
             }, imageUrl: "dsadasdasd"
         });
+        await ExerciseImage.create({ name: "fsf", imageUrl: "exercise-placeholder.jpg" });
 
         // tokens
         accessToken = jwt.sign({ userId: user1._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
@@ -113,6 +115,8 @@ describe("fitness-plan api", () => {
         await User.deleteMany({});
         await Measurement.deleteMany({});
         await FitnessPlan.deleteMany({});
+        await Notification.deleteMany({});
+        await ExerciseImage.deleteMany({});
         await mongoose.connection.close();
         await mongo.stop();
     });
@@ -505,6 +509,44 @@ describe("fitness-plan api", () => {
             expect(res.status).toBe(500);
             expect(res.body).toEqual({ message: "Server error!" });
             jest.restoreAllMocks();
+        });
+
+        it("persists one reminder and does not increment the streak when completion is replayed", async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            const replayUser = await User.create({
+                firstName: 'replay', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'replay@gmail.com', password: hashedPass,
+            });
+            const replayToken = jwt.sign({ userId: replayUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+            await FitnessPlan.create({
+                userId: replayUser._id,
+                report: {
+                    streak: 0,
+                    briefAnalysis: { targetWeight: 75, fitnessLevel: "Beginner", primaryFitnessGoal: "Stay fit" },
+                    plan: {
+                        week1Title: "Foundation", week2Title: "Build", week3Title: "Progress", week4Title: "Finish",
+                        days: [{
+                            date: new Date(), dayNumber: 1, status: "Pending", calories: 100, day: "Replay-safe day",
+                            exercises: [{ title: "Squat", repeats: 5, time: null, instruction: "Stand tall", advices: "Move slowly", calories: 100, status: "incompleted", imageUrl: "img" }],
+                        }],
+                    },
+                    advices: { nutrition: "n", hydration: "h", recovery: "r", progress: "p" },
+                },
+            });
+
+            const complete = () => request(app).post("/api/fitness-plan/workouts/0/completed")
+                .send([{ completed: true }])
+                .set("Cookie", `access-token=${replayToken}`)
+                .set("Authorization", `Bearer ${replayToken}`);
+
+            const first = await complete();
+            const replay = await complete();
+
+            expect(first.status).toBe(200);
+            expect(first.body.streak).toBe(1);
+            expect(replay.status).toBe(200);
+            expect(replay.body.streak).toBe(1);
+            expect(await Notification.countDocuments({ userId: replayUser._id, topic: "measurement" })).toBe(1);
         });
     })
     describe("longestStreak", () => {

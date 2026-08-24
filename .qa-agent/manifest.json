@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "sourceRepository": "https://github.com/3cgbdg/qa-agent-kit",
   "kitVersion": "0.1.0",
-  "profileSha256": "2e9209ca4be572820737576faecbec13b33c79f50a0df63701d2ed87abadd87d",
+  "profileSha256": "70a241022ae666d57ba7bc8e8fd670d68febc4025775417b6bc88d9947010af3",
   "files": {
-    ".claude/agents/qa-engineer.md": "dfaaa6092b36553bf490acb346b5222fc64e27c7f79f548526e89a6b52ef74d9",
-    ".claude/skills/qa-test-strategy/SKILL.md": "db24dd7c2f042f5f9e65bace5cd596c13c9dffd8a932d63625de065f84723066",
-    ".claude/skills/qa-api-testing/SKILL.md": "dcedb2051c3acd0b2733e54af7656f737c9011d41d0e9c4498ed5a775de28639",
-    ".claude/skills/qa-browser-testing/SKILL.md": "79d5a09aacd4eb60b75ba9216ae5d42a88d4de48626e6db5c6cd769ecd664fc7",
-    ".claude/skills/qa-automation/SKILL.md": "1f71ffe68e9104be11a006fbee7bdf5254148cccf35649b047ba9395aad88baa",
-    ".cursor/agents/qa-engineer.md": "dfaaa6092b36553bf490acb346b5222fc64e27c7f79f548526e89a6b52ef74d9",
-    ".cursor/skills/qa-test-strategy/SKILL.md": "db24dd7c2f042f5f9e65bace5cd596c13c9dffd8a932d63625de065f84723066",
-    ".cursor/skills/qa-api-testing/SKILL.md": "dcedb2051c3acd0b2733e54af7656f737c9011d41d0e9c4498ed5a775de28639",
-    ".cursor/skills/qa-browser-testing/SKILL.md": "79d5a09aacd4eb60b75ba9216ae5d42a88d4de48626e6db5c6cd769ecd664fc7",
-    ".cursor/skills/qa-automation/SKILL.md": "1f71ffe68e9104be11a006fbee7bdf5254148cccf35649b047ba9395aad88baa"
+    ".claude/agents/qa-engineer.md": "9517c8dfd09cab30663eea4634ca02837017aad5d674c11bd69e83fd868f39a8",
+    ".claude/skills/qa-test-strategy/SKILL.md": "9961bb8d791f4fb25bd4ff5486ebd8a760eb01d8469ce652a5b4e0f54ef0b417",
+    ".claude/skills/qa-api-testing/SKILL.md": "5ee182a66fdb8f7e338a95e0ee681cf6a15c71033c1ab240c151227c938977fa",
+    ".claude/skills/qa-browser-testing/SKILL.md": "63d979e961bcbb765e8489c6df8aa191d13f42bd493e71fcb3b6e29ba8e70601",
+    ".claude/skills/qa-automation/SKILL.md": "dc1c780944209f85be51c7c5174ed468337a1c1df486e4abeb96d9e4465e6863",
+    ".cursor/agents/qa-engineer.md": "9517c8dfd09cab30663eea4634ca02837017aad5d674c11bd69e83fd868f39a8",
+    ".cursor/skills/qa-test-strategy/SKILL.md": "9961bb8d791f4fb25bd4ff5486ebd8a760eb01d8469ce652a5b4e0f54ef0b417",
+    ".cursor/skills/qa-api-testing/SKILL.md": "5ee182a66fdb8f7e338a95e0ee681cf6a15c71033c1ab240c151227c938977fa",
+    ".cursor/skills/qa-browser-testing/SKILL.md": "63d979e961bcbb765e8489c6df8aa191d13f42bd493e71fcb3b6e29ba8e70601",
+    ".cursor/skills/qa-automation/SKILL.md": "dc1c780944209f85be51c7c5174ed468337a1c1df486e4abeb96d9e4465e6863"
   }
 }

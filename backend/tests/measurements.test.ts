@@ -60,13 +60,13 @@ describe("measurements api", () => {
 
     //get-measurement route 
     describe("get-measurement", () => {
-        it("get-measurement 404", async () => {
+        it("returns an explicit empty state when the user has no measurement", async () => {
 
             const res = await request(app).get("/api/measurement/measurements")
                 .set("Cookie", `access-token=${invalidToken}`)
                 .set("Authorization", `Bearer ${invalidToken}`)
-            expect(res.status).toBe(404);
-            expect(res.body.message).toBe("Not found!");
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ hasMeasurement: false, measurement: null });
         })
         it("get-measurement 200", async () => {
 

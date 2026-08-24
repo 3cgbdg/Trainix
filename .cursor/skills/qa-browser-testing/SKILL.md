@@ -45,7 +45,7 @@ For each result record route, viewport/browser, account/data precondition, exact
 - Frontend is Next.js; backend is Express with MongoDB/Mongoose.
 - Authentication and refresh behavior are cookie-based.
 - Deterministic smoke must not silently reuse a developer server.
-- Legacy plan-generation E2E uses fixed credentials, fixed sleeps, and live AI; it is opt-in debt, not release-gate evidence.
+- Full browser E2E uses disposable MongoDB and a local AI contract double and must not inherit remote-provider credentials.
 
 ### Commands
 
@@ -55,6 +55,8 @@ For each result record route, viewport/browser, account/data precondition, exact
 - npm run qa:frontend — Jest component tests
 - npm run qa:api — Jest/Supertest with in-memory MongoDB
 - npm run qa:e2e:smoke — isolated public Playwright smoke on port 3100
+- npm run qa:e2e — isolated full Trainix browser flow with disposable MongoDB and a local AI contract double
+- npm run qa:all — deterministic gates plus the isolated full browser flow
 
 ### Priority risks
 
