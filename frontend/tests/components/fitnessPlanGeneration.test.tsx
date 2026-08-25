@@ -1,3 +1,5 @@
+process.env.NEXT_PUBLIC_API_URL = "http://localhost:5200";
+
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import measurementReducer from "../../src/redux/measurementSlice"
@@ -7,68 +9,26 @@ import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
 import { reportExtractFunc } from "@/utils/report";
 import { QueryClient, QueryClientProvider, } from "@tanstack/react-query";
 
-
-// ai reports for  iterations
-const AiDay1: string = `{
-    "briefAnalysis": {
-    "targetWeight": number,
-    "fitnessLevel": string,
-    "primaryFitnessGoal": string
-  },
-  "advices": {
-    "nutrition": "dasdsad",
-    "hydration": "dasdsad",
-    "recovery": "dasdsad",
-    "progress": "dasdsad"
-  },
-  "week1Title": "dasd3gf",
-  "week2Title": "dasd3gf",
-  "week3Title": "dasd3gf",
-  "week4Title": "dasd3gf",
-  "day":{
-  "day": "Day 1",
-  "dayNumber": 1,
-  "calories": 2200,
-  "status": "Pending",
-  "date": "2025-09-01",
-  "exercises": [
-    {
-      "imageUrl": "https://example.com/pushups.png",
-      "status": "incompleted",
-      "calories": 120,
-      "title": "Push Ups",
-      "repeats": 20,
-      "time": null,
-      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
-      "advices": "Do it slowly for better control."
-    }
-  ]
-  }
-  
-    }`;
-const AiDay2: string = `{
-    "day":{
-  "day": "Day 2",
-  "dayNumber": 2,
-  "calories": 2200,
-  "status": "Pending",
-  "date": "2025-09-01",
-  "exercises": [
-    {
-      "imageUrl": "https://example.com/pushups.png",
-      "status": "incompleted",
-      "calories": 120,
-      "title": "Push Ups",
-      "repeats": 20,
-      "time": null,
-      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
-      "advices": "Do it slowly for better control."
-    }
-  ]}
-    }`;
 const mockMutate1 = jest.fn();
-const mockMutateAsync2 = jest.fn();
 const mockUseQuery = jest.fn();
+const mockApiGet = jest.fn();
+const mockApiPost = jest.fn();
+
+// captures the handlers registered on the fake socket so the test can drive them
+// (fitnessPlanProgress / fitnessPlanReady / fitnessPlanError) the way the real
+// backend would over the actual socket connection
+type SocketHandlers = Record<string, (payload?: unknown) => void>;
+let lastSocketHandlers: SocketHandlers = {};
+const mockSocketDisconnect = jest.fn();
+const mockIo = jest.fn((..._args: unknown[]) => {
+    lastSocketHandlers = {};
+    return {
+        on: (event: string, cb: (payload?: unknown) => void) => { lastSocketHandlers[event] = cb; },
+        off: jest.fn(),
+        disconnect: mockSocketDisconnect,
+    };
+});
+
 // mocking useDropzone
 jest.mock('react-dropzone', () => ({
     useDropzone: jest.fn().mockImplementation(({ onDrop }) => ({
@@ -84,6 +44,10 @@ jest.mock('react-dropzone', () => ({
     }))
 }));
 
+jest.mock("socket.io-client", () => ({
+    io: (...args: unknown[]) => mockIo(...args),
+}));
+
 mockUseQuery.mockReturnValue({
     data: { advices: null },
     isLoading: false,
@@ -96,7 +60,6 @@ jest.mock("@tanstack/react-query", () => ({
     useMutation: jest.fn((options) => {
         return {
             mutate: (variables: any) => mockMutate1(variables, options),
-            mutateAsync: mockMutateAsync2,
             isLoading: false,
         };
     })
@@ -110,7 +73,8 @@ jest.mock("@/utils/report", () => ({
 
 jest.mock("@/api/axiosInstance", () => ({
     api: {
-        get: jest.fn().mockResolvedValue({ data: {} }),
+        get: (...args: any[]) => mockApiGet(...args),
+        post: (...args: any[]) => mockApiPost(...args),
     },
 }));
 
@@ -142,11 +106,16 @@ describe("testing ai-analysis", () => {
     // mocking func for parsing aiData
     const mockedReportExtractFunc = reportExtractFunc as jest.Mock;
 
-    // body metrics
+    beforeEach(() => {
+        mockApiGet.mockImplementation((url: string) => {
+            if (url === "/api/auth/socket-token") return Promise.resolve({ data: { token: "socket-token" } });
+            if (url === "/api/fitness-plan/workouts") return Promise.resolve({ data: { items: [{ dayNumber: 1 }], dates: [] } });
+            return Promise.resolve({ data: {} });
+        });
+        mockApiPost.mockResolvedValue({ data: { message: "Plan generation started" } });
+    });
 
-
-    it("generating", async () => {
-        //mocking getAnalysis
+    it("kicks off server-side generation and waits for the socket to report completion", async () => {
         const { store: testStore } = renderWithReduxState(<AiAnalysysPage />, {
             measurements: { measurements: null },
             auth: {
@@ -184,22 +153,6 @@ describe("testing ai-analysis", () => {
             error: null,
         });
 
-        mockUseQuery.mockReturnValueOnce({
-            data: {
-                metrics: {
-                    height: 188,
-                    weight: 76,
-                    waistToHipRatio: 53,
-                    shoulderToWaistRatio: 23,
-                    bodyFatPercent: 12,
-                    muscleMass: 421,
-                    leanBodyMass: 123,
-                },
-                imageUrl: "url",
-            },
-            isLoading: false,
-            error: null,
-        });
         mockedReportExtractFunc.mockResolvedValue({
             metrics: {
                 height: 188,
@@ -212,9 +165,6 @@ describe("testing ai-analysis", () => {
             },
             imageUrl: "url",
         });
-
-
-        mockMutateAsync2.mockResolvedValueOnce({ AIreport: AiDay1 }).mockResolvedValue({ AIreport: AiDay2 });
 
         // mocking file dragging
         const file = new File(["dummy content"], "photo.png", { type: "image/png" });
@@ -239,22 +189,47 @@ describe("testing ai-analysis", () => {
             expect(mockMutate1).toHaveBeenCalledTimes(1);
         })
         const mutationOptions = mockMutate1.mock.calls[0][1];
-        await act(async () => {
-            await mutationOptions.onSuccess({ AIreport: AiDay1 });
+        act(() => {
+            void mutationOptions.onSuccess({ AIreport: "{}" });
         });
-        // then getting generated days created
+
+        // measurement gets stored right away, before generation finishes
         await waitFor(() => {
             expect(testStore.getState().measurements.measurements).not.toBeNull();
         });
-        await waitFor(async () => {
-            expect(mockMutateAsync2).toHaveBeenCalledTimes(28);
-        })
 
-        expect(btn).toHaveTextContent(/Analyze photo/i)
+        // the whole 28-day plan is now generated server-side, in a single request
+        await waitFor(() => {
+            expect(mockApiPost).toHaveBeenCalledWith("/api/fitness-plan/generate");
+        });
 
+        // the socket connection is opened to track progress
+        await waitFor(() => {
+            expect(mockIo).toHaveBeenCalledTimes(1);
+            expect(lastSocketHandlers.fitnessPlanProgress).toBeDefined();
+        });
 
+        // simulate the backend pushing progress, then completion
+        act(() => {
+            lastSocketHandlers.fitnessPlanProgress?.({ day: 14, total: 28 });
+        });
+        await waitFor(() => {
+            expect(screen.getByText(/Generating day 14 of 28/i)).toBeInTheDocument();
+        });
 
+        act(() => {
+            lastSocketHandlers.fitnessPlanReady?.({ total: 28 });
+        });
 
+        // once generation is reported ready, the plan/workouts get refetched and the
+        // upload screen returns to its idle state
+        await waitFor(() => {
+            expect(mockApiGet).toHaveBeenCalledWith("/api/fitness-plan/workouts");
+        });
+        await waitFor(() => {
+            expect(btn).toHaveTextContent(/Analyze photo/i);
+        });
+        expect(mockSocketDisconnect).toHaveBeenCalled();
 
         jest.clearAllMocks();
     });

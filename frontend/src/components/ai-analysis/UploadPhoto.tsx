@@ -18,19 +18,21 @@ type UploadPhotoProps = {
   fileName: string;
   setFile: Dispatch<SetStateAction<File | null>>;
   file: File | null;
+  progress?: { day: number; total: number } | null;
 };
 
 const guidelines = ["Full body visible", "Even front lighting", "Simple, neutral background"];
 
 function getAnalysisError(error: unknown) {
   if (axios.isAxiosError(error)) {
-    const detail = error.response?.data?.detail;
+    // Express errors use `message`, the python analysis service uses `detail`
+    const detail = error.response?.data?.detail ?? error.response?.data?.message;
     if (typeof detail === "string" && detail.length < 180) return detail;
   }
   return "The analysis could not be completed. Use a clear full-body photo and try again.";
 }
 
-function UploadPhoto({ isAnalyzed, setIsAnalyzed, setFileName, setReset, fileName, setFile, file, mutation }: UploadPhotoProps) {
+function UploadPhoto({ isAnalyzed, setIsAnalyzed, setFileName, setReset, fileName, setFile, file, mutation, progress }: UploadPhotoProps) {
   const [fileError, setFileError] = useState<string | null>(null);
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selected = acceptedFiles[0];
@@ -88,8 +90,19 @@ function UploadPhoto({ isAnalyzed, setIsAnalyzed, setFileName, setReset, fileNam
             ) : (
               <div role="status">
                 <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-surface text-brand-strong"><span aria-hidden="true" className="size-7 animate-spin rounded-full border-3 border-brand border-r-transparent" /></span>
-                <h2 className="mt-5 text-xl font-bold text-strong">Analyzing your check-in</h2>
-                <p className="mt-2 max-w-md text-sm leading-6 text-muted">We’re estimating your metrics and preparing the connected plan. This can take around 90 seconds.</p>
+                <h2 className="mt-5 text-xl font-bold text-strong">{progress ? "Building your plan" : "Analyzing your check-in"}</h2>
+                <p className="mt-2 max-w-md text-sm leading-6 text-muted">
+                  {progress
+                    ? progress.day > 0
+                      ? `Generating day ${progress.day} of ${progress.total} — this runs in the background, feel free to keep the app open.`
+                      : "Estimating your metrics and starting your personalized plan…"
+                    : "We’re estimating your metrics and preparing the connected plan."}
+                </p>
+                {progress ? (
+                  <div className="mx-auto mt-4 h-1.5 w-56 overflow-hidden rounded-full bg-surface-strong">
+                    <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${Math.min((progress.day / progress.total) * 100, 100)}%` }} />
+                  </div>
+                ) : null}
               </div>
             )}
           </div>

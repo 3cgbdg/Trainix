@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Clock3, Soup, Timer } from "lucide-react";
 import Image from "next/image";
 import { memo, useId, type Dispatch, type SetStateAction } from "react";
@@ -21,12 +21,18 @@ type MealAccordionProps = {
 
 function MealAccordion({ meal, isOpen, setIsOpen, dayNumber, idx }: MealAccordionProps) {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const contentId = useId();
   const expanded = isOpen === meal.mealTitle;
   const mutation = useMutation({
     mutationFn: ({ planDay, index }: { planDay: number; index: number }) =>
       api.patch(`/api/nutrition-plan/nutrition-plans/days/${planDay}/meal/status`, { index }).then((response) => response.data),
-    onSuccess: () => dispatch(changeStatus(idx)),
+    onSuccess: () => {
+      dispatch(changeStatus(idx));
+      // the weekly calories chart is a separately cached query keyed by week number -
+      // without this it keeps showing today's pre-meal total until its staleTime expires
+      void queryClient.invalidateQueries({ queryKey: ["nutrition-statistics"] });
+    },
   });
 
   return (
