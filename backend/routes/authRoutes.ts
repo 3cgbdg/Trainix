@@ -15,7 +15,17 @@ const forgotPasswordLimiter = rateLimit({
     message: { message: "Too many requests. Please try again later." },
 });
 
-authRoute.post("/login", logIn);
+// throttles password-guessing against a known email; generous enough not to lock
+// out a real user who mistypes their password a few times
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many login attempts. Please try again later." },
+});
+
+authRoute.post("/login", loginLimiter, logIn);
 authRoute.post("/signup", signUp);
 authRoute.post("/onboarding", authMiddleware, onBoarding);
 authRoute.post("/refresh", refresh);

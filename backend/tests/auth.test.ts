@@ -143,10 +143,14 @@ describe("auth api", () => {
                 throw new Error("DB error");
             });
             const res = await request(app).post("/api/auth/login")
-                .send({ username: "testuser1", password: "12345678Dd" });
+                .send({ email: "testuser1@gmail.com", password: "12345678Dd" });
             expect(res.status).toBe(500);
             expect(res.body).toEqual({ message: "Server error!" });
             jest.restoreAllMocks();
+        });
+        it("login - missing email or password returns 400", async () => {
+            const res = await request(app).post("/api/auth/login").send({ password: "12345678Dd" });
+            expect(res.status).toBe(400);
         });
     })
     // onboarding route
