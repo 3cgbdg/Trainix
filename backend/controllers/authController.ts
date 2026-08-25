@@ -21,6 +21,13 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
             res.status(400).json({ message: "Missing required fields" });
             return;
         }
+        // email/password must be plain strings before they're allowed anywhere near a
+        // Mongoose filter - otherwise a client can send e.g. { "$gt": "" } or a $regex
+        // object as "email" and use it as a NoSQL query operator instead of a value
+        if (typeof data.email !== "string" || typeof data.password !== "string") {
+            res.status(400).json({ message: "Invalid request." });
+            return;
+        }
         const user = await User.findOne({ email: data.email });
         if (user) {
             res.status(409).json({ message: "User with such an email exists" });
@@ -31,11 +38,20 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         const newUser = await User.create({ firstName: data.name, lastName: data.surname, password: hashedPassword, email: data.email, dateOfBirth: data.dateOfBirth, gender: data.gender })
         const refreshToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
         const accessToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
-        //   creating jwt, saving it into a cookie 
+        //   creating jwt, saving it into a cookie
+        // sameSite: "lax" (not "none") - the frontend only ever talks to this API
+        // through its own same-origin Next.js rewrite proxy (see frontend's
+        // axiosInstance.ts), so the browser treats these as first-party cookies
+        // regardless; "lax" additionally stops the cookie from riding along on a
+        // cross-site POST/PATCH/DELETE forged against a logged-in user (CSRF), while
+        // still allowing it on a top-level cross-site GET redirect (e.g. Stripe
+        // checkout bouncing back to /profile). The direct cross-origin Socket.IO
+        // handshake doesn't rely on this cookie at all - it fetches its own
+        // short-lived token via /api/auth/socket-token instead (see socket.ts).
         res.cookie("access-token", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
@@ -43,7 +59,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
         });
@@ -81,6 +97,15 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
             res.status(400).json({ message: "Email and password are required." });
             return;
         }
+        // same NoSQL-operator-injection guard as signUp: without this, an object like
+        // { "$regex": "^a" } as "email" turns the DB lookup into a query operator and
+        // lets an attacker use the 404-vs-403 response difference as a boolean oracle
+        // to enumerate every registered email address, bypassing the anti-enumeration
+        // design used by forgot-password.
+        if (typeof data.email !== "string" || typeof data.password !== "string") {
+            res.status(400).json({ message: "Email and password are required." });
+            return;
+        }
         const user = await User.findOne({ email: data.email });
         if (!user) {
             res.status(404).json({ message: "User was not found!" })
@@ -97,14 +122,14 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
         res.cookie("access-token", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
         });
@@ -131,7 +156,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
                 res.cookie("access-token", accessToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "none",
+                    sameSite: "lax",
                     maxAge: 15 * 60 * 1000,
                     path: "/"
                 })
@@ -156,7 +181,9 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     try {
         const { email } = req.body;
         const genericResponse = { message: "If an account exists for that email, a reset link has been sent." };
-        if (!email) {
+        // reject non-string email (e.g. a $regex/$ne operator object) before it reaches
+        // the query - same class of NoSQL-injection guard as signUp/logIn
+        if (!email || typeof email !== "string") {
             res.status(200).json(genericResponse);
             return;
         }
@@ -184,6 +211,12 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
         const { email, token, newPassword } = req.body;
         if (!email || !token || !newPassword) {
             res.status(400).json({ message: "Missing required fields" });
+            return;
+        }
+        // reject non-string email/token before they reach the query/hash comparison -
+        // same class of NoSQL-injection guard as signUp/logIn/forgotPassword
+        if (typeof email !== "string" || typeof token !== "string") {
+            res.status(400).json({ message: "This reset link is invalid or has expired." });
             return;
         }
         if (typeof newPassword !== "string" || newPassword.length < 8) {
@@ -219,13 +252,13 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
         res.clearCookie("refresh-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         })
         res.clearCookie("access-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         })
         res.status(200).json({ message: "Logged out successfully" });
@@ -286,13 +319,13 @@ export const deleteProfile = async (req: Request, res: Response): Promise<void> 
         res.clearCookie("refresh-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         });
         res.clearCookie("access-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         });
         res.json({ message: "Successfully deleted!" });

@@ -16,6 +16,16 @@ import internalRoute from "./routes/internalRoutes";
 import { handleWebhook } from "./controllers/billingController";
 // dotenv config
 dotenv.config();
+
+// Every access/refresh token is signed and verified with this. Without it,
+// jsonwebtoken throws at the first request that touches auth (sign or verify)
+// rather than failing here at startup - by design it never falls back to
+// signing with `undefined`, so this is an operability fix (fail fast, loud,
+// and before any traffic is served) rather than a security one.
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET must be set - refusing to start without it.");
+}
+
 export const app = express();
 // Render terminates TLS at its proxy. Trust exactly that first hop so
 // express-rate-limit keys clients by their forwarded address in production.

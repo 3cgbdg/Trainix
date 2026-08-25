@@ -82,6 +82,23 @@ describe("auth api", () => {
             expect(res.body.message).toBe("User with such an email exists");
         })
 
+        // regression test: signup's duplicate-email check (User.findOne({ email })) used
+        // to accept a raw operator object as "email" unvalidated, which - combined with
+        // the 409-vs-500 response difference - could be used as a boolean oracle for
+        // whether any registered email matches a given pattern.
+        it("signup 400 - operator-object email is rejected before it reaches the DB query (NoSQL injection guard)", async () => {
+            const res = await request(app).post("/api/auth/signup")
+                .send({
+                    name: 'name3',
+                    surname: 'surname3',
+                    dateOfBirth: '2018-11-29',
+                    gender: 'Male',
+                    email: { $regex: "^email1" },
+                    password: '12345678Aa'
+                });
+            expect(res.status).toBe(400);
+        });
+
         it("signup - server error!", async () => {
             jest.spyOn(User, 'create').mockImplementationOnce(() => {
                 throw new Error("DB error");
@@ -138,6 +155,20 @@ describe("auth api", () => {
             expect(res.body.user._id).toBe(user._id.toString());
 
         })
+        // regression test: these cookies used to be sameSite=None, which sends them
+        // on cross-site requests and enabled a CSRF attack against any state-changing
+        // endpoint that doesn't strictly require a JSON body (e.g. POST /api/fitness-
+        // plan/generate). The frontend only ever reaches this API through its own
+        // same-origin Next.js rewrite proxy, so Lax is sufficient and closes that hole.
+        it("login 200 - auth cookies are sameSite=Lax, not None", async () => {
+            const res = await request(app).post("/api/auth/login")
+                .send({ email: 'hello@gmail.com', password: '12345678Aa' });
+            const cookies = ([] as string[]).concat(res.headers['set-cookie'] ?? []);
+            const accessCookie = cookies.find((cookie) => cookie.startsWith("access-token="));
+            const refreshCookie = cookies.find((cookie) => cookie.startsWith("refresh-token="));
+            expect(accessCookie?.toLowerCase()).toContain("samesite=lax");
+            expect(refreshCookie?.toLowerCase()).toContain("samesite=lax");
+        })
         it("login - server error!", async () => {
             jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
                 throw new Error("DB error");
@@ -150,6 +181,21 @@ describe("auth api", () => {
         });
         it("login - missing email or password returns 400", async () => {
             const res = await request(app).post("/api/auth/login").send({ password: "12345678Dd" });
+            expect(res.status).toBe(400);
+        });
+        // regression test: a NoSQL operator object (e.g. { "$regex": "^h" }) used to be
+        // passed straight into User.findOne({ email }) unvalidated. That let an
+        // unauthenticated caller use the 404-vs-403 response difference as a boolean
+        // oracle to enumerate every registered email address (a $regex/$ne value matches
+        // *some* real user, producing 403 "Wrong password!" instead of 404 "User was not
+        // found!"), completely bypassing the anti-enumeration design used elsewhere
+        // (forgot-password always returns the same generic message). Non-string email/
+        // password must now be rejected before any DB query runs.
+        it("login - operator-object email/password is rejected before it reaches the DB query (NoSQL injection guard)", async () => {
+            const res = await request(app).post("/api/auth/login").send({
+                email: { $regex: "^h" },
+                password: { $ne: null },
+            });
             expect(res.status).toBe(400);
         });
     })
@@ -396,6 +442,33 @@ describe("auth api", () => {
             const token = getToken();
 
             const res = await request(app).post("/api/auth/reset-password").send({ email: 'reset-me@gmail.com', token, newPassword: 'short' });
+            expect(res.status).toBe(400);
+        });
+
+        // regression test: forgotPassword's DB lookup used to accept a raw operator
+        // object as "email" (e.g. { "$regex": "^r" }), which - unlike a plain unknown
+        // string - matches a real user and triggers the (mocked) email send. The
+        // response message is intentionally identical either way, but the internal
+        // behavior diverging is itself an injection surface (timing side-channel, and
+        // a foothold for the same query to be reused for other operators). It must now
+        // be rejected the same way an unknown email is, with no lookup/send at all.
+        it("forgot-password 200 for an operator-object email too, without sending anything (NoSQL injection guard)", async () => {
+            const spy = jest.spyOn(emailUtils, "sendPasswordResetEmail").mockResolvedValue();
+            const res = await request(app).post("/api/auth/forgot-password").send({ email: { $regex: "^r" } });
+            expect(res.status).toBe(200);
+            expect(res.body.message).toBe("If an account exists for that email, a reset link has been sent.");
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        // regression test: resetPassword's DB lookup used to accept a raw operator
+        // object as "email" or "token" before ever reaching the timing-safe hash
+        // comparison. Non-string values must be rejected up front.
+        it("reset-password 400 for an operator-object email/token (NoSQL injection guard)", async () => {
+            const res = await request(app).post("/api/auth/reset-password").send({
+                email: { $ne: null },
+                token: { $ne: null },
+                newPassword: '12345678Bb',
+            });
             expect(res.status).toBe(400);
         });
     })
