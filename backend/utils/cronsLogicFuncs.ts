@@ -282,8 +282,12 @@ export const generateNewDayFitnessContent = async () => {
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             await Promise.all(plans.map(async (plan) => {
-                const day = plan.report.plan.days.find(day => new Date(day.date).toDateString() == today.toDateString());
-                if (day) {
+                try {
+                    const day = plan.report.plan.days.find(day => new Date(day.date).toDateString() == today.toDateString());
+                    // skip days that don't exist yet, and days that already have generated exercises -
+                    // the whole 28-day plan is normally generated upfront by the client, so re-running
+                    // this for an already-populated day would silently wipe the user's completed workout
+                    if (!day || (day.exercises && day.exercises.length > 0)) return;
                     // getting user and measurements for sending proper metrics to ai to analyze
                     const [user, measurements] = await Promise.all([
                         User.findById(plan.userId),
@@ -315,41 +319,36 @@ export const generateNewDayFitnessContent = async () => {
                     const data = res.data;
                     // validating info
                     const regex = /```json\s([\s\S]+?)```/;
-                    let match;
-                    try {
-                        // adding to db
-                        match = data.AIreport.match(regex);
-                        const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
-                        await Promise.all(
-                            info.day.exercises!.map(async (exercise: IExercise) => {
+                    const match = data.AIreport.match(regex);
+                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                    await Promise.all(
+                        info.day.exercises!.map(async (exercise: IExercise) => {
 
-                                const image = await ExerciseImage.findOne({ name: exercise.title });
-                                if (image) {
-                                    exercise.imageUrl = image.imageUrl;
-                                } else {
-                                    const url = await s3ImageUploadingExercise(exercise);
-                                    // if exists continue otherwise adding new doc
-                                    await ExerciseImage.findOneAndUpdate(
-                                        { name: exercise.title },
-                                        { $setOnInsert: { imageUrl: url } },
-                                        { new: true, upsert: true }
-                                    );
-                                    exercise.imageUrl = url;
-                                }
-                            })
+                            const image = await ExerciseImage.findOne({ name: exercise.title });
+                            if (image) {
+                                exercise.imageUrl = image.imageUrl;
+                            } else {
+                                const url = await s3ImageUploadingExercise(exercise);
+                                // if exists continue otherwise adding new doc
+                                await ExerciseImage.findOneAndUpdate(
+                                    { name: exercise.title },
+                                    { $setOnInsert: { imageUrl: url } },
+                                    { new: true, upsert: true }
+                                );
+                                exercise.imageUrl = url;
+                            }
+                        })
 
-                        )
-                        info.day.date = new Date(info.day.date);
-                        plan.report.plan.days[info.day.dayNumber - 1] = info.day;
-                        plan.markModified("report.plan.days");
-                        await plan.save();
-                    } catch (err) {
-                        console.error(err);
-                    }
-
-
-                } else {
-                    return;
+                    )
+                    info.day.date = new Date(info.day.date);
+                    plan.report.plan.days[info.day.dayNumber - 1] = info.day;
+                    plan.markModified("report.plan.days");
+                    await plan.save();
+                } catch (err) {
+                    // one user's AI/network failure shouldn't stop the rest of tonight's batch
+                    // from generating - previously this was unguarded and rejected the whole
+                    // Promise.all, so a single flaky request could skip everyone after it
+                    console.error(err);
                 }
             }))
         }
@@ -361,7 +360,8 @@ export const generateNewDayFitnessContent = async () => {
 // generating each day full info for workout of the day
 export const generateNewDayNutritionContent = async () => {
     try {
-
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const batchSize = 1000;
         let lastId = null;
         while (true) {
@@ -371,36 +371,40 @@ export const generateNewDayNutritionContent = async () => {
             if (plans.length == 0) break;
             lastId = plans[plans.length - 1]._id;
             await Promise.all(plans.map(async (plan) => {
-                const dayNumber = plan.days[plan.days.length - 1].dayNumber;
-                // getting user and measurements for sending proper metrics to ai to analyze
-                const [user, measurements] = await Promise.all([
-                    User.findById(plan.userId),
-                    Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
-                ]);
-                // requesting ai generating day
-                const res = await axios.post(`${process.env.PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber + 1}`, {
-
-                    height: user?.metrics.height,
-                    weight: user?.metrics.weight,
-                    targetWeight: user?.targetWeight,
-                    primaryFitnessGoal: user?.primaryFitnessGoal,
-                    fitnessLevel: user?.fitnessLevel,
-                    gender: user?.gender,
-                    waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                    shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                    bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                    muscleMass: measurements?.metrics.muscleMass,
-                    leanBodyMass: measurements?.metrics.leanBodyMass,
-
-                }
-                );
-                const data = res.data;
-                // validating info
-                const regex = /```json\s([\s\S]+?)```/;
-                let match;
                 try {
-                    // adding to db
-                    match = data.AIreport.match(regex);
+                    if (plan.days.length === 0) return;
+                    const lastDay = plan.days[plan.days.length - 1];
+                    const dayNumber = lastDay.dayNumber;
+                    // skip plans that already have a day scheduled for today or later -
+                    // without this the cron would push a duplicate day if it ever ran twice
+                    // for the same plan (e.g. after a restart)
+                    if (new Date(lastDay.date).getTime() >= today.getTime()) return;
+                    // getting user and measurements for sending proper metrics to ai to analyze
+                    const [user, measurements] = await Promise.all([
+                        User.findById(plan.userId),
+                        Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
+                    ]);
+                    // requesting ai generating day
+                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber + 1}`, {
+
+                        height: user?.metrics.height,
+                        weight: user?.metrics.weight,
+                        targetWeight: user?.targetWeight,
+                        primaryFitnessGoal: user?.primaryFitnessGoal,
+                        fitnessLevel: user?.fitnessLevel,
+                        gender: user?.gender,
+                        waistToHipRatio: measurements?.metrics.waistToHipRatio,
+                        shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
+                        bodyFatPercent: measurements?.metrics.bodyFatPercent,
+                        muscleMass: measurements?.metrics.muscleMass,
+                        leanBodyMass: measurements?.metrics.leanBodyMass,
+
+                    }
+                    );
+                    const data = res.data;
+                    // validating info
+                    const regex = /```json\s([\s\S]+?)```/;
+                    const match = data.AIreport.match(regex);
                     const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
                     await Promise.all(
                         info.meals.map(async (meal: IMeal) => {
@@ -418,9 +422,20 @@ export const generateNewDayNutritionContent = async () => {
                             }
 
                         }))
+                    // the AI doesn't know the plan's real calendar - assign the next sequential
+                    // date ourselves (same anchor createNutritionPlan uses), otherwise this day
+                    // is saved with whatever date the AI hallucinated, which breaks date-based
+                    // views like the weekly statistics chart
+                    const nextDate = new Date(plan.createdAt);
+                    nextDate.setDate(nextDate.getDate() + dayNumber);
+                    info.date = nextDate;
+                    info.dayNumber = dayNumber + 1;
                     plan.days.push(info);
                     await plan.save();
                 } catch (err) {
+                    // one user's AI/network failure shouldn't stop the rest of tonight's batch
+                    // from generating - previously this was unguarded and rejected the whole
+                    // Promise.all, so a single flaky request could skip everyone after it
                     console.error(err);
                 }
 
