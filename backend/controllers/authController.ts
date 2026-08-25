@@ -77,6 +77,10 @@ export const onBoarding = async (req: Request, res: Response): Promise<void> => 
 export const logIn = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
+        if (!data.email || !data.password) {
+            res.status(400).json({ message: "Email and password are required." });
+            return;
+        }
         const user = await User.findOne({ email: data.email });
         if (!user) {
             res.status(404).json({ message: "User was not found!" })

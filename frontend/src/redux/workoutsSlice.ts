@@ -31,7 +31,11 @@ const workoutsSlice = createSlice({
         updateWorkouts: (state, action: PayloadAction<{ day: IDayPlan, streak?: number }>) => {
             if (!state.workouts) return;
 
-            const index = state.workouts.items.findIndex(item => item.date === action.payload.day.date);
+            // matched by dayNumber, not date - a regenerated day's date comes back out of
+            // an AI JSON round-trip and can differ in format/timestamp from what's already
+            // stored, which made this silently fail to match and left the UI showing the
+            // stale pre-regeneration workout until a manual reload
+            const index = state.workouts.items.findIndex(item => item.dayNumber === action.payload.day.dayNumber);
             if (index !== -1) {
                 state.workouts.items[index] = action.payload.day;
             }

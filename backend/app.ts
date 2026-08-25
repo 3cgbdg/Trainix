@@ -12,6 +12,7 @@ import notificationRoute from "./routes/notificationRoutes";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import measurementsRoute from "./routes/measurementsRoutes";
 import billingRoute from "./routes/billingRoutes";
+import internalRoute from "./routes/internalRoutes";
 import { handleWebhook } from "./controllers/billingController";
 // dotenv config
 dotenv.config();
@@ -42,6 +43,7 @@ app.use("/api/nutrition-plan", authMiddleware, nutritionPlanRoute);
 app.use("/api/measurement", authMiddleware, measurementsRoute);
 app.use("/api/notification", authMiddleware, notificationRoute);
 app.use("/api/billing", authMiddleware, billingRoute);
+app.use("/api/internal", internalRoute);
 
 // reports unhandled errors to Sentry (no-op if SENTRY_DSN was never set, e.g.
 // in tests, which import this app module directly without going through

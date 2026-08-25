@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   "/profile",
   "/nutrition-plan",
   "/workout",
+  "/onboarding",
 ];
 const AUTH_PATHS = ["/auth/login", "/auth/signup"];
 // signed-in visitors land on "/" too (e.g. an old bookmark) -- send them
@@ -39,5 +40,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/today/:path*", "/dashboard/:path*", "/workout-plan/:path*", "/ai-analysis/:path*", "/progress/:path*", "/profile/:path*", "/nutrition-plan/:path*", "/workout/:path*", "/auth/login", "/auth/signup"],
+  matcher: ["/", "/today/:path*", "/dashboard/:path*", "/workout-plan/:path*", "/ai-analysis/:path*", "/progress/:path*", "/profile/:path*", "/nutrition-plan/:path*", "/workout/:path*", "/onboarding/:path*", "/auth/login", "/auth/signup"],
 };

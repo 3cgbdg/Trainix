@@ -9,6 +9,7 @@ import { s3ImageUploadingExercise } from "../utils/images";
 import { io, userSocketMap } from "../socket";
 import Notification from "../models/Notification";
 import { IUserDocument } from "../models/User";
+import { runFitnessPlanGeneration } from "../utils/fitnessPlanGeneration";
 
 const FREE_TIER_MONTHLY_PLAN_LIMIT = 1;
 
@@ -27,6 +28,36 @@ function consumeFreeTierPlanQuota(user: IUserDocument): boolean {
     if (user.aiPlanGenerationsThisMonth >= FREE_TIER_MONTHLY_PLAN_LIMIT) return false;
     user.aiPlanGenerationsThisMonth += 1;
     return true;
+}
+
+// kicks off the full 28-day plan generation in the background and returns immediately -
+// the client tracks progress over the socket connection ("fitnessPlanProgress" /
+// "fitnessPlanReady" / "fitnessPlanError") instead of holding a request open for
+// however long 28 sequential AI calls take
+export const generateFitnessPlan = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = (req as AuthRequest).userId;
+        const [user, existingPlan] = await Promise.all([
+            User.findById(userId),
+            FitnessPlan.findOne({ userId }),
+        ]);
+        if (!user) {
+            res.status(404).json({ message: "User was not found!" });
+            return;
+        }
+        // matches the previous behavior: quota is only metered for a brand new plan,
+        // regenerating an existing one (e.g. after a fresh body scan) doesn't cost extra
+        if (!existingPlan && !consumeFreeTierPlanQuota(user)) {
+            res.status(402).json({ message: `Free plan includes ${FREE_TIER_MONTHLY_PLAN_LIMIT} new AI-generated plan per month. Upgrade to Premium for unlimited plans.` });
+            return;
+        }
+        await user.save();
+        res.status(202).json({ message: "Plan generation started" });
+        void runFitnessPlanGeneration(userId);
+    } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
 }
 
 // adding report-fitnessplan day  func with iterations
@@ -65,10 +96,22 @@ export const addFitnessDay = async (req: Request, res: Response): Promise<void> 
                 const workoutDay = new Date(fitnessPlan.createdAt);
                 workoutDay.setDate(workoutDay.getDate() + data.day.dayNumber - 1);
                 data.day.date = workoutDay;
-                await FitnessPlan.updateOne(
-                    { _id: fitnessPlan._id },
-                    { $push: { "report.plan.days": { $each: [data.day], $sort: { dayNumber: 1 } } } }
-                );
+                // upsert by dayNumber instead of blindly pushing - retrying a partially failed
+                // plan generation (e.g. after a transient AI/network error mid-loop) would
+                // otherwise duplicate this day in the array and desync every dayNumber-1 index
+                // lookup used elsewhere (completeWorkout, getWorkout, etc.)
+                const existingIndex = fitnessPlan.report.plan.days.findIndex(d => d.dayNumber === data.day.dayNumber);
+                if (existingIndex !== -1) {
+                    await FitnessPlan.updateOne(
+                        { _id: fitnessPlan._id },
+                        { $set: { [`report.plan.days.${existingIndex}`]: data.day } }
+                    );
+                } else {
+                    await FitnessPlan.updateOne(
+                        { _id: fitnessPlan._id },
+                        { $push: { "report.plan.days": { $each: [data.day], $sort: { dayNumber: 1 } } } }
+                    );
+                }
                 res.status(200).json({ message: "Day created!", day: data });
                 return;
             } else {

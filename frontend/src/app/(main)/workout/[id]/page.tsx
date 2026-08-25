@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { api } from "@/api/axiosInstance";
@@ -22,6 +22,7 @@ export default function ActiveWorkoutPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const workouts = useAppSelector((state) => state.workouts.workouts);
   const measurements = useAppSelector((state) => state.measurements.measurements);
   const user = useAppSelector((state) => state.auth.user);
@@ -36,7 +37,16 @@ export default function ActiveWorkoutPage() {
 
   const completionMutation = useMutation({
     mutationFn: (records: CompletionRecord[]) => api.post(`/api/fitness-plan/workouts/${dayIndex}/completed`, records).then((response) => response.data),
-    onSuccess: (data) => { dispatch(updateWorkouts({ day: data.day, streak: data.streak })); router.push(`/workout/${dayId}/success`); },
+    onSuccess: (data) => {
+      dispatch(updateWorkouts({ day: data.day, streak: data.streak }));
+      // the dashboard/progress pages' streak numbers come from separately cached
+      // queries (30s staleTime) that completing a workout doesn't otherwise touch -
+      // without this, landing back on either page right after finishing can show the
+      // pre-completion numbers until the cache happens to expire on its own
+      void queryClient.invalidateQueries({ queryKey: ["dashboard-numbers"] });
+      void queryClient.invalidateQueries({ queryKey: ["progress"] });
+      router.push(`/workout/${dayId}/success`);
+    },
   });
 
   const generationMutation = useMutation({
