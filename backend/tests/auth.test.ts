@@ -155,6 +155,20 @@ describe("auth api", () => {
             expect(res.body.user._id).toBe(user._id.toString());
 
         })
+        // regression test: these cookies used to be sameSite=None, which sends them
+        // on cross-site requests and enabled a CSRF attack against any state-changing
+        // endpoint that doesn't strictly require a JSON body (e.g. POST /api/fitness-
+        // plan/generate). The frontend only ever reaches this API through its own
+        // same-origin Next.js rewrite proxy, so Lax is sufficient and closes that hole.
+        it("login 200 - auth cookies are sameSite=Lax, not None", async () => {
+            const res = await request(app).post("/api/auth/login")
+                .send({ email: 'hello@gmail.com', password: '12345678Aa' });
+            const cookies = ([] as string[]).concat(res.headers['set-cookie'] ?? []);
+            const accessCookie = cookies.find((cookie) => cookie.startsWith("access-token="));
+            const refreshCookie = cookies.find((cookie) => cookie.startsWith("refresh-token="));
+            expect(accessCookie?.toLowerCase()).toContain("samesite=lax");
+            expect(refreshCookie?.toLowerCase()).toContain("samesite=lax");
+        })
         it("login - server error!", async () => {
             jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
                 throw new Error("DB error");

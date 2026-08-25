@@ -38,11 +38,20 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         const newUser = await User.create({ firstName: data.name, lastName: data.surname, password: hashedPassword, email: data.email, dateOfBirth: data.dateOfBirth, gender: data.gender })
         const refreshToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
         const accessToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
-        //   creating jwt, saving it into a cookie 
+        //   creating jwt, saving it into a cookie
+        // sameSite: "lax" (not "none") - the frontend only ever talks to this API
+        // through its own same-origin Next.js rewrite proxy (see frontend's
+        // axiosInstance.ts), so the browser treats these as first-party cookies
+        // regardless; "lax" additionally stops the cookie from riding along on a
+        // cross-site POST/PATCH/DELETE forged against a logged-in user (CSRF), while
+        // still allowing it on a top-level cross-site GET redirect (e.g. Stripe
+        // checkout bouncing back to /profile). The direct cross-origin Socket.IO
+        // handshake doesn't rely on this cookie at all - it fetches its own
+        // short-lived token via /api/auth/socket-token instead (see socket.ts).
         res.cookie("access-token", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
@@ -50,7 +59,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
         });
@@ -113,14 +122,14 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
         res.cookie("access-token", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 15 * 60 * 1000,
             path: "/"
         })
         res.cookie("refresh-token", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             maxAge: 60 * 60 * 1000 * 24 * 7,
             path: "/"
         });
@@ -147,7 +156,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
                 res.cookie("access-token", accessToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "none",
+                    sameSite: "lax",
                     maxAge: 15 * 60 * 1000,
                     path: "/"
                 })
@@ -243,13 +252,13 @@ export const logOut = async (req: Request, res: Response): Promise<void> => {
         res.clearCookie("refresh-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         })
         res.clearCookie("access-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         })
         res.status(200).json({ message: "Logged out successfully" });
@@ -310,13 +319,13 @@ export const deleteProfile = async (req: Request, res: Response): Promise<void> 
         res.clearCookie("refresh-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         });
         res.clearCookie("access-token", {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
+            sameSite: "lax",
             path: "/",
         });
         res.json({ message: "Successfully deleted!" });
