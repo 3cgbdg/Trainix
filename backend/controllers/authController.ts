@@ -21,6 +21,13 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
             res.status(400).json({ message: "Missing required fields" });
             return;
         }
+        // email/password must be plain strings before they're allowed anywhere near a
+        // Mongoose filter - otherwise a client can send e.g. { "$gt": "" } or a $regex
+        // object as "email" and use it as a NoSQL query operator instead of a value
+        if (typeof data.email !== "string" || typeof data.password !== "string") {
+            res.status(400).json({ message: "Invalid request." });
+            return;
+        }
         const user = await User.findOne({ email: data.email });
         if (user) {
             res.status(409).json({ message: "User with such an email exists" });
@@ -78,6 +85,15 @@ export const logIn = async (req: Request, res: Response): Promise<void> => {
     try {
         const data = req.body;
         if (!data.email || !data.password) {
+            res.status(400).json({ message: "Email and password are required." });
+            return;
+        }
+        // same NoSQL-operator-injection guard as signUp: without this, an object like
+        // { "$regex": "^a" } as "email" turns the DB lookup into a query operator and
+        // lets an attacker use the 404-vs-403 response difference as a boolean oracle
+        // to enumerate every registered email address, bypassing the anti-enumeration
+        // design used by forgot-password.
+        if (typeof data.email !== "string" || typeof data.password !== "string") {
             res.status(400).json({ message: "Email and password are required." });
             return;
         }
@@ -156,7 +172,9 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     try {
         const { email } = req.body;
         const genericResponse = { message: "If an account exists for that email, a reset link has been sent." };
-        if (!email) {
+        // reject non-string email (e.g. a $regex/$ne operator object) before it reaches
+        // the query - same class of NoSQL-injection guard as signUp/logIn
+        if (!email || typeof email !== "string") {
             res.status(200).json(genericResponse);
             return;
         }
@@ -184,6 +202,12 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
         const { email, token, newPassword } = req.body;
         if (!email || !token || !newPassword) {
             res.status(400).json({ message: "Missing required fields" });
+            return;
+        }
+        // reject non-string email/token before they reach the query/hash comparison -
+        // same class of NoSQL-injection guard as signUp/logIn/forgotPassword
+        if (typeof email !== "string" || typeof token !== "string") {
+            res.status(400).json({ message: "This reset link is invalid or has expired." });
             return;
         }
         if (typeof newPassword !== "string" || newPassword.length < 8) {

@@ -10,6 +10,13 @@ import Measurement from "../models/Measurement";
 import ExerciseImage from "../models/ExerciseImage";
 import Notification from "../models/Notification";
 
+// generateFitnessPlan fires this off in the background (28 sequential AI calls +
+// S3 uploads) - stub it out so the /generate tests below only exercise the route's
+// own auth/quota/rate-limit behavior, not a real AI provider.
+jest.mock("../utils/fitnessPlanGeneration", () => ({
+    runFitnessPlanGeneration: jest.fn(async () => undefined),
+}));
+
 
 
 
@@ -593,6 +600,48 @@ describe("fitness-plan api", () => {
             expect(updatedUser!.longestStreak).toBe(4);
         });
     });
+
+    // generate-fitness-plan route
+    describe("generate-fitness-plan", () => {
+        it("generate 202 - starts generation and is scoped to the caller's own userId", async () => {
+            const res = await request(app).post("/api/fitness-plan/generate")
+                .set("Cookie", `access-token=${accessToken}`)
+                .set("Authorization", `Bearer ${accessToken}`)
+            expect(res.status).toBe(202);
+            expect(res.body.message).toBe("Plan generation started");
+        });
+
+        it("generate 401 - no auth", async () => {
+            const res = await request(app).post("/api/fitness-plan/generate");
+            expect(res.status).toBe(401);
+        });
+
+        // regression test: this endpoint kicks off 28 sequential AI calls + S3 uploads
+        // per request and (for an existing plan, or a premium account) was reachable
+        // with no request limit at all - repeatable in a tight loop by the account
+        // owner, a compromised session, or a forged cross-site request riding the
+        // session cookie (the endpoint needs no request body, so it's a plain state-
+        // changing POST with nothing to distinguish a same-site call from a forged
+        // one). A per-IP rate limit now caps how often it can be triggered.
+        it("generate 429 after repeated rapid requests (rate limit)", async () => {
+            const hashedPass = await bcrypt.hash('12345678Aa', 10);
+            const rlUser = await User.create({
+                firstName: 'ratelimit', lastName: 'user', dateOfBirth: '2018-11-29',
+                gender: 'Male', email: 'ratelimit@gmail.com', password: hashedPass,
+                subscriptionTier: 'premium',
+            });
+            const rlToken = jwt.sign({ userId: rlUser._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+
+            const statuses: number[] = [];
+            for (let i = 0; i < 6; i++) {
+                const res = await request(app).post("/api/fitness-plan/generate")
+                    .set("Cookie", `access-token=${rlToken}`)
+                    .set("Authorization", `Bearer ${rlToken}`);
+                statuses.push(res.status);
+            }
+            expect(statuses).toContain(429);
+        });
+    })
 
     //delete-fitness-plan route
     describe("delete-fitness-plan", () => {
