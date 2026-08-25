@@ -25,13 +25,14 @@ const Page = () => {
     const dispatch = useAppDispatch();
 
     // getting ai-analyzed  data
-    const getAnalysis = useCallback(async () => {
-        const res = await api.get("/api/fitness-plan/analysis");
+    const getAnalysis = useCallback(async (signal?: AbortSignal) => {
+        const res = await api.get("/api/fitness-plan/analysis", { signal });
         return res.data;
     }, []);
     const { data, isLoading } = useQuery<ReceivedAnalysis>({
         queryKey: ["getAnalysis"],
-        queryFn: getAnalysis,
+        queryFn: ({ signal }) => getAnalysis(signal),
+        enabled: Boolean(user),
         refetchOnWindowFocus: false,
         retry: 0,
     })
@@ -137,7 +138,7 @@ const Page = () => {
 
     })
     //request func to python api for creating plan
-    if (isLoading) {
+    if (!user || isLoading) {
         return <div className="flex min-h-80 items-center justify-center"><Spinner label="Loading your latest body analysis" /></div>;
     }
 

@@ -11,7 +11,6 @@ export const createNutritionPlan = async (req: Request, res: Response): Promise<
         const dayDate = new Date();
         let obj: IDayPlanNutrition;
         dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
-        console.log(dayDate);
         let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
         // parallel for optimized using in adding images to each meal
         await Promise.all(

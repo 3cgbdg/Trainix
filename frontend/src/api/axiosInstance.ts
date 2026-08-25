@@ -8,12 +8,21 @@ export const api = axios.create({
 })
 
 let refreshRequest: Promise<unknown> | null = null;
+let sessionRefreshEnabled = true;
+
+export function suspendSessionRefresh() {
+    sessionRefreshEnabled = false;
+}
+
+export function resumeSessionRefresh() {
+    sessionRefreshEnabled = true;
+}
 
 api.interceptors.response.use(
     response => response,
     async error => {
         const originalReq = error.config;
-        if (error.response?.status === 401 && originalReq && !originalReq._retry && !originalReq.url?.includes("/api/auth/refresh")) {
+        if (sessionRefreshEnabled && error.response?.status === 401 && originalReq && !originalReq._retry && !originalReq.url?.includes("/api/auth/refresh")) {
             originalReq._retry = true;
             try {
                 refreshRequest ??= api.post("/api/auth/refresh").finally(() => {

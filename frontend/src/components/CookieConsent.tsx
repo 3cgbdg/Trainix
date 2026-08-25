@@ -10,6 +10,7 @@ export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (window.location.pathname.startsWith("/portfolio/")) return;
     if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
   }, []);
 

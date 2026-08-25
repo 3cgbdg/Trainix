@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "https://github.com/3cgbdg/qa-agent-kit",
+  "kitVersion": "0.1.0",
+  "profileSha256": "70a241022ae666d57ba7bc8e8fd670d68febc4025775417b6bc88d9947010af3",
+  "files": {
+    ".claude/agents/qa-engineer.md": "9517c8dfd09cab30663eea4634ca02837017aad5d674c11bd69e83fd868f39a8",
+    ".claude/skills/qa-test-strategy/SKILL.md": "9961bb8d791f4fb25bd4ff5486ebd8a760eb01d8469ce652a5b4e0f54ef0b417",
+    ".claude/skills/qa-api-testing/SKILL.md": "5ee182a66fdb8f7e338a95e0ee681cf6a15c71033c1ab240c151227c938977fa",
+    ".claude/skills/qa-browser-testing/SKILL.md": "63d979e961bcbb765e8489c6df8aa191d13f42bd493e71fcb3b6e29ba8e70601",
+    ".claude/skills/qa-automation/SKILL.md": "dc1c780944209f85be51c7c5174ed468337a1c1df486e4abeb96d9e4465e6863",
+    ".cursor/agents/qa-engineer.md": "9517c8dfd09cab30663eea4634ca02837017aad5d674c11bd69e83fd868f39a8",
+    ".cursor/skills/qa-test-strategy/SKILL.md": "9961bb8d791f4fb25bd4ff5486ebd8a760eb01d8469ce652a5b4e0f54ef0b417",
+    ".cursor/skills/qa-api-testing/SKILL.md": "5ee182a66fdb8f7e338a95e0ee681cf6a15c71033c1ab240c151227c938977fa",
+    ".cursor/skills/qa-browser-testing/SKILL.md": "63d979e961bcbb765e8489c6df8aa191d13f42bd493e71fcb3b6e29ba8e70601",
+    ".cursor/skills/qa-automation/SKILL.md": "dc1c780944209f85be51c7c5174ed468337a1c1df486e4abeb96d9e4465e6863"
+  }
+}

@@ -16,19 +16,17 @@ const Page = () => {
     const { user } = useAppSelector(state => state.auth);
     const { nutritionDay } = useAppSelector(state => state.nutritionDay);
     const dispatch = useAppDispatch();
-    const getMeasurements = async () => {
-        const res = await api.get("/api/measurement/measurements");
+    const getMeasurements = async (signal?: AbortSignal) => {
+        const res = await api.get("/api/measurement/measurements", { signal });
         return res.data;
     }
     const { data: measurement, isLoading, error: measurementQueryError, refetch } = useQuery({
         queryKey: ["measurement"],
-        queryFn: getMeasurements,
+        queryFn: ({ signal }) => getMeasurements(signal),
+        enabled: Boolean(user),
         retry: 0,
     })
-    // a 404 here just means the user hasn't done a body scan yet - that's not
-    // a failure, GenerateNutritionPlan already guides them to /ai-analysis for it
-    const measurementNotFound = axios.isAxiosError(measurementQueryError) && measurementQueryError.response?.status === 404;
-    const measurementError = Boolean(measurementQueryError) && !measurementNotFound;
+    const measurementError = Boolean(measurementQueryError);
 
     // mutation - request for generation plan
     const generateNutritionPlan = useCallback(async (dayNumber: number) => {
@@ -66,7 +64,7 @@ const Page = () => {
         },
     })
 
-    if (isLoading) {
+    if (!user || isLoading) {
         return <div className="flex min-h-80 items-center justify-center"><Spinner label="Loading your nutrition profile" /></div>;
     }
 

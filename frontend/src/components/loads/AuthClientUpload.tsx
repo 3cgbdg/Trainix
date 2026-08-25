@@ -1,46 +1,70 @@
 "use client";
 
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { api } from "@/api/axiosInstance";
+import { api, suspendSessionRefresh } from "@/api/axiosInstance";
 import { useAppDispatch } from "@/hooks/reduxHooks";
-import { finishAuth, getProfile } from "@/redux/authSlice";
-import { getMeasurement } from "@/redux/measurementSlice";
-import { getNutritionDay } from "@/redux/nutritionDaySlice";
+import { getProfile, logOut } from "@/redux/authSlice";
+import { clearMeasurement, getMeasurement } from "@/redux/measurementSlice";
+import { clearNutritionDay, getNutritionDay } from "@/redux/nutritionDaySlice";
 import { getWorkouts } from "@/redux/workoutsSlice";
-import { isMeasurementPayload, isNutritionDayPayload, isWorkoutsPayload } from "@/lib/apiGuards";
+import { isEmptyMeasurementPayload, isMeasurementPayload, isNutritionDayPayload, isWorkoutsPayload } from "@/lib/apiGuards";
+import type { IUser } from "@/types/types";
+
+let profileBootstrapRequest: ReturnType<typeof api.get<{ user: IUser }>> | null = null;
+
+function getAuthenticatedProfile() {
+  if (!profileBootstrapRequest) {
+    const request = api.get<{ user: IUser }>("/api/auth/profile");
+    profileBootstrapRequest = request;
+    request.then(
+      () => { if (profileBootstrapRequest === request) profileBootstrapRequest = null; },
+      () => { if (profileBootstrapRequest === request) profileBootstrapRequest = null; },
+    );
+  }
+  return profileBootstrapRequest;
+}
 
 export default function AuthClientUpload() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadAuthenticatedData() {
-      // auth is cookie-based (JWT), not derived from the profile response, so none
-      // of these calls actually depend on each other — fire them all at once instead
-      // of waiting for profile to resolve before starting the rest.
-      const [profile, measurement, workouts, nutrition] = await Promise.allSettled([
-        api.get("/api/auth/profile"),
+      // Resolve or refresh the cookie-backed session once before starting the
+      // authenticated fan-out. This keeps late 401 responses from starting a
+      // second refresh wave when the access token expires.
+      let profile;
+      try {
+        profile = await getAuthenticatedProfile();
+      } catch {
+        if (cancelled) return;
+        queryClient.clear();
+        dispatch(logOut());
+        // clear the httpOnly session cookies server-side — otherwise proxy.ts's
+        // presence-only check keeps treating this as an authenticated request
+        // and redirects straight back to a protected route, looping forever
+        suspendSessionRefresh();
+        try { await api.delete("/api/auth/logout"); } catch { /* best-effort */ }
+        router.replace("/auth/login");
+        return;
+      }
+
+      if (cancelled) return;
+      dispatch(getProfile(profile.data.user));
+
+      const [measurement, workouts, nutrition] = await Promise.allSettled([
         api.get("api/measurement/measurements"),
         api.get("/api/fitness-plan/workouts"),
         api.get("api/nutrition-plan/nutrition-plans"),
       ]);
 
       if (cancelled) return;
-
-      if (profile.status !== "fulfilled") {
-        dispatch(finishAuth());
-        // clear the httpOnly session cookies server-side — otherwise proxy.ts's
-        // presence-only check keeps treating this as an authenticated request
-        // and redirects straight back to a protected route, looping forever
-        try { await api.delete("/api/auth/logout"); } catch { /* best-effort */ }
-        router.replace("/auth/login");
-        return;
-      }
-      dispatch(getProfile(profile.value.data.user));
 
       const pythonUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
       if (pythonUrl) {
@@ -50,9 +74,15 @@ export default function AuthClientUpload() {
         }).catch(() => undefined);
       }
 
-      if (measurement.status === "fulfilled" && isMeasurementPayload(measurement.value.data)) dispatch(getMeasurement(measurement.value.data));
+      if (measurement.status === "fulfilled") {
+        if (isMeasurementPayload(measurement.value.data)) dispatch(getMeasurement(measurement.value.data));
+        else if (isEmptyMeasurementPayload(measurement.value.data)) dispatch(clearMeasurement());
+      }
       if (workouts.status === "fulfilled" && isWorkoutsPayload(workouts.value.data)) dispatch(getWorkouts(workouts.value.data));
-      if (nutrition.status === "fulfilled" && isNutritionDayPayload(nutrition.value.data)) dispatch(getNutritionDay(nutrition.value.data));
+      if (nutrition.status === "fulfilled") {
+        if (isNutritionDayPayload(nutrition.value.data)) dispatch(getNutritionDay(nutrition.value.data));
+        else if (nutrition.value.data?.hasCurrentDay === false) dispatch(clearNutritionDay());
+      }
     }
 
     void loadAuthenticatedData();
@@ -60,7 +90,7 @@ export default function AuthClientUpload() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, router]);
+  }, [dispatch, queryClient, router]);
 
   return null;
 }

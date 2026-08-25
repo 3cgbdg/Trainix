@@ -16,6 +16,9 @@ const nutritionDaySlice = createSlice({
         getNutritionDay: (state, action: PayloadAction<INutritionDayPlan>) => {
             state.nutritionDay = action.payload;
         },
+        clearNutritionDay: (state) => {
+            state.nutritionDay = null;
+        },
         changeStatus: (state, action: PayloadAction<number>) => {
             if (state.nutritionDay) {
                 const meal = state.nutritionDay.meals[action.payload];
@@ -35,5 +38,5 @@ const nutritionDaySlice = createSlice({
     }
 })
 
-export const { getNutritionDay, changeStatus, logWater } = nutritionDaySlice.actions;
+export const { clearNutritionDay, getNutritionDay, changeStatus, logWater } = nutritionDaySlice.actions;
 export default nutritionDaySlice.reducer;

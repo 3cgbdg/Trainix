@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest "
+    "test": "jest ",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:full": "playwright test -c playwright.full.config.ts",
+    "test:e2e:list": "playwright test --list",
+    "test:e2e:smoke": "playwright test tests/e2e/public-smoke.spec.ts",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",

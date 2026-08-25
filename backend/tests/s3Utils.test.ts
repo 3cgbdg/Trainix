@@ -63,6 +63,12 @@ describe("s3 funcs", () => {
             expect(returnValue).toBe("food-placeholder.jpg")
 
         })
+        it("uses the placeholder when Unsplash returns no matches", async () => {
+            jest.spyOn(images, "searchPhotos").mockResolvedValueOnce([]);
+            const returnValue = await s3ImageUploadingMeal(meal);
+            expect(returnValue).toBe("food-placeholder.jpg");
+            expect(mockedAxios.get).not.toHaveBeenCalled();
+        })
         it('should upload image to S3 and return URL', async () => {
             // creting fake url and returning it
             const fakeUrl = 'https://unsplash.com/photo/test';

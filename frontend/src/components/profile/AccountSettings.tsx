@@ -1,12 +1,12 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Check, LockKeyhole, ShieldAlert, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { api } from "@/api/axiosInstance";
+import { api, resumeSessionRefresh, suspendSessionRefresh } from "@/api/axiosInstance";
 import { updateProfile } from "@/api/profile";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/Field";
@@ -22,6 +22,7 @@ type PasswordForm = { password: string; newPassword: string; newPasswordAgain: s
 export default function AccountSettings({ user, setEditing, editing }: { user: IUser; editing: EditingSection; setEditing: Dispatch<SetStateAction<EditingSection>> }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const [notifications, setNotifications] = useState(user.inAppNotifications);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -37,8 +38,13 @@ export default function AccountSettings({ user, setEditing, editing }: { user: I
     onError: (error) => setSaveError(isAxiosError(error) ? error.response?.data?.message ?? "Your password could not be changed." : "Your password could not be changed."),
   });
   const deleteMutation = useMutation({
-    mutationFn: () => api.delete("/api/auth/profile"),
-    onSuccess: () => { dispatch(logOut()); router.replace("/auth/login"); },
+    mutationFn: async () => {
+      await queryClient.cancelQueries();
+      suspendSessionRefresh();
+      try { return await api.delete("/api/auth/profile"); }
+      catch (error) { resumeSessionRefresh(); throw error; }
+    },
+    onSuccess: () => { queryClient.clear(); dispatch(logOut()); router.replace("/auth/login"); },
   });
   const changeNotifications = (enabled: boolean) => { setNotifications(enabled); notificationMutation.mutate(enabled); };
   const cancelPassword = () => { reset(); setSaveError(null); setEditing(null); };

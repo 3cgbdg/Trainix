@@ -409,6 +409,9 @@ describe("auth api", () => {
                 .set("Authorization", `Bearer ${accessToken}`)
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Successfully deleted!");
+            const clearedCookies = String(res.headers["set-cookie"] ?? "");
+            expect(clearedCookies).toContain("access-token=;");
+            expect(clearedCookies).toContain("refresh-token=;");
         })
         it("delete-profile - server error!", async () => {
             jest.spyOn(User, 'findByIdAndDelete').mockImplementationOnce(() => {

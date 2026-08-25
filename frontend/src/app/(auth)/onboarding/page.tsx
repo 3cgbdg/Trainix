@@ -76,7 +76,7 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-strong" htmlFor="fitnessLevel">Your Fitness Level</label>
-                    <select  defaultValue={""} {...register("fitnessLevel", { required: "Field is required" })} className="input cursor-pointer">
+                    <select id="fitnessLevel" defaultValue={""} {...register("fitnessLevel", { required: "Field is required" })} className="input cursor-pointer">
                         <option value="" disabled  hidden>Select your fitness level</option>
                         <option value="Beginner">Beginner</option>
                         <option value="Intermediate">Intermediate</option>
@@ -90,7 +90,7 @@ const Page = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-strong" htmlFor="primaryFitnessGoal">Your Primary Fitness Goal</label>
-                    <select  defaultValue={""} {...register("primaryFitnessGoal", { required: "Field is required" })} className="input cursor-pointer">
+                    <select id="primaryFitnessGoal" defaultValue={""} {...register("primaryFitnessGoal", { required: "Field is required" })} className="input cursor-pointer">
                         <option value="" disabled  hidden>Select your primary goal</option>
                         <option value="Lose weight">Lose weight</option>
                         <option value="Gain muscle">Gain muscle</option>

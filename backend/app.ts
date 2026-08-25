@@ -17,6 +17,9 @@ import { handleWebhook } from "./controllers/billingController";
 // dotenv config
 dotenv.config();
 export const app = express();
+// Render terminates TLS at its proxy. Trust exactly that first hop so
+// express-rate-limit keys clients by their forwarded address in production.
+app.set("trust proxy", 1);
 app.use(compression());
 app.use(cookieParser());
 

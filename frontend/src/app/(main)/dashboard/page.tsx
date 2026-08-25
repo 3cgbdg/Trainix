@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity, Apple, ArrowRight, Camera, CheckCircle2, ChevronRight, Dumbbell,
-  Flame, Scale, Sparkles, Target, TrendingDown, TrendingUp,
+  Flame, Gauge, Scale, Sparkles, Target, TrendingDown, TrendingUp, Zap,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { api } from "@/api/axiosInstance";
@@ -38,9 +38,10 @@ const toneClasses = {
   warning: "bg-amber-50 text-amber-700",
 };
 
-async function getDashboardNumbers() {
+async function getDashboardNumbers(signal?: AbortSignal) {
   const response = await api.get<DashboardNumbers>("/api/fitness-plan/reports/numbers", {
     params: { date: new Date().toISOString() },
+    signal,
   });
   return response.data;
 }
@@ -135,7 +136,8 @@ export default function DashboardPage() {
   const todayWorkout = workouts?.items?.[todayIndex];
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["dashboard-numbers", new Date().toISOString().slice(0, 10)],
-    queryFn: getDashboardNumbers,
+    queryFn: ({ signal }) => getDashboardNumbers(signal),
+    enabled: initialized && Boolean(user),
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -154,11 +156,13 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-brand-strong">Your daily focus</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-strong sm:text-4xl">Good to see you, {user.firstName}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">One clear workout, balanced nutrition, and a small win today.</p>
+          <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong"><Sparkles size={16} /> AI performance overview</p>
+          <h1 className="mt-1 font-outfit text-3xl font-bold tracking-tight text-strong sm:text-4xl">Good morning, {user.firstName}</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">Your day brings together your latest body data, training plan, nutrition, and progress.</p>
         </div>
-        <LinkButton href="/progress" variant="secondary" leadingIcon={<Activity size={18} />} className="w-full sm:w-auto">View progress</LinkButton>
+        <div className="rounded-control border border-border bg-surface px-4 py-3 text-sm font-semibold text-strong">
+          {new Intl.DateTimeFormat("en", { weekday: "long", month: "short", day: "numeric" }).format(new Date())}
+        </div>
       </header>
 
       {isError ? (
@@ -171,19 +175,19 @@ export default function DashboardPage() {
           <div className="relative flex h-full flex-col justify-between gap-10">
             <div>
               <div className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
-                <span className="flex size-8 items-center justify-center rounded-full bg-surface"><Dumbbell size={17} /></span>
-                Today’s workout
+                <span className="flex size-8 items-center justify-center rounded-full bg-surface"><Zap size={17} /></span>
+                AI-adjusted workout
               </div>
               <h2 id="today-focus-title" className="mt-5 max-w-2xl text-3xl font-bold tracking-tight text-strong sm:text-4xl">{todayWorkout?.day ?? "Your next training session"}</h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-muted sm:text-base">
-                {todayWorkout ? `${exerciseCount} exercises · about ${estimatedMinutes} minutes · built for your ${user.fitnessLevel.toLowerCase()} level.` : "Create your personalized plan to turn today into a focused, achievable session."}
+                {todayWorkout ? `${exerciseCount} exercises · about ${estimatedMinutes} minutes · personalized for your ${user.fitnessLevel.toLowerCase()} level and ${user.primaryFitnessGoal.toLowerCase()} goal.` : "Complete a body scan and Trainix will build a plan around your body, level, and goal."}
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <LinkButton href={todayWorkout ? `/workout/${todayIndex + 1}` : "/ai-analysis"} data-testid={todayWorkout ? undefined : "create-plan-btn"} size="lg" leadingIcon={todayWorkout ? <Dumbbell size={19} /> : <Sparkles size={19} />} className="w-full sm:w-auto">
                 {todayWorkout ? "Start workout" : "Create my plan"}
               </LinkButton>
-              {todayWorkout ? <LinkButton href="/workout-plan" size="lg" variant="secondary" className="w-full sm:w-auto">See weekly plan</LinkButton> : null}
+              {todayWorkout ? <LinkButton href="/ai-analysis" size="lg" variant="secondary" className="w-full sm:w-auto">Review body scan</LinkButton> : null}
             </div>
           </div>
         </Surface>
@@ -198,7 +202,13 @@ export default function DashboardPage() {
               <span className="flex size-11 items-center justify-center rounded-full bg-amber-50 text-amber-700"><Apple size={20} /></span>
             </div>
             <ProgressBar className="mt-5" value={calorieCurrent} max={calorieTarget} label="Daily calorie progress" />
-            <p className="mt-3 text-sm text-muted">{calorieTarget ? `${Math.max(calorieTarget - calorieCurrent, 0).toLocaleString()} kcal remaining` : "Generate a meal plan for today"}</p>
+            {nutritionDay?.dailyGoals ? (
+              <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+                <div><p className="font-bold text-strong">{Math.round(nutritionDay.dailyGoals.protein.current)}g</p><p className="text-[11px] text-subtle">Protein</p></div>
+                <div><p className="font-bold text-strong">{Math.round(nutritionDay.dailyGoals.carbs.current)}g</p><p className="text-[11px] text-subtle">Carbs</p></div>
+                <div><p className="font-bold text-strong">{Math.round(nutritionDay.dailyGoals.fats.current)}g</p><p className="text-[11px] text-subtle">Fats</p></div>
+              </div>
+            ) : <p className="mt-3 text-sm text-muted">Generate a meal plan for today</p>}
           </div>
           <LinkButton href="/nutrition-plan" variant="secondary" className="w-full justify-between">Open nutrition <ArrowRight size={18} /></LinkButton>
         </Surface>
@@ -211,7 +221,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label="Current weight" value={formatNumber(data?.weight, " kg")} detail={weightChange === undefined ? "Add weekly measurements" : `${Math.abs(weightChange).toFixed(1)} kg since last check-in`} icon={WeightDirection} tone={weightChange !== undefined ? "positive" : "neutral"} />
-          <MetricCard label="BMI" value={Number.isFinite(data?.bmi) ? data!.bmi!.toFixed(1) : "—"} detail={getBmiLabel(data?.bmi)} icon={Scale} tone={data?.bmi && data.bmi >= 18.5 && data.bmi < 25 ? "positive" : "neutral"} />
+          <MetricCard label="Body index" value={Number.isFinite(data?.bmi) ? data!.bmi!.toFixed(1) : "—"} detail={getBmiLabel(data?.bmi)} icon={Gauge} tone={data?.bmi && data.bmi >= 18.5 && data.bmi < 25 ? "positive" : "neutral"} />
           <MetricCard label="Current streak" value={formatNumber(data?.streak ?? workouts?.streak, " days")} detail={`Personal best: ${user.longestStreak ?? 0} days`} icon={Flame} tone="warning" />
           <MetricCard label="Today’s plan" value={todayWorkout?.status ?? "Not started"} detail={todayWorkout ? `${exerciseCount} exercises ready` : "Create a plan to begin"} icon={todayWorkout?.status === "Completed" ? CheckCircle2 : Target} tone={todayWorkout?.status === "Completed" ? "positive" : "neutral"} />
         </div>
@@ -227,9 +237,13 @@ export default function DashboardPage() {
         </Surface>
 
         <Surface padding="lg">
-          <h2 className="text-xl font-bold tracking-tight text-strong">Keep momentum</h2>
-          <p className="mt-1 text-sm leading-6 text-muted">Two useful next steps when you have a minute.</p>
-          <div className="mt-6 space-y-2">
+          <div className="flex items-center gap-2"><Sparkles className="text-brand" size={20} /><h2 className="text-xl font-bold tracking-tight text-strong">AI coach</h2></div>
+          <p className="mt-1 text-sm leading-6 text-muted">Your most useful next actions, based on the data available today.</p>
+          <div className="mt-5 space-y-3">
+            <div className="flex items-center gap-3 text-sm text-muted"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong"><CheckCircle2 size={15} /></span>{todayWorkout ? `${exerciseCount} exercises are ready for today` : "Complete a scan to generate your first plan"}</div>
+            <div className="flex items-center gap-3 text-sm text-muted"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-strong"><CheckCircle2 size={15} /></span>{calorieTarget ? `${Math.max(calorieTarget - calorieCurrent, 0).toLocaleString()} kcal remain in today’s target` : "Nutrition targets unlock with your plan"}</div>
+          </div>
+          <div className="mt-5 grid gap-2">
             <LinkButton href="/ai-analysis" variant="ghost" className="w-full justify-start px-2" leadingIcon={<Camera size={19} />}><span className="flex flex-1 items-center justify-between">Update body scan <ChevronRight size={17} /></span></LinkButton>
             <LinkButton href="/progress" variant="ghost" className="w-full justify-start px-2" leadingIcon={<Activity size={19} />}><span className="flex flex-1 items-center justify-between">Review progress <ChevronRight size={17} /></span></LinkButton>
           </div>
