@@ -1,15 +1,13 @@
 import { AiServiceError } from "../utils/aiClient";
 import { buildFitnessDayPrompt, buildFitnessPlanPrompt, buildNutritionPrompt } from "../utils/prompts";
 
-const mockCreate = jest.fn();
-jest.mock("openai", () => ({
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => ({
-        chat: { completions: { create: (...args: unknown[]) => mockCreate(...args) } },
-    })),
-}));
+import axios from "axios";
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+// the client posts to the REST API directly rather than via the openai SDK, so the
+// assertions below target the request body it builds
 
-import { generateJson, resetLlmClient } from "../utils/llmClient";
+import { generateJson } from "../utils/llmClient";
 
 const USER_INFO = {
     height: 180, weight: 80, targetWeight: 75, primaryFitnessGoal: "Lose weight",
@@ -17,30 +15,29 @@ const USER_INFO = {
     shoulderToWaistRatio: 1.4, bodyFatPercent: 20, muscleMass: 35, leanBodyMass: 64,
 };
 
-const reply = (content: string | null) => ({ choices: [{ message: { content } }] });
+const reply = (content: string | null) => ({ data: { choices: [{ message: { content } }] } });
 
 describe("in-process LLM generation", () => {
     const originalKey = process.env.OPENAI_API_KEY;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        resetLlmClient();
+        (mockedAxios.isAxiosError as unknown as jest.Mock) = jest.fn(() => false);
         process.env.OPENAI_API_KEY = "sk-test-key";
     });
 
     afterAll(() => {
         process.env.OPENAI_API_KEY = originalKey;
-        resetLlmClient();
     });
 
     describe("generateJson", () => {
         // json_object mode is what makes the markdown-fence problem structurally
         // impossible, rather than something a regex has to clean up afterwards
         it("requests JSON mode so the model cannot wrap output in a fence", async () => {
-            mockCreate.mockResolvedValue(reply('{"ok":true}'));
+            (mockedAxios.post as jest.Mock).mockResolvedValue(reply('{"ok":true}'));
             await generateJson({ system: "s", prompt: "p" });
 
-            const [params] = mockCreate.mock.calls[0];
+            const [, params] = (mockedAxios.post as jest.Mock).mock.calls[0];
             expect(params.response_format).toEqual({ type: "json_object" });
             expect(params.messages).toEqual([
                 { role: "system", content: "s" },
@@ -49,36 +46,35 @@ describe("in-process LLM generation", () => {
         });
 
         it("parses the returned JSON", async () => {
-            mockCreate.mockResolvedValue(reply('{"a":1,"b":[2]}'));
+            (mockedAxios.post as jest.Mock).mockResolvedValue(reply('{"a":1,"b":[2]}'));
             await expect(generateJson({ system: "s", prompt: "p" })).resolves.toEqual({ a: 1, b: [2] });
         });
 
         it("throws a typed error on malformed JSON", async () => {
-            mockCreate.mockResolvedValue(reply("not json at all"));
+            (mockedAxios.post as jest.Mock).mockResolvedValue(reply("not json at all"));
             await expect(generateJson({ system: "s", prompt: "p" })).rejects.toThrow(AiServiceError);
         });
 
         it("throws a typed error on an empty completion", async () => {
-            mockCreate.mockResolvedValue(reply(null));
+            (mockedAxios.post as jest.Mock).mockResolvedValue(reply(null));
             await expect(generateJson({ system: "s", prompt: "p" })).rejects.toThrow(AiServiceError);
         });
 
         it("surfaces provider failures as a typed error, not a raw SDK error", async () => {
-            mockCreate.mockRejectedValue(new Error("429 rate limited"));
+            (mockedAxios.post as jest.Mock).mockRejectedValue(new Error("429 rate limited"));
             await expect(generateJson({ system: "s", prompt: "p" })).rejects.toThrow(AiServiceError);
         });
 
         it("fails clearly when no API key is configured", async () => {
             delete process.env.OPENAI_API_KEY;
-            resetLlmClient();
             await expect(generateJson({ system: "s", prompt: "p" })).rejects.toThrow(/OPENAI_API_KEY/);
         });
 
         it("honours an OPENAI_MODEL override", async () => {
             process.env.OPENAI_MODEL = "gpt-4o";
-            mockCreate.mockResolvedValue(reply("{}"));
+            (mockedAxios.post as jest.Mock).mockResolvedValue(reply("{}"));
             await generateJson({ system: "s", prompt: "p" });
-            expect(mockCreate.mock.calls[0][0].model).toBe("gpt-4o");
+            expect((mockedAxios.post as jest.Mock).mock.calls[0][1].model).toBe("gpt-4o");
             delete process.env.OPENAI_MODEL;
         });
     });
