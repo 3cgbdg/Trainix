@@ -6,7 +6,14 @@ import { s3ImageUploadingExercise } from "./images";
 import { requestAiReport } from "./aiClient";
 import { io, userSocketMap } from "../socket";
 
-const TOTAL_DAYS = 28;
+export const TOTAL_DAYS = 28;
+
+// Generation is a long fire-and-forget background job, so the same user (or the
+// resume cron) can otherwise kick off a second overlapping run for a plan that's
+// already being built. Single Render instance, so an in-process set is enough.
+const generationsInFlight = new Set<string>();
+
+export const isGenerationInFlight = (userId: string): boolean => generationsInFlight.has(userId);
 
 const emitToUser = (userId: string, event: string, payload: unknown) => {
     const socketId = userSocketMap.get(userId);
@@ -38,6 +45,8 @@ const attachExerciseImages = async (exercises: IExercise[]) => {
 // completion are pushed to the client over the socket connection instead, keyed
 // by userId the same way notifications already are.
 export const runFitnessPlanGeneration = async (userId: string): Promise<void> => {
+    if (generationsInFlight.has(userId)) return;
+    generationsInFlight.add(userId);
     try {
         const [user, measurement] = await Promise.all([
             User.findById(userId),
@@ -65,6 +74,12 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
         let plan = await FitnessPlan.findOne({ userId });
 
         for (let dayNumber = 1; dayNumber <= TOTAL_DAYS; dayNumber++) {
+            // a resumed run skips whatever the interrupted one already stored, so
+            // finishing a half-built plan costs only the days that are actually missing
+            if (plan?.report.plan.days.some((d) => d.dayNumber === dayNumber)) {
+                emitToUser(userId, "fitnessPlanProgress", { day: dayNumber, total: TOTAL_DAYS });
+                continue;
+            }
             const info = await requestAiReport("/api/fitnessPlan", userInfo, { query: { dayNumber } });
             const day: IDayPlan = info.day;
 
@@ -102,5 +117,7 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
     } catch (err) {
         console.error(err);
         emitToUser(userId, "fitnessPlanError", { message: "Plan generation failed. Please try again." });
+    } finally {
+        generationsInFlight.delete(userId);
     }
 };

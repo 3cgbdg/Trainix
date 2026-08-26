@@ -8,6 +8,7 @@ import { ObjectId } from "mongoose";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise, s3ImageUploadingMeal } from "./images";
 import { requestAiReport } from "./aiClient";
+import { isGenerationInFlight, runFitnessPlanGeneration, TOTAL_DAYS } from "./fitnessPlanGeneration";
 import MealImage from "../models/MealImage";
 
 export const regularReminder = async () => {
@@ -232,6 +233,42 @@ export const checkMissedDay = async () => {
         }
     }
 
+}
+
+// Plan generation is a background job that makes ~28 sequential AI calls. If the
+// process is restarted or the free-tier dyno spins down partway through, the run
+// dies silently and the user is left with a permanently half-built plan - nothing
+// else in the system ever completes it. This finds those and resumes them
+// (runFitnessPlanGeneration skips days that already exist, so a resume only pays
+// for what's missing).
+const STALLED_GENERATION_AFTER_MS = 10 * 60 * 1000;
+
+export const resumeIncompletePlans = async () => {
+    try {
+        const stalledBefore = new Date(Date.now() - STALLED_GENERATION_AFTER_MS);
+        let lastId = null;
+        const batchSize = 100;
+        while (true) {
+            const query: any = { createdAt: { $lt: stalledBefore } };
+            if (lastId) query._id = { $gt: lastId };
+            const plans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
+            if (plans.length == 0) break;
+            lastId = plans[plans.length - 1]._id;
+            for (const plan of plans) {
+                const dayCount = plan.report?.plan?.days?.length ?? 0;
+                if (dayCount === 0 || dayCount >= TOTAL_DAYS) continue;
+                const userId = String(plan.userId);
+                // don't race a run that's already going
+                if (isGenerationInFlight(userId)) continue;
+                console.warn(`Resuming stalled plan generation for user ${userId} (${dayCount}/${TOTAL_DAYS} days)`);
+                // awaited so one batch doesn't fan out into many concurrent
+                // multi-minute AI jobs at once
+                await runFitnessPlanGeneration(userId);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 export const checkingStatusOfPlan = async () => {
