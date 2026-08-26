@@ -1,9 +1,9 @@
-import axios from "axios";
 import FitnessPlan, { IDayPlan, IExercise } from "../models/FitnessPlan";
 import ExerciseImage from "../models/ExerciseImage";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { s3ImageUploadingExercise } from "./images";
+import { requestAiReport } from "./aiClient";
 import { io, userSocketMap } from "../socket";
 
 const TOTAL_DAYS = 28;
@@ -62,13 +62,10 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
             leanBodyMass: measurement?.metrics.leanBodyMass,
         };
 
-        const regex = /```json\s([\s\S]+?)```/;
         let plan = await FitnessPlan.findOne({ userId });
 
         for (let dayNumber = 1; dayNumber <= TOTAL_DAYS; dayNumber++) {
-            const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan?dayNumber=${dayNumber}`, userInfo);
-            const match = res.data.AIreport.match(regex);
-            const info = match ? JSON.parse(match[1]) : JSON.parse(res.data.AIreport);
+            const info = await requestAiReport("/api/fitnessPlan", userInfo, { query: { dayNumber } });
             const day: IDayPlan = info.day;
 
             if (day.exercises?.length) await attachExerciseImages(day.exercises);

@@ -12,8 +12,7 @@ import GetReady from "@/components/workout/GetReady";
 import Resting from "@/components/workout/Resting";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { updateWorkouts } from "@/redux/workoutsSlice";
-import type { IDayPlan, IMetrics } from "@/types/types";
-import { reportExtractFunc } from "@/utils/report";
+import type { IDayPlan } from "@/types/types";
 
 type WorkoutStage = "ready" | "active" | "rest";
 type CompletionRecord = { completed: boolean };
@@ -24,8 +23,6 @@ export default function ActiveWorkoutPage() {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
   const workouts = useAppSelector((state) => state.workouts.workouts);
-  const measurements = useAppSelector((state) => state.measurements.measurements);
-  const user = useAppSelector((state) => state.auth.user);
   const dayId = Array.isArray(params.id) ? params.id[0] : params.id;
   const dayIndex = Number(dayId) - 1;
   const baseWorkout = Number.isInteger(dayIndex) ? workouts?.items?.[dayIndex] : undefined;
@@ -49,26 +46,16 @@ export default function ActiveWorkoutPage() {
     },
   });
 
+  // the backend reads the user's metrics, calls the AI service, attaches exercise
+  // images and saves the day - the client just names the day it wants regenerated
   const generationMutation = useMutation({
     mutationFn: async () => {
-      if (!baseWorkout || !user || !measurements) throw new Error("Your profile or measurements are incomplete");
-      const pythonApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
-      if (!pythonApiUrl) throw new Error("Workout generation service is not configured");
-      return api.post(`${pythonApiUrl}/api/fitnessPlan/day`, {
-        userInfo: {
-          height: user.metrics.height, weight: user.metrics.weight, targetWeight: user.targetWeight,
-          primaryFitnessGoal: user.primaryFitnessGoal, fitnessLevel: user.fitnessLevel, gender: user.gender,
-          waistToHipRatio: measurements.metrics.waistToHipRatio,
-          shoulderToWaistRatio: measurements.metrics.shoulderToWaistRatio,
-          bodyFatPercent: measurements.metrics.bodyFatPercent,
-          muscleMass: measurements.metrics.muscleMass,
-          leanBodyMass: measurements.metrics.leanBodyMass,
-        } satisfies Partial<IMetrics> & Record<string, unknown>,
-        day: { dayNumber: baseWorkout.dayNumber, day: baseWorkout.day, date: baseWorkout.date },
-      }).then((response) => response.data);
+      if (!baseWorkout) throw new Error("This workout day does not exist in your plan");
+      const response = await api.post(`/api/fitness-plan/workouts/${dayIndex}/generate`);
+      return response.data;
     },
-    onSuccess: async (data) => {
-      const generatedDay = await reportExtractFunc(data, "fitness-day") as IDayPlan;
+    onSuccess: (data) => {
+      const generatedDay = data?.day as IDayPlan | undefined;
       if (!generatedDay) throw new Error("The generated workout was empty");
       setGeneratedWorkout(generatedDay);
       dispatch(updateWorkouts({ day: generatedDay }));

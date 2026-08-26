@@ -5,9 +5,9 @@ import FitnessPlan, { IExercise } from "../models/FitnessPlan";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { ObjectId } from "mongoose";
-import axios from "axios";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise, s3ImageUploadingMeal } from "./images";
+import { requestAiReport } from "./aiClient";
 import MealImage from "../models/MealImage";
 
 export const regularReminder = async () => {
@@ -294,7 +294,7 @@ export const generateNewDayFitnessContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan/day`, {
+                    const info = await requestAiReport("/api/fitnessPlan/day", {
                         userInfo: {
                             height: user?.metrics.height,
                             weight: user?.metrics.weight,
@@ -314,13 +314,7 @@ export const generateNewDayFitnessContent = async () => {
                             date: day.date
                         }
 
-                    }
-                    );
-                    const data = res.data;
-                    // validating info
-                    const regex = /```json\s([\s\S]+?)```/;
-                    const match = data.AIreport.match(regex);
-                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                    });
                     await Promise.all(
                         info.day.exercises!.map(async (exercise: IExercise) => {
 
@@ -385,7 +379,7 @@ export const generateNewDayNutritionContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber + 1}`, {
+                    const info = await requestAiReport("/api/nutrition", {
 
                         height: user?.metrics.height,
                         weight: user?.metrics.weight,
@@ -399,13 +393,7 @@ export const generateNewDayNutritionContent = async () => {
                         muscleMass: measurements?.metrics.muscleMass,
                         leanBodyMass: measurements?.metrics.leanBodyMass,
 
-                    }
-                    );
-                    const data = res.data;
-                    // validating info
-                    const regex = /```json\s([\s\S]+?)```/;
-                    const match = data.AIreport.match(regex);
-                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                    }, { query: { dayNumber: dayNumber + 1 } });
                     await Promise.all(
                         info.meals.map(async (meal: IMeal) => {
                             const image = await MealImage.findOne({ name: meal.mealTitle });
