@@ -6,9 +6,7 @@ import { ErrorState, Spinner } from '@/components/ui/Feedback';
 import { Surface } from '@/components/ui/Surface';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getNutritionDay } from '@/redux/nutritionDaySlice';
-import { reportExtractFunc } from '@/utils/report';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { useCallback } from 'react';
 import { isMeasurementPayload, isNutritionDayPayload } from '@/lib/apiGuards';
 
@@ -28,39 +26,19 @@ const Page = () => {
     })
     const measurementError = Boolean(measurementQueryError);
 
-    // mutation - request for generation plan
+    // The backend now owns the whole flow: it reads the user's metrics itself, calls
+    // the AI service, parses the response, and persists the day - so the client just
+    // asks for a day number and gets back the saved result.
     const generateNutritionPlan = useCallback(async (dayNumber: number) => {
         if (!user || !isMeasurementPayload(measurement)) throw new Error("A valid body measurement is required");
-        const nutritionApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
-        if (!nutritionApiUrl) throw new Error("Nutrition service is not configured");
-        const userInfo = {
-            height: user.metrics.height,
-            weight: user.metrics.weight,
-            targetWeight: user.targetWeight,
-            primaryFitnessGoal: user.primaryFitnessGoal,
-            fitnessLevel: user.fitnessLevel,
-            gender: user.gender,
-            waistToHipRatio: measurement.metrics.waistToHipRatio,
-            shoulderToWaistRatio: measurement.metrics.shoulderToWaistRatio,
-            bodyFatPercent: measurement.metrics.bodyFatPercent,
-            muscleMass: measurement.metrics.muscleMass,
-            leanBodyMass: measurement.metrics.leanBodyMass,
-            // days: ,
-        }
-
-        const res = await axios.post(`${nutritionApiUrl}/api/nutrition?dayNumber=${dayNumber}`, userInfo, {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" }
-        });
-
+        const res = await api.post(`/api/nutrition-plan/nutrition-plans/generate?dayNumber=${dayNumber}`);
         return res.data;
     }, [user, measurement]);
     const mutation = useMutation({
         mutationFn: generateNutritionPlan,
-        onSuccess: async (data) => {
-            const newData = await reportExtractFunc(data, "nutrition");
-            if (!isNutritionDayPayload(newData?.day)) throw new Error("The nutrition service returned an invalid meal plan");
-            dispatch(getNutritionDay(newData.day));
+        onSuccess: (data) => {
+            if (!isNutritionDayPayload(data?.day)) throw new Error("The nutrition service returned an invalid meal plan");
+            dispatch(getNutritionDay(data.day));
         },
     })
 

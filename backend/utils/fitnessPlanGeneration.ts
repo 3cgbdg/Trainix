@@ -1,12 +1,20 @@
-import axios from "axios";
 import FitnessPlan, { IDayPlan, IExercise } from "../models/FitnessPlan";
 import ExerciseImage from "../models/ExerciseImage";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { s3ImageUploadingExercise } from "./images";
+import { AiServiceError } from "./aiClient";
+import { generateFitnessPlanDay, toLlmUserInfo } from "./aiGeneration";
 import { io, userSocketMap } from "../socket";
 
-const TOTAL_DAYS = 28;
+export const TOTAL_DAYS = 28;
+
+// Generation is a long fire-and-forget background job, so the same user (or the
+// resume cron) can otherwise kick off a second overlapping run for a plan that's
+// already being built. Single Render instance, so an in-process set is enough.
+const generationsInFlight = new Set<string>();
+
+export const isGenerationInFlight = (userId: string): boolean => generationsInFlight.has(userId);
 
 const emitToUser = (userId: string, event: string, payload: unknown) => {
     const socketId = userSocketMap.get(userId);
@@ -38,6 +46,8 @@ const attachExerciseImages = async (exercises: IExercise[]) => {
 // completion are pushed to the client over the socket connection instead, keyed
 // by userId the same way notifications already are.
 export const runFitnessPlanGeneration = async (userId: string): Promise<void> => {
+    if (generationsInFlight.has(userId)) return;
+    generationsInFlight.add(userId);
     try {
         const [user, measurement] = await Promise.all([
             User.findById(userId),
@@ -48,28 +58,20 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
             return;
         }
 
-        const userInfo = {
-            height: user.metrics.height,
-            weight: user.metrics.weight,
-            targetWeight: user.targetWeight,
-            primaryFitnessGoal: user.primaryFitnessGoal,
-            fitnessLevel: user.fitnessLevel,
-            gender: user.gender,
-            waistToHipRatio: measurement?.metrics.waistToHipRatio,
-            shoulderToWaistRatio: measurement?.metrics.shoulderToWaistRatio,
-            bodyFatPercent: measurement?.metrics.bodyFatPercent,
-            muscleMass: measurement?.metrics.muscleMass,
-            leanBodyMass: measurement?.metrics.leanBodyMass,
-        };
+        const userInfo = toLlmUserInfo(user, measurement);
 
-        const regex = /```json\s([\s\S]+?)```/;
         let plan = await FitnessPlan.findOne({ userId });
 
         for (let dayNumber = 1; dayNumber <= TOTAL_DAYS; dayNumber++) {
-            const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan?dayNumber=${dayNumber}`, userInfo);
-            const match = res.data.AIreport.match(regex);
-            const info = match ? JSON.parse(match[1]) : JSON.parse(res.data.AIreport);
+            // a resumed run skips whatever the interrupted one already stored, so
+            // finishing a half-built plan costs only the days that are actually missing
+            if (plan?.report.plan.days.some((d) => d.dayNumber === dayNumber)) {
+                emitToUser(userId, "fitnessPlanProgress", { day: dayNumber, total: TOTAL_DAYS });
+                continue;
+            }
+            const info = await generateFitnessPlanDay(userInfo, dayNumber);
             const day: IDayPlan = info.day;
+            if (!day) throw new AiServiceError("The AI returned no day.");
 
             if (day.exercises?.length) await attachExerciseImages(day.exercises);
 
@@ -105,5 +107,7 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
     } catch (err) {
         console.error(err);
         emitToUser(userId, "fitnessPlanError", { message: "Plan generation failed. Please try again." });
+    } finally {
+        generationsInFlight.delete(userId);
     }
 };

@@ -10,6 +10,8 @@ import { io, userSocketMap } from "../socket";
 import Notification from "../models/Notification";
 import { IUserDocument } from "../models/User";
 import { runFitnessPlanGeneration } from "../utils/fitnessPlanGeneration";
+import { AiServiceError } from "../utils/aiClient";
+import { generateFitnessDayExercises, toLlmUserInfo } from "../utils/aiGeneration";
 
 const FREE_TIER_MONTHLY_PLAN_LIMIT = 1;
 
@@ -55,6 +57,80 @@ export const generateFitnessPlan = async (req: Request, res: Response): Promise<
         res.status(202).json({ message: "Plan generation started" });
         void runFitnessPlanGeneration(userId);
     } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
+// Regenerates a single workout day server-side and saves it. Previously the browser
+// called the Python service directly, parsed the fenced JSON client-side, then
+// POSTed it back to /days to be stored - so the AI service had to be publicly
+// reachable and the client was trusted to return whatever it wanted.
+export const generateFitnessDay = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = (req as AuthRequest).userId;
+        const dayIndex = Number(req.params.day);
+        if (!Number.isInteger(dayIndex) || dayIndex < 0) {
+            res.status(400).json({ message: "A valid day is required." });
+            return;
+        }
+        const [plan, user, measurement] = await Promise.all([
+            FitnessPlan.findOne({ userId }),
+            User.findById(userId).lean(),
+            Measurement.findOne({ userId }).sort({ createdAt: -1 }).lean(),
+        ]);
+        if (!plan || !user) {
+            res.status(404).json({ message: "Not found!" });
+            return;
+        }
+        const existingDay = plan.report.plan.days[dayIndex];
+        if (!existingDay) {
+            res.status(404).json({ message: "Workout day was not found!" });
+            return;
+        }
+
+        const info = await generateFitnessDayExercises(
+            toLlmUserInfo(user, measurement),
+            { dayNumber: existingDay.dayNumber, day: existingDay.day },
+        );
+
+        const generated = info?.day;
+        if (!generated || !Array.isArray(generated.exercises)) {
+            res.status(502).json({ message: "The workout service returned an invalid day." });
+            return;
+        }
+        await Promise.all(
+            generated.exercises.map(async (exercise: IExercise) => {
+                const image = await ExerciseImage.findOne({ name: exercise.title });
+                if (image) {
+                    exercise.imageUrl = image.imageUrl;
+                } else {
+                    const url = await s3ImageUploadingExercise(exercise);
+                    await ExerciseImage.findOneAndUpdate(
+                        { name: exercise.title },
+                        { $setOnInsert: { imageUrl: url } },
+                        { new: true, upsert: true }
+                    );
+                    exercise.imageUrl = url;
+                }
+            })
+        );
+        // keep the day anchored to the slot it's replacing - the model's own date
+        // and dayNumber are not authoritative
+        generated.date = existingDay.date;
+        generated.dayNumber = existingDay.dayNumber;
+        plan.report.plan.days[dayIndex] = generated;
+        plan.markModified("report.plan.days");
+        await plan.save();
+
+        res.status(200).json({ message: "Day generated!", day: generated });
+        return;
+    } catch (err) {
+        if (err instanceof AiServiceError) {
+            res.status(502).json({ message: err.message });
+            return;
+        }
+        console.error("Fitness day generation failed", err);
         res.status(500).json({ message: "Server error!" });
         return;
     }

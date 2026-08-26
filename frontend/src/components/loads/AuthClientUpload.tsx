@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -65,14 +64,6 @@ export default function AuthClientUpload() {
       ]);
 
       if (cancelled) return;
-
-      const pythonUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
-      if (pythonUrl) {
-        void axios.get(`${pythonUrl}/api/ping`, {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }).catch(() => undefined);
-      }
 
       if (measurement.status === "fulfilled") {
         if (isMeasurementPayload(measurement.value.data)) dispatch(getMeasurement(measurement.value.data));
