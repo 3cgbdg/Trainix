@@ -5,7 +5,8 @@ import { s3ImageUploadingMeal } from "../utils/images";
 import MealImage from "../models/MealImage";
 import Measurement from "../models/Measurement";
 import User from "../models/User";
-import { AiServiceError, requestAiReport } from "../utils/aiClient";
+import { AiServiceError } from "../utils/aiClient";
+import { generateNutritionPlanDay, toLlmUserInfo } from "../utils/aiGeneration";
 
 // attaches a cached (or freshly uploaded) image to every meal, then appends the day
 // to the user's plan - creating the plan if this is their first day. Shared by the
@@ -83,19 +84,7 @@ export const generateNutritionDay = async (req: Request, res: Response): Promise
             return;
         }
 
-        const info = await requestAiReport<IDayPlanNutrition>("/api/nutrition", {
-            height: user.metrics?.height,
-            weight: user.metrics?.weight,
-            targetWeight: user.targetWeight,
-            primaryFitnessGoal: user.primaryFitnessGoal,
-            fitnessLevel: user.fitnessLevel,
-            gender: user.gender,
-            waistToHipRatio: measurement?.metrics.waistToHipRatio,
-            shoulderToWaistRatio: measurement?.metrics.shoulderToWaistRatio,
-            bodyFatPercent: measurement?.metrics.bodyFatPercent,
-            muscleMass: measurement?.metrics.muscleMass,
-            leanBodyMass: measurement?.metrics.leanBodyMass,
-        }, { query: { dayNumber: requestedDay } });
+        const info = await generateNutritionPlanDay(toLlmUserInfo(user, measurement), requestedDay);
 
         if (!Array.isArray(info?.meals) || !info?.dailyGoals) {
             res.status(502).json({ message: "The nutrition service returned an invalid meal plan." });

@@ -1,11 +1,10 @@
 import axios from "axios";
 
-// Single place that talks to the Python AI/CV service. Everything that needs AI
-// content goes through here so that:
-//   - the service URL and the shared secret live in exactly one place
-//   - the "extract JSON out of the model's prose" logic exists once instead of
-//     being re-implemented (slightly differently) at every call site
-//   - the browser never needs to reach the Python service directly
+// Talks to the Python CV service, which is now down to a single endpoint:
+// /api/photo-analyze (mediapipe pose estimation). Plan and nutrition generation were
+// never CV - they were plain chat completions that happened to live in Python because
+// that's where the OpenAI SDK was installed - and now run in-process via
+// utils/aiGeneration.ts.
 const AI_REQUEST_TIMEOUT_MS = 120_000;
 
 export class AiServiceError extends Error {
@@ -30,11 +29,12 @@ const authHeaders = (): Record<string, string> => {
     return secret ? { "x-ai-service-secret": secret } : {};
 };
 
-// The model is asked for JSON but replies with prose that *contains* JSON, usually
-// inside a markdown fence. Accepts ```json / ```JSON / a bare ``` fence / no fence
-// at all - previously four call sites each had their own stricter variant of this
-// (one of which required exactly one whitespace character after the fence), so a
-// harmless formatting change from the model could break one path but not another.
+// /api/photo-analyze returns AIreport as an already-parsed object, so this is mostly
+// a passthrough now. The string handling stays as defence-in-depth: the four callers
+// that used to regex fences out of model prose each had their own stricter variant
+// (one required exactly one whitespace character after the fence), so a harmless
+// formatting change could break one path and not another. Generation no longer relies
+// on it at all - it asks the model for json_object mode, which cannot emit a fence.
 const FENCE = /```(?:json)?\s*([\s\S]+?)```/i;
 
 export const parseAiReport = <T = any>(aiReport: unknown): T => {
@@ -74,24 +74,11 @@ const toAiServiceError = (err: unknown): AiServiceError => {
     return new AiServiceError("The AI service is unavailable. Please try again.");
 };
 
-// Posts a JSON body and returns the parsed report from the { AIreport } envelope.
-export const requestAiReport = async <T = any>(path: string, body: unknown, options: CallOptions = {}): Promise<T> => {
-    try {
-        const res = await axios.post(buildUrl(path, options.query), body, {
-            headers: { "Content-Type": "application/json", ...authHeaders() },
-            timeout: AI_REQUEST_TIMEOUT_MS,
-        });
-        return parseAiReport<T>(res.data?.AIreport);
-    } catch (err) {
-        throw toAiServiceError(err);
-    }
-};
-
 export type PhotoAnalysisResult = { metrics: unknown; imageUrl: string };
 
-// Forwards an already-validated image to the CV service. Kept separate from
-// requestAiReport because this is the one endpoint that is multipart, and the one
-// whose response carries an imageUrl alongside the report.
+// The only call left to the Python service. Everything else it used to serve was a
+// plain chat completion and now runs in-process (see utils/aiGeneration.ts); this one
+// stays because it needs mediapipe pose estimation, which has no Node equivalent.
 export const requestPhotoAnalysis = async (
     file: { buffer: Buffer; mimetype: string; originalname: string },
     userInfo: unknown,

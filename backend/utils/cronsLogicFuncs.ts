@@ -7,7 +7,7 @@ import Measurement from "../models/Measurement";
 import { ObjectId } from "mongoose";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise, s3ImageUploadingMeal } from "./images";
-import { requestAiReport } from "./aiClient";
+import { generateFitnessDayExercises, generateNutritionPlanDay, toLlmUserInfo } from "./aiGeneration";
 import { isGenerationInFlight, runFitnessPlanGeneration, TOTAL_DAYS } from "./fitnessPlanGeneration";
 import MealImage from "../models/MealImage";
 
@@ -331,27 +331,11 @@ export const generateNewDayFitnessContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const info = await requestAiReport("/api/fitnessPlan/day", {
-                        userInfo: {
-                            height: user?.metrics.height,
-                            weight: user?.metrics.weight,
-                            targetWeight: user?.targetWeight,
-                            primaryFitnessGoal: user?.primaryFitnessGoal,
-                            fitnessLevel: user?.fitnessLevel,
-                            gender: user?.gender,
-                            waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                            shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                            bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                            muscleMass: measurements?.metrics.muscleMass,
-                            leanBodyMass: measurements?.metrics.leanBodyMass,
-                        },
-                        day: {
-                            dayNumber: day.dayNumber,
-                            day: day.day,
-                            date: day.date
-                        }
-
-                    });
+                    const info = await generateFitnessDayExercises(
+                        toLlmUserInfo(user, measurements),
+                        { dayNumber: day.dayNumber, day: day.day },
+                    );
+                    if (!info?.day?.exercises) throw new Error("The AI returned a day with no exercises");
                     await Promise.all(
                         info.day.exercises!.map(async (exercise: IExercise) => {
 
@@ -371,8 +355,12 @@ export const generateNewDayFitnessContent = async () => {
                         })
 
                     )
-                    info.day.date = new Date(info.day.date);
-                    plan.report.plan.days[info.day.dayNumber - 1] = info.day;
+                    // the model isn't authoritative about where this day sits in the
+                    // plan - keep the slot's own date/dayNumber
+                    info.day.date = day.date;
+                    info.day.dayNumber = day.dayNumber;
+                    const slot = plan.report.plan.days.findIndex(d => d.dayNumber === day.dayNumber);
+                    plan.report.plan.days[slot === -1 ? day.dayNumber - 1 : slot] = info.day;
                     plan.markModified("report.plan.days");
                     await plan.save();
                 } catch (err) {
@@ -416,21 +404,10 @@ export const generateNewDayNutritionContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const info = await requestAiReport("/api/nutrition", {
-
-                        height: user?.metrics.height,
-                        weight: user?.metrics.weight,
-                        targetWeight: user?.targetWeight,
-                        primaryFitnessGoal: user?.primaryFitnessGoal,
-                        fitnessLevel: user?.fitnessLevel,
-                        gender: user?.gender,
-                        waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                        shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                        bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                        muscleMass: measurements?.metrics.muscleMass,
-                        leanBodyMass: measurements?.metrics.leanBodyMass,
-
-                    }, { query: { dayNumber: dayNumber + 1 } });
+                    const info = await generateNutritionPlanDay(toLlmUserInfo(user, measurements), dayNumber + 1);
+                    if (!Array.isArray(info?.meals) || !info?.dailyGoals) {
+                        throw new Error("The AI returned an invalid nutrition day");
+                    }
                     await Promise.all(
                         info.meals.map(async (meal: IMeal) => {
                             const image = await MealImage.findOne({ name: meal.mealTitle });

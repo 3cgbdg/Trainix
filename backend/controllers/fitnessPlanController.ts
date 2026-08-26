@@ -10,7 +10,8 @@ import { io, userSocketMap } from "../socket";
 import Notification from "../models/Notification";
 import { IUserDocument } from "../models/User";
 import { runFitnessPlanGeneration } from "../utils/fitnessPlanGeneration";
-import { AiServiceError, requestAiReport } from "../utils/aiClient";
+import { AiServiceError } from "../utils/aiClient";
+import { generateFitnessDayExercises, toLlmUserInfo } from "../utils/aiGeneration";
 
 const FREE_TIER_MONTHLY_PLAN_LIMIT = 1;
 
@@ -88,22 +89,10 @@ export const generateFitnessDay = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        const info = await requestAiReport<{ day: IDayPlan }>("/api/fitnessPlan/day", {
-            userInfo: {
-                height: user.metrics?.height,
-                weight: user.metrics?.weight,
-                targetWeight: user.targetWeight,
-                primaryFitnessGoal: user.primaryFitnessGoal,
-                fitnessLevel: user.fitnessLevel,
-                gender: user.gender,
-                waistToHipRatio: measurement?.metrics.waistToHipRatio,
-                shoulderToWaistRatio: measurement?.metrics.shoulderToWaistRatio,
-                bodyFatPercent: measurement?.metrics.bodyFatPercent,
-                muscleMass: measurement?.metrics.muscleMass,
-                leanBodyMass: measurement?.metrics.leanBodyMass,
-            },
-            day: { dayNumber: existingDay.dayNumber, day: existingDay.day, date: existingDay.date },
-        });
+        const info = await generateFitnessDayExercises(
+            toLlmUserInfo(user, measurement),
+            { dayNumber: existingDay.dayNumber, day: existingDay.day },
+        );
 
         const generated = info?.day;
         if (!generated || !Array.isArray(generated.exercises)) {

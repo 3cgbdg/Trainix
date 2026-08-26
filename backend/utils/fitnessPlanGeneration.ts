@@ -3,7 +3,8 @@ import ExerciseImage from "../models/ExerciseImage";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { s3ImageUploadingExercise } from "./images";
-import { requestAiReport } from "./aiClient";
+import { AiServiceError } from "./aiClient";
+import { generateFitnessPlanDay, toLlmUserInfo } from "./aiGeneration";
 import { io, userSocketMap } from "../socket";
 
 export const TOTAL_DAYS = 28;
@@ -57,19 +58,7 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
             return;
         }
 
-        const userInfo = {
-            height: user.metrics.height,
-            weight: user.metrics.weight,
-            targetWeight: user.targetWeight,
-            primaryFitnessGoal: user.primaryFitnessGoal,
-            fitnessLevel: user.fitnessLevel,
-            gender: user.gender,
-            waistToHipRatio: measurement?.metrics.waistToHipRatio,
-            shoulderToWaistRatio: measurement?.metrics.shoulderToWaistRatio,
-            bodyFatPercent: measurement?.metrics.bodyFatPercent,
-            muscleMass: measurement?.metrics.muscleMass,
-            leanBodyMass: measurement?.metrics.leanBodyMass,
-        };
+        const userInfo = toLlmUserInfo(user, measurement);
 
         let plan = await FitnessPlan.findOne({ userId });
 
@@ -80,8 +69,9 @@ export const runFitnessPlanGeneration = async (userId: string): Promise<void> =>
                 emitToUser(userId, "fitnessPlanProgress", { day: dayNumber, total: TOTAL_DAYS });
                 continue;
             }
-            const info = await requestAiReport("/api/fitnessPlan", userInfo, { query: { dayNumber } });
+            const info = await generateFitnessPlanDay(userInfo, dayNumber);
             const day: IDayPlan = info.day;
+            if (!day) throw new AiServiceError("The AI returned no day.");
 
             if (day.exercises?.length) await attachExerciseImages(day.exercises);
 

@@ -12,12 +12,12 @@ jest.mock("../utils/images", () => ({
     s3ImageUploadingExercise: jest.fn(async () => "https://cdn.test/exercise.jpg"),
     s3ImageUploadingMeal: jest.fn(async () => "https://cdn.test/meal.jpg"),
 }));
-jest.mock("../utils/aiClient", () => {
-    const actual = jest.requireActual("../utils/aiClient");
-    return { ...actual, requestAiReport: jest.fn() };
+jest.mock("../utils/aiGeneration", () => {
+    const actual = jest.requireActual("../utils/aiGeneration");
+    return { ...actual, generateFitnessPlanDay: jest.fn() };
 });
 
-const { requestAiReport } = jest.requireMock("../utils/aiClient");
+const { generateFitnessPlanDay } = jest.requireMock("../utils/aiGeneration");
 import { resumeIncompletePlans } from "../utils/cronsLogicFuncs";
 import { TOTAL_DAYS } from "../utils/fitnessPlanGeneration";
 
@@ -47,8 +47,8 @@ describe("resuming stalled plan generation", () => {
     beforeEach(async () => {
         jest.clearAllMocks();
         await FitnessPlan.deleteMany({});
-        requestAiReport.mockImplementation(async (_path: string, _body: unknown, opts: any) => ({
-            day: { dayNumber: opts.query.dayNumber, day: "Full Body & Core", status: "Pending", date: new Date() },
+        generateFitnessPlanDay.mockImplementation(async (_userInfo: unknown, dayNumber: number) => ({
+            day: { dayNumber, day: "Full Body & Core", status: "Pending", date: new Date() },
         }));
     });
 
@@ -76,7 +76,7 @@ describe("resuming stalled plan generation", () => {
         const updated = await FitnessPlan.findById(plan._id);
         expect(updated!.report.plan.days).toHaveLength(TOTAL_DAYS);
         // only the 16 missing days should have cost an AI call
-        expect(requestAiReport).toHaveBeenCalledTimes(TOTAL_DAYS - 12);
+        expect(generateFitnessPlanDay).toHaveBeenCalledTimes(TOTAL_DAYS - 12);
     });
 
     it("does not re-generate days that were already stored", async () => {
@@ -84,7 +84,7 @@ describe("resuming stalled plan generation", () => {
 
         await resumeIncompletePlans();
 
-        const requestedDays = requestAiReport.mock.calls.map((call: any[]) => call[2].query.dayNumber);
+        const requestedDays = generateFitnessPlanDay.mock.calls.map((call: any[]) => call[1]);
         expect(Math.min(...requestedDays)).toBe(13);
         const updated = await FitnessPlan.findById(plan._id);
         // no duplicate dayNumbers introduced by the resume
@@ -97,7 +97,7 @@ describe("resuming stalled plan generation", () => {
 
         await resumeIncompletePlans();
 
-        expect(requestAiReport).not.toHaveBeenCalled();
+        expect(generateFitnessPlanDay).not.toHaveBeenCalled();
     });
 
     // a plan created moments ago is probably still generating right now - resuming it
@@ -107,7 +107,7 @@ describe("resuming stalled plan generation", () => {
 
         await resumeIncompletePlans();
 
-        expect(requestAiReport).not.toHaveBeenCalled();
+        expect(generateFitnessPlanDay).not.toHaveBeenCalled();
     });
 
     it("keeps going when one user's resume fails", async () => {
@@ -131,10 +131,10 @@ describe("resuming stalled plan generation", () => {
         });
 
         let calls = 0;
-        requestAiReport.mockImplementation(async (_path: string, _body: unknown, opts: any) => {
+        generateFitnessPlanDay.mockImplementation(async (_userInfo: unknown, dayNumber: number) => {
             calls += 1;
             if (calls === 1) throw new Error("AI service exploded");
-            return { day: { dayNumber: opts.query.dayNumber, day: "Full Body & Core", status: "Pending", date: new Date() } };
+            return { day: { dayNumber, day: "Full Body & Core", status: "Pending", date: new Date() } };
         });
 
         await expect(resumeIncompletePlans()).resolves.not.toThrow();

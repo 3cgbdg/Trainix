@@ -14,10 +14,14 @@ import { parseAiReport, AiServiceError } from "../utils/aiClient";
 // boundary (auth, validation, persistence, error mapping) with the transport stubbed.
 jest.mock("../utils/aiClient", () => {
     const actual = jest.requireActual("../utils/aiClient");
+    return { ...actual, requestPhotoAnalysis: jest.fn() };
+});
+jest.mock("../utils/aiGeneration", () => {
+    const actual = jest.requireActual("../utils/aiGeneration");
     return {
         ...actual,
-        requestAiReport: jest.fn(),
-        requestPhotoAnalysis: jest.fn(),
+        generateNutritionPlanDay: jest.fn(),
+        generateFitnessDayExercises: jest.fn(),
     };
 });
 jest.mock("../utils/images", () => ({
@@ -25,7 +29,8 @@ jest.mock("../utils/images", () => ({
     s3ImageUploadingMeal: jest.fn(async () => "https://cdn.test/meal.jpg"),
 }));
 
-const { requestAiReport, requestPhotoAnalysis } = jest.requireMock("../utils/aiClient");
+const { requestPhotoAnalysis } = jest.requireMock("../utils/aiClient");
+const { generateNutritionPlanDay, generateFitnessDayExercises } = jest.requireMock("../utils/aiGeneration");
 
 const METRICS = {
     height: 180, weight: 80, waistToHipRatio: 0.9, shoulderToWaistRatio: 1.4,
@@ -152,11 +157,11 @@ describe("AI proxy endpoints", () => {
         it("rejects an out-of-range day number before calling the AI service", async () => {
             const res = await auth(request(app).post("/api/nutrition-plan/nutrition-plans/generate?dayNumber=99"));
             expect(res.status).toBe(400);
-            expect(requestAiReport).not.toHaveBeenCalled();
+            expect(generateNutritionPlanDay).not.toHaveBeenCalled();
         });
 
         it("generates and persists a day scoped to the caller", async () => {
-            requestAiReport.mockResolvedValue(DAY);
+            generateNutritionPlanDay.mockResolvedValue(DAY);
             const res = await auth(request(app).post("/api/nutrition-plan/nutrition-plans/generate?dayNumber=1"));
 
             expect(res.status).toBe(201);
@@ -166,7 +171,7 @@ describe("AI proxy endpoints", () => {
         });
 
         it("502s when the AI service returns an unusable plan", async () => {
-            requestAiReport.mockResolvedValue({ nonsense: true });
+            generateNutritionPlanDay.mockResolvedValue({ nonsense: true });
             const res = await auth(request(app).post("/api/nutrition-plan/nutrition-plans/generate?dayNumber=2"));
             expect(res.status).toBe(502);
         });
@@ -202,7 +207,7 @@ describe("AI proxy endpoints", () => {
         it("replaces the day in place and keeps its original date/dayNumber", async () => {
             const plan = await seedPlan();
             const originalDate = plan.report.plan.days[0].date;
-            requestAiReport.mockResolvedValue({
+            generateFitnessDayExercises.mockResolvedValue({
                 day: {
                     dayNumber: 99, day: "Regenerated", status: "Pending",
                     date: "1999-01-01",
@@ -223,7 +228,7 @@ describe("AI proxy endpoints", () => {
 
         it("502s when the AI service returns a day with no exercises array", async () => {
             await seedPlan();
-            requestAiReport.mockResolvedValue({ day: { dayNumber: 1 } });
+            generateFitnessDayExercises.mockResolvedValue({ day: { dayNumber: 1 } });
             const res = await auth(request(app).post("/api/fitness-plan/workouts/0/generate"));
             expect(res.status).toBe(502);
         });
