@@ -6,7 +6,6 @@ import measurementReducer from "../../src/redux/measurementSlice"
 import authReducer from "../../src/redux/authSlice"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import AiAnalysysPage from "@/app/(main)/ai-analysis/page"
-import { reportExtractFunc } from "@/utils/report";
 import { QueryClient, QueryClientProvider, } from "@tanstack/react-query";
 
 const mockMutate1 = jest.fn();
@@ -66,11 +65,6 @@ jest.mock("@tanstack/react-query", () => ({
 }));
 
 
-jest.mock("@/utils/report", () => ({
-    reportExtractFunc: jest.fn()
-}
-))
-
 jest.mock("@/api/axiosInstance", () => ({
     api: {
         get: (...args: any[]) => mockApiGet(...args),
@@ -102,10 +96,20 @@ const renderWithReduxState = (ui: React.ReactNode, preloadedState = {}) => {
     }
 }
 
-describe("testing ai-analysis", () => {
-    // mocking func for parsing aiData
-    const mockedReportExtractFunc = reportExtractFunc as jest.Mock;
+const MEASUREMENT_FIXTURE = {
+    metrics: {
+        height: 188,
+        weight: 76,
+        waistToHipRatio: 0.82,
+        shoulderToWaistRatio: 1.42,
+        bodyFatPercent: 18,
+        muscleMass: 34,
+        leanBodyMass: 62,
+    },
+    imageUrl: "url",
+};
 
+describe("testing ai-analysis", () => {
     beforeEach(() => {
         mockApiGet.mockImplementation((url: string) => {
             if (url === "/api/auth/socket-token") return Promise.resolve({ data: { token: "socket-token" } });
@@ -153,19 +157,6 @@ describe("testing ai-analysis", () => {
             error: null,
         });
 
-        mockedReportExtractFunc.mockResolvedValue({
-            metrics: {
-                height: 188,
-                weight: 76,
-                waistToHipRatio: 0.82,
-                shoulderToWaistRatio: 1.42,
-                bodyFatPercent: 18,
-                muscleMass: 34,
-                leanBodyMass: 62,
-            },
-            imageUrl: "url",
-        });
-
         // mocking file dragging
         const file = new File(["dummy content"], "photo.png", { type: "image/png" });
         const input = screen.getByLabelText("input");
@@ -189,8 +180,19 @@ describe("testing ai-analysis", () => {
             expect(mockMutate1).toHaveBeenCalledTimes(1);
         })
         const mutationOptions = mockMutate1.mock.calls[0][1];
+
+        // the photo is uploaded to our own backend, which validates it and runs the
+        // analysis server-side - the browser never touches the AI service directly
+        await act(async () => {
+            await mutationOptions.mutationFn(file);
+        });
+        const [analyzeUrl, analyzeBody] = mockApiPost.mock.calls.find(([url]: [string]) => url === "/api/measurement/analyze") ?? [];
+        expect(analyzeUrl).toBe("/api/measurement/analyze");
+        expect(analyzeBody).toBeInstanceOf(FormData);
+
+        // the backend returns the already-persisted measurement
         act(() => {
-            void mutationOptions.onSuccess({ AIreport: "{}" });
+            void mutationOptions.onSuccess({ measurement: MEASUREMENT_FIXTURE });
         });
 
         // measurement gets stored right away, before generation finishes

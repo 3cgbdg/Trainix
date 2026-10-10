@@ -21,6 +21,18 @@ jest.mock("../utils/images", () => {
 import axios from "axios";
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+// plan/nutrition generation is an in-process LLM call now rather than an HTTP
+// request to the Python service, so it is stubbed at the generation layer
+jest.mock("../utils/aiGeneration", () => {
+    const actual = jest.requireActual("../utils/aiGeneration");
+    return {
+        ...actual,
+        generateFitnessDayExercises: jest.fn(),
+        generateNutritionPlanDay: jest.fn(),
+        generateFitnessPlanDay: jest.fn(),
+    };
+});
+const { generateFitnessDayExercises, generateNutritionPlanDay } = jest.requireMock("../utils/aiGeneration");
 import { io, userSocketMap } from '../socket';
 import FitnessPlan from '../models/FitnessPlan';
 import Measurement from '../models/Measurement';
@@ -282,32 +294,31 @@ describe("cron inner-logic funcs", () => {
                 }
             }
         } as any;
-        mockedAxios.post.mockResolvedValue({
-            data: {
-                AIreport: `{"day":{
-  "day": "second",
-  "dayNumber": 2,
-  "calories": 2200,
-  "status": "Pending",
-  "date": "2025-09-01",
-  "exercises": [
-    {
-      "imageUrl": "https://example.com/pushups.png",
-      "status": "incompleted",
-      "calories": 120,
-      "title": "Push Ups",
-      "repeats": 20,
-      "time": null,
-      "instruction": "Keep your back straight, lower chest to the floor, push back up.",
-      "advices": "Do it slowly for better control."
-    }
-  ]}
-    }`}
-        })
+        // day generation is an in-process LLM call now, not an HTTP hop to Python
+        generateFitnessDayExercises.mockResolvedValue({
+            day: {
+                day: "second",
+                dayNumber: 2,
+                calories: 2200,
+                status: "Pending",
+                exercises: [
+                    {
+                        imageUrl: "https://example.com/pushups.png",
+                        status: "incompleted",
+                        calories: 120,
+                        title: "Push Ups",
+                        repeats: 20,
+                        time: null,
+                        instruction: "Keep your back straight, lower chest to the floor, push back up.",
+                        advices: "Do it slowly for better control.",
+                    },
+                ],
+            },
+        });
         const plans = await FitnessPlan.find({});
         await generateNewDayFitnessContent();
         // checking if new plan has been  added
-        expect(mockedAxios.post).toHaveBeenCalled()
+        expect(generateFitnessDayExercises).toHaveBeenCalled()
         const updatedPlan = await FitnessPlan.findById(plans[0]._id);
         expect(updatedPlan!.report.plan.days[1].exercises).toBeDefined();
         global.Date = realDate;

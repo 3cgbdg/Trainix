@@ -1,7 +1,7 @@
 
 import nodeCron from "node-cron";
 
-import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder, generateNewDayNutritionContent, checkingStatusOfPlan } from "./cronsLogicFuncs";
+import { checkMissedDay, createNewMeasurement, generateNewDayFitnessContent, metricsReminder, regularReminder, workoutReminder, generateNewDayNutritionContent, checkingStatusOfPlan, resumeIncompletePlans } from "./cronsLogicFuncs";
 
 const runningJobs = new Set<string>();
 
@@ -29,6 +29,7 @@ const jobs: Record<string, () => Promise<void>> = {
     generateNewDayFitnessContent: runExclusive("generateNewDayFitnessContent", generateNewDayFitnessContent),
     generateNewDayNutritionContent: runExclusive("generateNewDayNutritionContent", generateNewDayNutritionContent),
     checkingStatusOfPlan: runExclusive("checkingStatusOfPlan", checkingStatusOfPlan),
+    resumeIncompletePlans: runExclusive("resumeIncompletePlans", resumeIncompletePlans),
 };
 
 export const initCron = () => {
@@ -49,6 +50,11 @@ export const initCron = () => {
 
     // generating each day full info for nutrition of the day
     nodeCron.schedule("*/15 * * * * *", jobs.checkingStatusOfPlan);
+
+    // finishes plan generations that died partway through (process restart, dyno
+    // spin-down); every 10 minutes so a stalled plan recovers without the user
+    // having to notice and retry
+    nodeCron.schedule("*/10 * * * *", jobs.resumeIncompletePlans);
 }
 
 // Render's free tier suspends the dyno after ~15 minutes of no HTTP traffic, and

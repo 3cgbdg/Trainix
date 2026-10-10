@@ -1,6 +1,6 @@
 import express from "express"
 import rateLimit from "express-rate-limit";
-import { addFitnessDay, completeWorkout, deleteFitnessPlan, generateFitnessPlan, getAnalysis, getNumbers, getWorkout, getWorkouts } from "../controllers/fitnessPlanController";
+import { addFitnessDay, completeWorkout, deleteFitnessPlan, generateFitnessDay, generateFitnessPlan, getAnalysis, getNumbers, getWorkout, getWorkouts } from "../controllers/fitnessPlanController";
 
 const fitnessPlanRoute = express.Router();
 
@@ -19,6 +19,15 @@ const generatePlanLimiter = rateLimit({
     message: { message: "Too many plan generation requests. Please try again later." },
 });
 
+// regenerating one day is a single AI call rather than 28, so it gets a looser cap
+const generateDayLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 15,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many workout generation requests. Please try again later." },
+});
+
 fitnessPlanRoute.get("/reports/numbers", getNumbers);
 fitnessPlanRoute.get("/workouts", getWorkouts);
 fitnessPlanRoute.post("/generate", generatePlanLimiter, generateFitnessPlan);
@@ -26,6 +35,7 @@ fitnessPlanRoute.post("/days", addFitnessDay);
 fitnessPlanRoute.get("/analysis", getAnalysis);
 fitnessPlanRoute.delete("/plan", deleteFitnessPlan);
 fitnessPlanRoute.post("/workouts/:day/completed", completeWorkout);
+fitnessPlanRoute.post("/workouts/:day/generate", generateDayLimiter, generateFitnessDay);
 fitnessPlanRoute.get("/workouts/:day", getWorkout);
 
 export default fitnessPlanRoute;

@@ -7,10 +7,8 @@ import { Spinner } from '@/components/ui/Feedback';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { getMeasurement } from '@/redux/measurementSlice';
 import { getWorkouts } from '@/redux/workoutsSlice';
-import { reportExtractFunc } from '@/utils/report';
 import { isMeasurementPayload, isWorkoutsPayload } from '@/lib/apiGuards';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { useCallback, useState } from 'react';
 import { io } from 'socket.io-client';
 
@@ -71,37 +69,21 @@ const Page = () => {
         });
     }, []);
 
-    // request func fro sending photo to python api
+    // Uploads to our own backend, which validates the file, runs it through the AI
+    // service, and saves the resulting measurement. The photo no longer goes
+    // cross-origin to the AI service straight from the browser.
     const sendPhoto = useCallback(async (file: File) => {
+        if (!user) return null;
         const formData = new FormData();
-        if (!user) {
-            return null;
-        }
         formData.append("image", file);
-        const userInfo = {
-            height: user.metrics.height,
-            weight: user.metrics.weight,
-            targetWeight: user.targetWeight,
-            primaryFitnessGoal: user.primaryFitnessGoal,
-            fitnessLevel: user.fitnessLevel,
-            gender: user.gender,
-        }
-
-        formData.append("userInfo", JSON.stringify(userInfo));
-        const pythonApiUrl = process.env.NEXT_PUBLIC_PYTHON_API_URL;
-        if (!pythonApiUrl) throw new Error("Photo analysis service is not configured");
-        const res = await axios.post(`${pythonApiUrl}/api/photo-analyze`, formData, {
-            withCredentials: true,
-            headers: { "Content-Type": "multipart/form-data" }
-        });
-
+        const res = await api.post("/api/measurement/analyze", formData);
         return res.data;
     }, [user]);
 
     const mutation1 = useMutation({
         mutationFn: sendPhoto,
         onSuccess: async (data) => {
-            const measurement = await reportExtractFunc(data, "measurement");
+            const measurement = data?.measurement;
             if (!isMeasurementPayload(measurement)) throw new Error("The analysis service returned invalid body metrics.");
             dispatch(getMeasurement(measurement));
             setProgress({ day: 0, total: 28 });

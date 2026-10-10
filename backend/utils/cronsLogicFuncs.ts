@@ -5,9 +5,10 @@ import FitnessPlan, { IExercise } from "../models/FitnessPlan";
 import User from "../models/User";
 import Measurement from "../models/Measurement";
 import { ObjectId } from "mongoose";
-import axios from "axios";
 import ExerciseImage from "../models/ExerciseImage";
 import { s3ImageUploadingExercise, s3ImageUploadingMeal } from "./images";
+import { generateFitnessDayExercises, generateNutritionPlanDay, toLlmUserInfo } from "./aiGeneration";
+import { isGenerationInFlight, runFitnessPlanGeneration, TOTAL_DAYS } from "./fitnessPlanGeneration";
 import MealImage from "../models/MealImage";
 
 export const regularReminder = async () => {
@@ -234,6 +235,42 @@ export const checkMissedDay = async () => {
 
 }
 
+// Plan generation is a background job that makes ~28 sequential AI calls. If the
+// process is restarted or the free-tier dyno spins down partway through, the run
+// dies silently and the user is left with a permanently half-built plan - nothing
+// else in the system ever completes it. This finds those and resumes them
+// (runFitnessPlanGeneration skips days that already exist, so a resume only pays
+// for what's missing).
+const STALLED_GENERATION_AFTER_MS = 10 * 60 * 1000;
+
+export const resumeIncompletePlans = async () => {
+    try {
+        const stalledBefore = new Date(Date.now() - STALLED_GENERATION_AFTER_MS);
+        let lastId = null;
+        const batchSize = 100;
+        while (true) {
+            const query: any = { createdAt: { $lt: stalledBefore } };
+            if (lastId) query._id = { $gt: lastId };
+            const plans = await FitnessPlan.find(query).sort({ _id: 1 }).limit(batchSize);
+            if (plans.length == 0) break;
+            lastId = plans[plans.length - 1]._id;
+            for (const plan of plans) {
+                const dayCount = plan.report?.plan?.days?.length ?? 0;
+                if (dayCount === 0 || dayCount >= TOTAL_DAYS) continue;
+                const userId = String(plan.userId);
+                // don't race a run that's already going
+                if (isGenerationInFlight(userId)) continue;
+                console.warn(`Resuming stalled plan generation for user ${userId} (${dayCount}/${TOTAL_DAYS} days)`);
+                // awaited so one batch doesn't fan out into many concurrent
+                // multi-minute AI jobs at once
+                await runFitnessPlanGeneration(userId);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 export const checkingStatusOfPlan = async () => {
     try {
         let lastId = null;
@@ -294,33 +331,11 @@ export const generateNewDayFitnessContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/fitnessPlan/day`, {
-                        userInfo: {
-                            height: user?.metrics.height,
-                            weight: user?.metrics.weight,
-                            targetWeight: user?.targetWeight,
-                            primaryFitnessGoal: user?.primaryFitnessGoal,
-                            fitnessLevel: user?.fitnessLevel,
-                            gender: user?.gender,
-                            waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                            shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                            bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                            muscleMass: measurements?.metrics.muscleMass,
-                            leanBodyMass: measurements?.metrics.leanBodyMass,
-                        },
-                        day: {
-                            dayNumber: day.dayNumber,
-                            day: day.day,
-                            date: day.date
-                        }
-
-                    }
+                    const info = await generateFitnessDayExercises(
+                        toLlmUserInfo(user, measurements),
+                        { dayNumber: day.dayNumber, day: day.day },
                     );
-                    const data = res.data;
-                    // validating info
-                    const regex = /```json\s([\s\S]+?)```/;
-                    const match = data.AIreport.match(regex);
-                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
+                    if (!info?.day?.exercises) throw new Error("The AI returned a day with no exercises");
                     await Promise.all(
                         info.day.exercises!.map(async (exercise: IExercise) => {
 
@@ -340,8 +355,12 @@ export const generateNewDayFitnessContent = async () => {
                         })
 
                     )
-                    info.day.date = new Date(info.day.date);
-                    plan.report.plan.days[info.day.dayNumber - 1] = info.day;
+                    // the model isn't authoritative about where this day sits in the
+                    // plan - keep the slot's own date/dayNumber
+                    info.day.date = day.date;
+                    info.day.dayNumber = day.dayNumber;
+                    const slot = plan.report.plan.days.findIndex(d => d.dayNumber === day.dayNumber);
+                    plan.report.plan.days[slot === -1 ? day.dayNumber - 1 : slot] = info.day;
                     plan.markModified("report.plan.days");
                     await plan.save();
                 } catch (err) {
@@ -385,27 +404,10 @@ export const generateNewDayNutritionContent = async () => {
                         Measurement.findOne({ userId: plan.userId }).sort({ createdAt: -1 }),
                     ]);
                     // requesting ai generating day
-                    const res = await axios.post(`${process.env.PYTHON_API_URL}/api/nutrition?dayNumber=${dayNumber + 1}`, {
-
-                        height: user?.metrics.height,
-                        weight: user?.metrics.weight,
-                        targetWeight: user?.targetWeight,
-                        primaryFitnessGoal: user?.primaryFitnessGoal,
-                        fitnessLevel: user?.fitnessLevel,
-                        gender: user?.gender,
-                        waistToHipRatio: measurements?.metrics.waistToHipRatio,
-                        shoulderToWaistRatio: measurements?.metrics.shoulderToWaistRatio,
-                        bodyFatPercent: measurements?.metrics.bodyFatPercent,
-                        muscleMass: measurements?.metrics.muscleMass,
-                        leanBodyMass: measurements?.metrics.leanBodyMass,
-
+                    const info = await generateNutritionPlanDay(toLlmUserInfo(user, measurements), dayNumber + 1);
+                    if (!Array.isArray(info?.meals) || !info?.dailyGoals) {
+                        throw new Error("The AI returned an invalid nutrition day");
                     }
-                    );
-                    const data = res.data;
-                    // validating info
-                    const regex = /```json\s([\s\S]+?)```/;
-                    const match = data.AIreport.match(regex);
-                    const info = match ? JSON.parse(match[1]) : JSON.parse(data.AIreport);
                     await Promise.all(
                         info.meals.map(async (meal: IMeal) => {
                             const image = await MealImage.findOne({ name: meal.mealTitle });

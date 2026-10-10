@@ -3,48 +3,104 @@ import { AuthRequest } from "../middlewares/authMiddleware";
 import NutritionPlan, { IDayPlanNutrition } from "../models/NutritionPlan";
 import { s3ImageUploadingMeal } from "../utils/images";
 import MealImage from "../models/MealImage";
+import Measurement from "../models/Measurement";
+import User from "../models/User";
+import { AiServiceError } from "../utils/aiClient";
+import { generateNutritionPlanDay, toLlmUserInfo } from "../utils/aiGeneration";
+
+// attaches a cached (or freshly uploaded) image to every meal, then appends the day
+// to the user's plan - creating the plan if this is their first day. Shared by the
+// client-supplied path (createNutritionPlan) and the server-generated one
+// (generateNutritionDay) so both produce identically shaped days.
+const persistNutritionDay = async (userId: string, data: IDayPlanNutrition): Promise<{ day: IDayPlanNutrition, created: boolean }> => {
+    const dayDate = new Date();
+    dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
+    let nutritionPlan = await NutritionPlan.findOne({ userId });
+    // parallel for optimized using in adding images to each meal
+    await Promise.all(
+        data.meals.map(async (meal) => {
+            const image = await MealImage.findOne({ name: meal.mealTitle });
+            if (image) {
+                meal.imageUrl = image.imageUrl;
+            } else {
+                const url = await s3ImageUploadingMeal(meal);
+                await MealImage.findOneAndUpdate(
+                    { name: meal.mealTitle },
+                    { $setOnInsert: { imageUrl: url } },
+                    { new: true, upsert: true }
+                );
+                meal.imageUrl = url;
+            }
+
+        }))
+    // creating data with a real date of that day
+    const obj: IDayPlanNutrition = { ...data, date: dayDate };
+    // if plan exists just pushing
+    if (nutritionPlan) {
+        nutritionPlan.days.push(obj);
+        await nutritionPlan.save();
+        return { day: obj, created: false };
+    }
+    // otherwise creating plan with this item
+    await NutritionPlan.create({ userId, "days": [obj], createdAt: new Date() });
+    return { day: obj, created: true };
+}
 
 // func for looping use - adding day to nutrition plan -- creating plan
 export const createNutritionPlan = async (req: Request, res: Response): Promise<void> => {
-    const { data } = req.body as { data: IDayPlanNutrition }; 
+    const { data } = req.body as { data: IDayPlanNutrition };
     try {
-        const dayDate = new Date();
-        let obj: IDayPlanNutrition;
-        dayDate.setDate(dayDate.getDate() + data.dayNumber - 1);
-        let nutritionPlan = await NutritionPlan.findOne({ userId: (req as AuthRequest).userId });
-        // parallel for optimized using in adding images to each meal
-        await Promise.all(
-            data.meals.map(async (meal) => {
-                const image = await MealImage.findOne({ name: meal.mealTitle });
-                if (image) {
-                    meal.imageUrl = image.imageUrl;
-                } else {
-                    const url = await s3ImageUploadingMeal(meal);
-                    await MealImage.findOneAndUpdate(
-                        { name: meal.mealTitle },
-                        { $setOnInsert: { imageUrl: url } },
-                        { new: true, upsert: true }
-                    );
-                    meal.imageUrl = url;
-                }
-
-            }))
-            // creating data with a real date of that day
-        obj = { ...data, date: dayDate };
-        // if plan exists just pushing
-        if (nutritionPlan) {
-            nutritionPlan.days.push(obj);
-            await nutritionPlan.save();
-            res.status(200).json({ message: "Successfully added day!", day: obj });
+        const { day, created } = await persistNutritionDay((req as AuthRequest).userId, data);
+        if (created) {
+            res.status(201).json({ message: "Nutrition plan created!", day });
             return;
         }
-        // otherwise creating plan with this item
-        else {
-            nutritionPlan = await NutritionPlan.create({ userId: (req as AuthRequest).userId, "days": [obj], createdAt: new Date() });
-            res.status(201).json({ message: "Nutrition plan created!",day:obj });
-            return;
-        }
+        res.status(200).json({ message: "Successfully added day!", day });
+        return;
     } catch (err) {
+        res.status(500).json({ message: "Server error!" });
+        return;
+    }
+}
+
+// Generates a nutrition day server-side. Previously the browser called the Python
+// service itself, parsed the model's fenced JSON on the client, then POSTed the
+// result back here to be saved - which meant two round trips, the AI service being
+// publicly reachable, and the client being trusted to send back whatever it liked.
+export const generateNutritionDay = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = (req as AuthRequest).userId;
+        const requestedDay = Number(req.query.dayNumber ?? 1);
+        if (!Number.isInteger(requestedDay) || requestedDay < 1 || requestedDay > 28) {
+            res.status(400).json({ message: "A valid day number is required." });
+            return;
+        }
+        const [user, measurement] = await Promise.all([
+            User.findById(userId).lean(),
+            Measurement.findOne({ userId }).sort({ createdAt: -1 }).lean(),
+        ]);
+        if (!user) {
+            res.status(404).json({ message: "User was not found!" });
+            return;
+        }
+
+        const info = await generateNutritionPlanDay(toLlmUserInfo(user, measurement), requestedDay);
+
+        if (!Array.isArray(info?.meals) || !info?.dailyGoals) {
+            res.status(502).json({ message: "The nutrition service returned an invalid meal plan." });
+            return;
+        }
+        // the model doesn't know the plan's real calendar - persistNutritionDay
+        // assigns the actual date from dayNumber
+        const { day, created } = await persistNutritionDay(userId, { ...info, dayNumber: requestedDay });
+        res.status(created ? 201 : 200).json({ message: "Successfully added day!", day });
+        return;
+    } catch (err) {
+        if (err instanceof AiServiceError) {
+            res.status(502).json({ message: err.message });
+            return;
+        }
+        console.error("Nutrition day generation failed", err);
         res.status(500).json({ message: "Server error!" });
         return;
     }
